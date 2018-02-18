@@ -1,0 +1,62 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[hungarian]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{a4paper,
+		     tmargin = 30mm, 
+		     lmargin = 30mm,
+		     rmargin = 30mm,
+		     bmargin = 30mm}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{color}
+\usepackage{setspace}
+\usepackage{amsmath,amssymb}
+\usepackage{float}
+
+\begin{document}
+
+\begin{titlepage}
+% Template for future notes.
+
+	\centering
+	
+	\includegraphics[width=0.66\textwidth]{elte.jpg}\par\vspace{1cm}
+	{\scshape\LARGE ELTE TTK \par}
+	{\scshape\large Fizika szak \par}
+	\vspace{1cm}
+	
+	{\scshape\LARGE Szakdolgozat \par}
+	\vspace{1cm}
+	
+	{\scshape\Large Koaleszcencia modell kidolgozása transzportmodellekhez\par}
+	\vspace{0.2cm}
+	{\Large\itshape Olar Alex\par}
+	\vspace{2cm}
+	
+	témavezető\par
+	\vspace{0.3cm}
+	{\Large Wolf György}
+
+	\vfill
+
+	{\large 2018 \par}
+\end{titlepage}
+
+\begin{abstract}
+\par Egy nehézion ütközésben résztvevő alkotó elemek száma néhány ezerig terjed legfeljebb, így a kidolgozott néhány-test elméletek, mint a három-test problémára kidolgozott Fagyejev-egyenletek, nem alkalmazhatóak, de az alkotóelemek alacsony száma miatt még a statisztikus fizikai modellek sem használhatóak, ráadásul nem is egyensúlyi reakciókról van szó az esetek többségében.
+\par A rendelkezésre álló számítási kapacitás lehetővé tette, egy-egy ilyen nemegyensúlyi reakció teljes vizsgálatát, mikroszkópikus transzport-modellek segítségével. Egy ilyen modell a Boltzmann-Uehling-Uhlenbeck elmélet (BUU), ami fázistérben leírja adott részecskék között az ütközéseket és figyelembe veszi az azok között ható kölcsönhatást, egy időfüggő, átlagtér potenciállal. Korai modellek a részecskéket szabadnak tekintették, amikor azok nem vettek részt ütközésekben.
+\par Az én célom, hogy egy, a BUU-ra épülő szimulációhoz kidolgozzak egy olyan programot, ami a kölcsönható részecskéket, esetemben főként nukleonokat, klaszterezi, azaz csomósodásokat keres különböző távolság definíciók mellett (térben, impulzustérben, stb.). Ennek fontos szerepe lehet a detektor válasz meghatározásakor, 
+\end{abstract}
+
+\vfill
+
+\tableofcontents
+
+\newpage
+%%%%%%%%%%%%%%%%%%%%%
+
+
+\end{document}
