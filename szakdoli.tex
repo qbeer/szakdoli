@@ -15,6 +15,10 @@
 \usepackage{setspace}
 \usepackage{amsmath,amssymb}
 \usepackage{float}
+\usepackage{indentfirst}
+
+\renewcommand\thesection{\Roman{section}}
+\renewcommand\thesubsection{\thesection.\arabic{subsection}}
 
 \begin{document}
 
@@ -58,6 +62,45 @@
 \newpage
 
 \section{Elméleti áttekintés}
-\par 
 
+\subsection{Bevezető}
+
+\par Egy nehézion ütközés erősen nem egyensúlyi termodinamikai rendszer. A statisztikus fizikában $10^{23}$ részecskére jól kidolgozott, statisztikus modell áll rendelkezésünkre, továbbá jól tudjuk magyarázni a néhányrészecske rendszereket is, azonban például egy $Au+Au$ ütközésben a részecskék száma még és már nem kezelhető a korábbi modellekkel.
+
+\par Kezdetben a folyamat leírására termodinamikai modelleket állítottak fel, amelyekben különböző hipotéziseket tettek fel. Ezek közé tartozott, hogy a részecskék gyorsan termalizálódnak és kialakul egy globális egyensúly, és már egyensúlyi állapotukban detektáljuk őket. Eztután hidrodinamikai modellekhez folyamodtak amelyekben már nem volt globális, csak lokális termodinamikai egyensúly.
+
+\par Azonban egy prominensebb ága a nehézion ütközések leírásának a nemegyensúlyi, mikroszkopikus transzport-modellek. Először kaszkád elméleteket dolgoztak ki, amelyben a részecskék között csak ütközéskor hatottak kölcsön, később azonban hosszú hatótávolságú erőket és nukleáris potenciálokat is figyelembe vettek.
+
+\section{Transzport egyenletek}
+
+\par A nehézion ütközések dinmaikáját transzport egyenletek segítségével lehet vizsgálni. Ennek két fő irányzata van, az egyik a Boltzmann-modellre épülő hidrodinamikai megközelítés, ami szerint 
+
+\begin{equation}
+	N = \int d^{3}\vec{p} \int d^{3}\vec{r} \quad f(\vec{r}, \vec{p}, t)
+\end{equation}
+
+ahol N a részecskék száma, míg $f(\vec{r}, \vec{p}, t)$ a fázistérben vett sűrűség függvény. Mivel a fázistérfogatelem ($d^{3}\vec{p}d^{3}\vec{r}$) állandó, azonban ütközés során a részecske sűrűség változik, így az csak a fázissűrűségen keresztül változhat. Így tehát kapjuk a Boltzmann-egyenletet
+
+\begin{equation}
+	\frac{df}{dt} = \frac{\partial f}{\partial t} + \frac{\partial f}{\partial \vec{p}}\frac{d\vec{p}}{dt} + \frac{\partial f}{\partial \vec{r}}\frac{d\vec{r}}{dt} = I_{coll}
+\end{equation}
+
+\par Ezt pedig a szokott alakra hozva, bevezethetünk egy $I_{coll}$ ütközési integrált, amire különböző hipotéziseket tehetünk majd fel.
+
+\begin{equation}
+	\frac{\partial f}{\partial t} + \frac{\partial f}{\partial \vec{p}}\vec{F} + \vec{\nabla}f\frac{\vec{p}}{m} = I_{coll}
+\end{equation}
+
+\par Ez még természetesen csak az alapvető fizikai modell, a transzport-modellhez az úgynevezett Boltzmann-Uehling-Uhlenbeck egyenleteket használják. Tehát az előbbi egyenletbe bevezetnek egy impulzusfüggő átlagtéret $U(\vec{r}, \vec{p})$. Alacsony energiákon a rugalmatlan ütközések elhanyagolhatóak, a rendszer csak nukleonokból áll. Így
+
+\begin{equation}
+	\frac{\partial f}{\partial t} + \frac{\partial f}{\partial \vec{p}}(-\nabla_{\vec{r}}U) + \vec{\nabla}f\frac{\vec{p}}{m} = I_{coll}
+\end{equation}
+	
+\par Ahol tömeghéjon lévő kvázi-részecske közelítéssel élve az egyenlet átfogalmazható
+
+\begin{gather}
+	m^{*}(\vec{r}, \vec{p}) = m_{N} + U(\vec{r}, \vec{p}) \quad \quad E^{2} = m^{* 2} + p^{2}
+\end{gather}
+	
 \end{document}
