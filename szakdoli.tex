@@ -79,7 +79,7 @@
 	N = \int d^{3}\vec{p} \int d^{3}\vec{r} \quad f(\vec{r}, \vec{p}, t)
 \end{equation}
 
-ahol N a részecskék száma, míg $f(\vec{r}, \vec{p}, t)$ a fázistérben vett sűrűség függvény. Mivel a fázistérfogatelem ($d^{3}\vec{p}d^{3}\vec{r}$) állandó, azonban ütközés során a részecske sűrűség változik, így az csak a fázissűrűségen keresztül változhat. Így tehát kapjuk a Boltzmann-egyenletet
+ahol N a részecskék száma, míg $f(\vec{r}, \vec{p}, t)$ a fázistérben vett sűrűség függvény. Mivel a fázistérfogatelem ( $d^{3}\vec{p}\cdot d^{3}\vec{r}$ ) állandó, azonban ütközés során a részecske sűrűség változik, így az csak a fázissűrűségen keresztül változhat. Így tehát kapjuk a Boltzmann-egyenletet
 
 \begin{equation}
 	\frac{df}{dt} = \frac{\partial f}{\partial t} + \frac{\partial f}{\partial \vec{p}}\frac{d\vec{p}}{dt} + \frac{\partial f}{\partial \vec{r}}\frac{d\vec{r}}{dt} = I_{coll}
@@ -91,16 +91,43 @@ ahol N a részecskék száma, míg $f(\vec{r}, \vec{p}, t)$ a fázistérben vett
 	\frac{\partial f}{\partial t} + \frac{\partial f}{\partial \vec{p}}\vec{F} + \vec{\nabla}f\frac{\vec{p}}{m} = I_{coll}
 \end{equation}
 
-\par Ez még természetesen csak az alapvető fizikai modell, a transzport-modellhez az úgynevezett Boltzmann-Uehling-Uhlenbeck egyenleteket használják. Tehát az előbbi egyenletbe bevezetnek egy impulzusfüggő átlagtéret $U(\vec{r}, \vec{p})$. Alacsony energiákon a rugalmatlan ütközések elhanyagolhatóak, a rendszer csak nukleonokból áll. Így
-
-\begin{equation}
-	\frac{\partial f}{\partial t} + \frac{\partial f}{\partial \vec{p}}(-\nabla_{\vec{r}}U) + \vec{\nabla}f\frac{\vec{p}}{m} = I_{coll}
-\end{equation}
+\par Ez még természetesen csak az alapvető fizikai modell, a transzport-modellhez az úgynevezett Boltzmann-Uehling-Uhlenbeck egyenleteket használják. Tehát az előbbi egyenletbe bevezetnek egy impulzusfüggő átlagtéret $U(\vec{r}, \vec{p})$. Alacsony energiákon a rugalmatlan ütközések elhanyagolhatóak, a rendszer csak nukleonokból áll. 
 	
-\par Ahol tömeghéjon lévő kvázi-részecske közelítéssel élve az egyenlet átfogalmazható
-
 \begin{gather}
-	m^{*}(\vec{r}, \vec{p}) = m_{N} + U(\vec{r}, \vec{p}) \quad \quad E^{2} = m^{* 2} + p^{2}
+	m^{*}(\vec{r}, \vec{p}) = m_{N} + U(\vec{r}, \vec{p}) \quad \quad E^{2} = m^{* 2} + p^{2} \\ 
+	\frac{\partial H}{\partial q_{i}} = -\frac{dp_{i}}{dt} \quad \quad \frac{\partial H}{\partial p_{i}} =\frac{dq_{i}}{dt}
 \end{gather}
 	
+\par Ahol tömeghéjon lévő kvázi-részecske közelítéssel élve az egyenlet átfogalmazható, felhasználva a Hamilton-egyenleteket:
+
+\begin{equation} \label{BUU-eq:1}
+	\frac{\partial f}{\partial t} + \frac{\partial f}{\partial \vec{p}}\Big(-\frac{m^{*}}{E}\nabla_{\vec{r}}U\Big) + \frac{\partial f}{\partial \vec{r}}\Big(\frac{\vec{p}}{E}+\frac{m^{*}}{E}\nabla_{\vec{p}}U\Big) = I_{coll}
+\end{equation}
+
+\par Az ütközési integrál ( $I_{coll}$ ) kvantumos jelenségek közül csak a Pauli-elvet veszi figyelembe, így jelentős részben klasszikus fizikán alapszik. Az így kapott egyenletet \eqref{BUU-eq:1} Boltzmann-Uehling-Uhlenbeck-egyenletnek nevezik.
+
+\subsection{ Numerikus megoldás}
+
+\par A témavezetőm szimulációs kódja a szokásos módszerrel áll neki ennek az integro-differenciál egyenlet megoldásának. A folytonos eloszlásfüggvény helyettesíthető véges számú pontrészecskékkel, matematikailag Dirac-delta disztribúciókkal. A fluktuációk simítása érdekében $N$ párhuzamos eseményt vizsgálva az eloszlás függvény $A$ nukleonra
+
+\begin{equation}
+	f(\vec{r}, \vec{p}, t) = \frac{1}{N}\sum_{i}^{N \times A} \delta(\vec{r} - \vec{r}_{i}(t))\delta(\vec{p} - \vec{p}_{i}(t))
+\end{equation}
+
+\par Ezt bevezetve látható, hogy a modell leegyszerűsödött pontrészecskék mozgására. A mozgásegyenletek a Hamilton-egyenletekből kaphatóak, amelyeket a \eqref{BUU-eq:1}-ben is felhasználtam.
+
+\par A transzport-modell nem tartalmaz szabd paramétereket. A deriváltakat differenciálok váltják fel. Az egyrészecske mozgásegyenlet megoldásához a prediktor-korrektor módszer a következő
+
+\begin{gather}
+	\vec{p}^{pr}_{i} = \vec{p}_{i} - \Delta t \frac{\partial H}{\partial \vec{r}_{i}} \quad \quad \vec{r}^{pr}_{i} = \vec{r}_{i} + \Delta t \frac{\partial H}{\partial \vec{p}_{i}}
+\end{gather}
+
+\par Ahol $^{pr}$ jelöli a prediktált helyet és impulzust. Ez még korrekcióra szorul, ehhez ki kell számolni az predikdált helyen a Hamilton-függvény értékét, majd a helyet és momentumot annak megfelelően léptetni
+
+\begin{gather}
+	\vec{p}^{co}_{i} = \vec{p}_{i} - \frac{\Delta t}{2} \Big(\frac{\partial H}{\partial \vec{r}_{i}} + \frac{\partial H^{pr}}{\partial \vec{r}_{i}^{pr}} \Big) \quad \quad \vec{r}^{co}_{i} = \vec{r}_{i} + \frac{\Delta t}{2} \Big( \frac{\partial H}{\partial \vec{p}_{i}} + \frac{\partial H^{pr}}{\partial \vec{p}_{i}^{pr}} \Big)
+\end{gather}
+
+\par Az átlagtér potenciál szabadon választható az éppen megfelelő elméleti megfontolások alapján. 
+
 \end{document}
