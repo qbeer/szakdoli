@@ -25,8 +25,8 @@
  b=2.0,                          ! impact parameter (in fm)
  dt=0.2,                         ! timestep (in fm/c)
  ntmax=120,                       ! number of timestep
- isubs=5,                        ! number of subsequent runs
- num=10,                          ! number of paralel runs
+ isubs=2,                        ! number of subsequent runs
+ num=2,                          ! number of paralel runs
  numpaul=5,                      ! every numpaulth baryon selected for pauli
  iseed=-5247,   ! ccccccccc     ! random number
  icoll=0,                        ! 0-> buu; 1-> Vlasov; -1-> cascade;
