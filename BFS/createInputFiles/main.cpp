@@ -4,9 +4,12 @@
 #include <sstream>
 #include <algorithm>
 #include <string>
+#include <array>
 
 int parallerRuns;
 int subsequentRuns;
+
+const int dim = 6;
 
 struct DataPoints{
     
@@ -17,6 +20,8 @@ struct DataPoints{
         std::vector<int> num_of_coll;
     
 };
+
+std::istream& operator>>(std::istream& is, DataPoints& points);
 
 int main(int argc, char* argv[]){
 
@@ -54,14 +59,19 @@ std::istream& operator>>(std::istream& is, DataPoints& points){
 
             rowCount >> row;
 
-            std::ofstream fout( std::to_string(inner + counter*inner) );
+            std::cout << row << "\n";
+
+            std::ofstream fout( std::to_string(inner + cntr*inner) );
 
             for(int data = 0; data < row; data++){
     
                 std::getline(is, line);
 
-                line >> fout;
+                fout << line;
 
+                if(data != row - 1){
+                    fout << "\n";
+                }
     
             }
 
