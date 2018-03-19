@@ -1,0 +1,182 @@
+************************************************************************
+*                                                                      *
+      subroutine epair_out(wref,wmin,wmax,isu)
+*                                                                      *
+*       variables:                                                     *
+*         yref    - -1 * target rapidity in the frame                  *
+*         nyk     - number of rapidities               (integer,input) *
+*         nqtk    - number of transverse momenta       (integer,input) *
+*         nfk     - number of angles                   (integer,input) *
+*         isu     - loop number of runs                                *
+*                                                                      *
+*----------------------------------------------------------------------
+      implicit none
+      include 'common'
+      include 'cominput'
+      include 'com_kminu'
+      include 'com_cont_epair'
+*----------------------------------------------------------------------*
+      real  wref,wmin,wmax
+      integer ninvmas,ninvmas_omega
+      parameter (ninvmas = 80, ninvmas_omega=40)
+      real minmas,maxmas,minmas_om,maxmas_om
+      parameter (minmas=0., maxmas=1., minmas_om=0.73, maxmas_om=0.83)
+      integer  isu
+      real sig_invmas(1:2,0:ninvmas),invmas,dinvmas
+      real sig_invmas_omega(0:ninvmas)
+      integer  ik, ich
+      real  px, py, pz
+      real  prob,br_omega
+      integer ninv,ninv_om,kanums(1:2)
+      real dilmass,dinv,dilmass_cont,ddilmas
+      integer bin_num
+      logical flag
+c
+      save  kanums,sig_invmas,sig_invmas_omega
+c-------------------------------------
+c
+      IF (isu .eq. 1)   then
+        do ich=1,2
+          do ninv=0,ninvmas
+            sig_invmas(ich,ninv) = 0.
+            kanums(ich) = 0
+          end do
+        end do
+        do ninv=0,ninvmas_omega
+          sig_invmas_omega(ninv) = 0.
+        end do
+      ENDIF
+c
+cc-----------------------------------------------------------e_pair
+      do  2000  ik = 1, max_epair
+        if(nx_epair(0,ik) .ne. 1) goto 2000
+        prob = p_epair(4,ik) / real(num*isubs)
+        invmas = p_epair(0,ik)
+        px   = p_epair(1,ik)
+        py   = p_epair(2,ik)
+        pz   = p_epair(3,ik)
+        ich = nx_epair(2,ik)
+c     write(isum,*)  '  epair-out ',isu, ik,ike,
+c    1               px,py,pz,       prob
+c------------------
+        ninv  = bin_num(invmas,ninvmas,minmas,maxmas,dinvmas)
+        if (ninv.le.ninvmas) then
+          sig_invmas(ich,ninv) = sig_invmas(ich,ninv) + prob/dinvmas
+          kanums(ich) = kanums(ich) + 1
+        end if
+
+        if (ich.eq.2 .and. invmas.gt.minmas_om) then      ! omega
+          ninv  = bin_num(invmas,ninvmas_omega,minmas_om,maxmas_om,
+     &       dinvmas)
+          if (ninv.le.ninvmas_omega) then
+            sig_invmas_omega(ninv) = sig_invmas_omega(ninv)
+     &         + prob/dinvmas
+          end if
+        end if
+
+ 2000 continue
+c-------- dielecrons from final omegas
+      br_omega = 7.14e-5
+      do ik=1,maxppar
+        if (ipi(ik,1).eq.5) then
+          ich = 2
+          prob = br_omega / real(num*isubs)
+          invmas = epi(ik)
+          ninv  = bin_num(invmas,ninvmas,minmas,maxmas,dinvmas)
+          if (ninv.le.ninvmas) then
+            sig_invmas(ich,ninv) = sig_invmas(ich,ninv) + prob/dinvmas
+            kanums(ich) = kanums(ich) + 1
+          end if
+          if (invmas.gt.minmas_om) then
+            ninv  = bin_num(invmas,ninvmas_omega,minmas_om,maxmas_om,
+     &         dinvmas)
+            if (ninv.le.ninvmas_omega) then
+              sig_invmas_omega(ninv) = sig_invmas_omega(ninv)
+     &           + prob/dinvmas
+            end if
+          end if
+
+        end if
+      end do
+
+      if (isu .lt. isubs)   return
+c
+
+      write(isum,850)  (kanums(ich),ich=1,2)
+  850 format(/,'#   di_electron - production ',/,
+     1         '#      fictive numbers:', 2i9)
+      write(isum,855)
+ 855  format('#    inv_mass','     rho          omega     dN/dm  ')
+      do ninv=1,ninvmas
+        write(isum,853) ninv,dilmass(ninv,ninvmas,minmas,maxmas,dinv),
+     &     sig_invmas(1,ninv),sig_invmas(2,ninv)
+      end do
+ 853  format(i5,f8.3,2e14.4)
+c printout for omega channel with fine binning:
+      write(isum,'(//''#   omega -> e+e-'')')
+
+      flag = .true.
+      do ninv=1,ninvmas
+        if (dilmass(ninv,ninvmas,minmas,maxmas,dinv).lt.minmas_om .or.
+     &     dilmass(ninv,ninvmas,minmas,maxmas,dinv).gt.maxmas_om) then
+          write(isum,'(i5,f8.3,e14.4)') ninv,
+     &       dilmass(ninv,ninvmas,minmas,maxmas,dinv),
+     &       sig_invmas(2,ninv)
+        else if (flag) then
+          do ninv_om=1,ninvmas_omega
+            write(isum,'(i5,f8.3,e14.4)') ninv_om,
+     &         dilmass(ninv_om,ninvmas_omega,minmas_om,maxmas_om,dinv),
+     &         sig_invmas_omega(ninv_om)
+          end do
+          flag = .false.
+        end if
+      end do
+c printout for dileptons from continuous channels:
+      ddilmas = max_dilmas/n_mass_bins
+c      write(isum,
+c     &   '(//''#  e+e- from continuous channels (Dalitz dec.)'')')
+c      write(isum,'(5x,a8,27a14)') 'mass','pi_0','eta','omega','brems',
+c     &   'D(1232)','N(1440)','N(1520)','N(1535)','N(1650)','N(1675)',
+c     &   'N(1680)','N(1700)','N(1710)','N(1720)','N(2000)','N(2080)',
+c     &   'N(2190)','N(2220)','N(2250)','D(1600)','D(1620)','D(1700)',
+c     &   'D(1900)','D(1905)','D(1910)','D(1920)','D(1930)','D(1950)'
+c      do ninv=1,n_mass_bins
+c        write(isum,'(i5,f8.3,30e14.4)') ninv,dilmass_cont(ninv),
+c     &     prob_cont_epair(ch_pi,ninv)/ddilmas,
+c     &     prob_cont_epair(ch_eta,ninv)/ddilmas,
+c     &     prob_cont_epair(ch_omega,ninv)/ddilmas,
+c     &     prob_cont_epair(ch_brems,ninv)/ddilmas,
+c     &     (prob_cont_epair(ires+bary_chan_offset,ninv)/ddilmas,
+c     &     ires=1,nres)
+c      end do
+      write(isum,
+     &   '(//''#  e+e- from continuous channels (Dalitz dec.)'')')
+      write(isum,'(5x,a8,27a14)') 'mass','pi_0','eta','omega','brems',
+     &   'D(1232)','N(1520)'
+      do ninv=1,n_mass_bins
+        write(isum,'(i5,f8.3,30e14.4)') ninv,dilmass_cont(ninv),
+     &     prob_cont_epair(ch_pi,ninv)/ddilmas,
+     &     prob_cont_epair(ch_eta,ninv)/ddilmas,
+     &     prob_cont_epair(ch_omega,ninv)/ddilmas,
+     &     prob_cont_epair(ch_brems,ninv)/ddilmas,
+     &     prob_cont_epair(1+bary_chan_offset,ninv)/ddilmas,
+     &     prob_cont_epair(3+bary_chan_offset,ninv)/ddilmas
+      end do
+
+      write(isum,
+     &   '(//''#  e+e- from continuous channels (Dalitz dec.)'')')
+      write(isum,'(''#  with HADES acceptance'')')
+      write(isum,'(5x,a8,27a14)') 'mass','pi_0','eta','omega','brems',
+     &   'D(1232)','N(1520)'
+      do ninv=1,n_mass_bins
+        write(isum,'(i5,f8.3,30e14.4)') ninv,dilmass_cont(ninv),
+     &     prob_cont_epair_hades(ch_pi,ninv)/ddilmas,
+     &     prob_cont_epair_hades(ch_eta,ninv)/ddilmas,
+     &     prob_cont_epair_hades(ch_omega,ninv)/ddilmas,
+     &     prob_cont_epair_hades(ch_brems,ninv)/ddilmas,
+     &     prob_cont_epair_hades(1+bary_chan_offset,ninv)/ddilmas,
+     &     prob_cont_epair_hades(3+bary_chan_offset,ninv)/ddilmas
+      end do
+      return
+      end
+

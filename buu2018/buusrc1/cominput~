@@ -1,0 +1,97 @@
+*----------------------------------------------------------------------*
+*-----------------------------------------------------------------------
+*                    input parameters
+      character*80 denout
+      integer massta, mstapr, masspr, msprpr, mpion,
+     &        ntmax, isubs, num, numpaul, iseed, icoll, insys, 
+     &        ipauli, icomp, ipou, ireslife,
+     &        iavoid, irescol,mescol,ippbarcoll,
+     &        masdis,iwidth,iresmode,idec2pi,
+     &        idipi, iabso, iempi, ipiab, ipico,
+     &        nbound, ntcell, nther, npartcel,
+     &        nfreq, ikinsp,
+     &        ifit, nfrba, ibaspe, iparti, iframeb, nangleb, nfrpi,
+     &        ipispe, iframep, nanglep, nfrpira,
+     &        idilepton,ivmesdil,IBREMS, IpiNbrems,Iresdalitz,
+     &        Imesdalitz,ipertpi, ndmas, iszog, mqt, my, mf, npertpi, 
+     &        idilper,ndilper, ndelmas, iszogd, ikaon, ikaondi, 
+     &        ikaonpot,ikaoncr, nqtk, nyk, nfk,
+     +        max_phi,npl,nphikaon,i_phi,ivecmatt,icbro,i_JPsi,
+     &        iDrellYan,iDmes,iomega, imeson, nmesma, nmesm2, ncalmes,
+     &        igamma, igamsys, nplgam, nphigam, nanglgam,nqtg,nyg,nfg,
+     &        ngamtim,ifserat,ipipot, ireapl, isplipi, iorder,ideltapot,
+     &        istrangepot,
+     &        inuclpri, nnuclpri, ipionpri, icpipri, npionpri, ideltpri,
+     &        idilpri, imespri, imestimpri, iomepri, ikaopri, igampri,
+     &        ippipri, ithermo, idenspr, icelpri, ncont
+
+      integer isnndd, isddnn, isstatep, isstatea, inotwopi,
+     &        isnrnrp, isdeltaall, isdeltaonly
+
+
+      real*8 elab, b, dt,
+     &     dlife, boxx, boxz, 
+     &     cell, delr,delp, timinsp, tminba, tmaxba, binkba, 
+     &     bintba,binmba, dangleb, tminpi, tmaxpi, binkpi, BINTPI, 
+     &     binmpi,danglep, qtmaxp, pidelka, pkaonnum, ymaxsk, yminsk, 
+     +     qtmaxk,pphi_num,
+     &     plstep,angkaon, timkao, dmesma, xmesmi, xmesm2, dmesm2,
+     &     sigpiom,gammesma, rhomshift,rhowbroad,omemshift,omewbroad,
+     &     pgamma, pgammad, plstepga, plmingam,
+     &     qtmaxg, yminsg, ymaxsg, timinga, timecpu, rdist, delpi, dispi 
+      real*8 rmesdec
+
+      real*8 anba(1:5), anpi(1:5), anglegam(1:6)
+
+
+      common /cominp/
+     &     elab, b, dt, 
+     &     dlife, boxx, boxz,
+     &     cell, delr,delp, timinsp, tminba, tmaxba, binkba, 
+     &     bintba, binmba, dangleb, tminpi, tmaxpi, binkpi, BINTPI,
+     &     binmpi, danglep,
+     &     qtmaxp, pidelka, pkaonnum, ymaxsk, yminsk, qtmaxk,
+     &     pphi_num,
+     &     plstep,angkaon, timkao, dmesma, xmesmi, xmesm2, dmesm2,
+     &     sigpiom,gammesma,  rhomshift,rhowbroad,omemshift,omewbroad,
+     &     pgamma, pgammad, plstepga, plmingam,
+     &     qtmaxg, yminsg, ymaxsg, timinga, timecpu, rdist, delpi, dispi
+      common /cominp/
+     &     rmesdec,anba,anpi,anglegam
+      common /cominp/
+     &        massta, mstapr, masspr, msprpr, mpion,
+     &        ntmax, isubs, num, numpaul, iseed, icoll, 
+     &        insys,  ipauli, icomp, ipou, ireslife,
+     &        iavoid, irescol,mescol, ippbarcoll,masdis,iwidth,iresmode,
+     &        idec2pi,idipi, iabso, iempi, ipiab, ipico,
+     &        nbound, ntcell, nther, npartcel,
+     &        nfreq, ikinsp,
+     &        ifit, nfrba, ibaspe, iparti, iframeb, nangleb, nfrpi,
+     &        ipispe, iframep, nanglep, nfrpira,
+     &        idilepton,ivmesdil,IBREMS, IpiNbrems,Iresdalitz,
+     &        Imesdalitz,ipertpi, ndmas, iszog, mqt, my, mf, npertpi, 
+     &        idilper,ndilper, ndelmas, iszogd, ikaon, ikaondi,
+     &        ikaonpot,ikaoncr, nqtk, nyk, nfk,
+     +        max_phi, npl,nphikaon,i_phi, i_JPsi,iDrellYan,iDmes,
+     &        iomega, imeson, nmesma, nmesm2, ncalmes,ivecmatt,icbro,
+     &        igamma, igamsys, nplgam, nphigam, nanglgam,nqtg,nyg,nfg,
+     &        ngamtim,ifserat,ipipot, ireapl, isplipi, iorder,ideltapot,
+     &        istrangepot,
+     &        inuclpri, nnuclpri, ipionpri, icpipri, npionpri, ideltpri,
+     &        idilpri, imespri, imestimpri, iomepri, ikaopri, igampri,
+     &        ippipri, ithermo, idenspr, icelpri, ncont
+      common /cominp/
+     &        isnndd, isddnn, isstatep, isstatea, inotwopi,
+     &        isnrnrp, isdeltaall, isdeltaonly
+
+      common /cominp/denout
+
+
+*            end of input parameters
+*-----------------------------------------------------------------------
+*
+*         ntotal is defined in main as mass*num, so it is the total
+*         number of baryons in the game
+
+      integer ntotal
+      common/nto/ ntotal

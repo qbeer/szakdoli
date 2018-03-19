@@ -1,0 +1,23 @@
+      character*80 comment, fname
+      integer*4 iseed
+      integer*4 size
+      parameter (size = 150000)
+      real*4 sigpA(3), sigpB(3), sigth, sigph, XX0
+      integer*4 xdim, ydim, zdim
+      real*4 pmin,pmax,thmin,thmax,phmin,phmax,dx,dy,dz
+      real*4  matrix2(size), matrix3(size), matrix8(size),
+     &   matrix9(size), matrix10(size), matrix12(size), matrix14(size)
+      integer*4 xdim2, ydim2, zdim2
+      real*4 mmin,mmax,ptmin,ptmax,rapmin,rapmax,dx2,dy2,dz2
+      real*4 matrix51(size)
+
+      common /readhaft_char/ comment, fname
+      common /readhaft_num/ iseed, sigpA, sigpB, sigth, sigph, XX0,
+     &   xdim, ydim, zdim,
+     &   pmin,pmax,thmin,thmax,phmin,phmax,dx,dy,dz,
+     &   matrix2, matrix3, matrix8, matrix9, matrix10, matrix12,
+     &   matrix14, matrix51,
+     &   xdim2, ydim2, zdim2,
+     &   mmin,mmax,ptmin,ptmax,rapmin,rapmax,dx2,dy2,dz2
+
+      save /readhaft_char/, /readhaft_num/

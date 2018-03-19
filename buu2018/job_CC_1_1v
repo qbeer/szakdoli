@@ -1,0 +1,9 @@
+#!/bin/zsh
+limit coredumpsize 0
+cd /home/wolf/BUU/buu2016
+set OUTFILE=CC_1_1vacnew.out
+# set OUTFILE=/dev/null
+set INFILE=readin/CC_1_0vacnew.in
+cat job_CC_1_1v > $OUTFILE
+cat $INFILE >> $OUTFILE
+buusrcnew/BUU.x < $INFILE >> $OUTFILE

@@ -1,0 +1,92 @@
+
+***** common file for coulomb routines ***************************************
+******************************************************************************
+
+***  grid parameters no boundaries
+      integer indx, indz, inges, insqxx, insqxz, cmaxx, cmaxz
+      parameter(cmaxx = 25)
+      parameter(cmaxz = 25)
+      parameter(indx = 2*cmaxx+1)
+      parameter(indz = 2*cmaxz+1)
+      parameter(inges = indx*indx*indz)
+      parameter(insqxx = indx*indx)
+      parameter(insqxz = indx*indz)
+
+***  grid parameters with boundaries
+      integer cmaxxb, cmaxzb
+
+      real*8 dgrids,elmcon
+      parameter(cmaxxb = cmaxx +1)
+      parameter(cmaxzb = cmaxz +1)
+      parameter(dgrids = 1.0)
+      parameter(elmcon=0.0014398)
+
+
+      real*8 dgrid
+      common /coulgrid/ dgrid
+
+*******  variables for iteration *******************************************
+***  potentials for iteration
+
+      double precision  pot(0:inges)
+
+***  corresponding index-fields
+      integer ix(1:inges), iy(1:inges), iz(1:inges)
+
+***  corresponding right hand side for itera. (bounds incl. but 1-dim)
+      double precision rpri(1:inges)
+
+***   right hand side of poisson equation R' (bounds included)
+      double precision rprim(0:3,1:inges)
+
+**    right hand side of iterative equn.
+      double precision rhs(1:inges)
+
+       common/cpoti/ix, iy, iz
+       common/cpotr/pot, rpri, rhs, rprim
+
+******* variables that make the conection to the buu-programm********
+***      density
+      real*8  chrho(0:3,-cmaxxb:cmaxxb,-cmaxxb:cmaxxb,-cmaxzb:cmaxzb)
+***	 potentials
+      real*8  emrpot(0:3,-cmaxxb:cmaxxb,-cmaxxb:cmaxxb,-cmaxzb:cmaxzb)
+      real*8  loopte(0:3), eps(0:3)
+
+      common/couco/chrho, emrpot, loopte, eps
+
+
+
+******* arrays to store the electrical and magnetic field **************
+
+       real*8 efiel(1:3,-cmaxx:cmaxx,-cmaxx:cmaxx,-cmaxz:cmaxz)
+       real*8 bfiel(1:3,-cmaxx:cmaxx,-cmaxx:cmaxx,-cmaxz:cmaxz)
+
+       common/fields/ efiel, bfiel
+
+****** arrays needed for the calculation of the Coulomb-force after ****
+****** testparticles have left the grid                             ****
+
+       real*8  chatot, rchar(3)
+       common /couleft/  chatot, rchar
+
+
+******* arrays to store the potentials for the calculation with the ****
+******* retarded potentials                                         ****
+
+*------- potentials ---------------------------------------------------*
+c      real*8 amu(1:2,0:3,-cmaxxb:cmaxxb,-cmaxxb:cmaxxb,-cmaxzb:cmaxzb)
+
+*--------derivative wrsp. to time of the field amu---------------------*
+c      real*8 amup(1:2,0:3,-cmaxxb:cmaxxb,-cmaxxb:cmaxxb,-cmaxzb:cmaxzb)
+
+*------  right hand side ----------------------------------------------*
+c      real*8 sour(0:3,-cmaxxb:cmaxxb,-cmaxxb:cmaxxb,-cmaxzb:cmaxzb)
+
+c      common /retardi/ amu, amup, sour
+
+*---  indices for the bookkeeping in the staggered leapfrog-algorithm -*
+c      integer news, newp, olds, oldp
+
+c      common /slind/ news, newp, olds, oldp
+
+

@@ -1,0 +1,124 @@
+
+      subroutine readin
+*----------------------------------------------------------------------*
+*                                                                      *
+*    this routine reads the input from the main control file           *
+*                                                                      *
+*     a l l variables are stored in the common block :                 *
+*           cominp                                                     *
+*                                                                      *
+*----------------------------------------------------------------------*
+      implicit none
+      character*80 totoutp, barout, pioout, cpiout, cpiout1, delout,
+     #  dilout, mesout, mestimout, omeout, kaoout, ppiout, gamout, fsout
+     # ,spfout
+      include"common"
+      include"cominput"
+      include"com_kminu"
+      include"com_pert"
+      include"com_cont_epair"
+      integer i,ijp2,ijp1
+      integer icbro1,ivecmatt1
+      real rhomshift1,rhowbroad1,omemshift1,omewbroad1
+      NAMELIST /adatok/
+     # totoutp, barout, pioout, cpiout, cpiout1, delout,
+     # dilout, mesout, mestimout, omeout, kaoout,
+     # ppiout, gamout, denout, fsout, spfout,
+     # MASSTA, MSTAPR, MASSPR, MSPRPR, MPION, ELAB,
+     # B, DT, NTMAX, ISUBS, NUM, NUMPAUL,
+     # iseed, icoll, INSYS, IPAULI, icomp, ipou, ireslife,
+     # IAVOID,IRESCOL,mescol, masdis, IWIDTH,iresmode,idec2pi, dLIFE,
+     # IDIPI, IABSO, IEMPI, IPIAB, IPICO,
+     # nbound, boxx, boxz, NTCELL, CELL,
+     # NTHER,DELR, DELP, NPARTCEL, NFREQ,
+     # TIMINSP, IKINSP, IFIT, NFRBA, IBASPE, IPARTI, TMINBA, TMAXBA,
+     # BINKBA, BINTBA, BINMBA, DANGLEB, IFRAMEB, NANGLEB, ANBA,
+     # NFRPI, IPISPE, TMINPI, TMAXPI, BINKPI, BINTPI, BINMPI,
+     # DANGLEP, IFRAMEP, NANGLEP, ANPI, NFRPIRA,
+     # idilepton, ivmesdil,  IBREMS, IpiNbrems,Iresdalitz, Imesdalitz, 
+     # IFILT,IDILTRA,NDLMASlow,NDLMAS,DLMASL,DDLMASlow,DDLMAShigh,
+     # NY,NQT,NF,QTMAXI, YMAXSCAL, YMINSCAL, NBREMS,npiNbrems,
+     # IDELTAD, NDALITZ, IRAND, IDAL, NDILTIM, TIMINDI,
+     # IDILDELM, IFORMRO, DENSSTE, DIMASMI, IPERTPI, NDMAS, ISZOG, MQT,
+     # MY, MF, QTMAXP, NPERTPI, IDILPER, NDILPER, NDelMAS, ISZOGD,
+     # ikaon, ikaonpot, ikaoncr, pidelka,
+     # PKAONNUM, NQTK, NYK, nfk, YMAXSK,YMINSK,
+     # qtmaxk, NPL, PLSTEP, ANGKAON, NPHIKAON, timkao,
+     + i_phi, iphi_pot, max_phi, iphi_cr, pphi_num, 
+     + iphi_col, iphi_dec, i_epair, i_kminu, i_kminu_pot, i_kminu_cr,
+     + i_kminu_coll, i_ksi, i_ksi_pot
+*=======================================================================
+
+      common/com_matter/ icbro1,ivecmatt1,rhomshift1,rhowbroad1,
+     &                 omemshift1,omewbroad1
+
+      include"resdata1"
+
+      rdist=2.9     ! intial distance of the centers in z direction: r1+r2+rdist
+      delpi=3.0     ! for bigger distances the collision is thrown away
+      dispi=2.5     ! maximal b_max in fm for pions
+c      smu=2.175     ! range of yukawa potential (1/fm)
+      rmesdec = 2.0
+      isnndd  = 0
+      isddnn  = 0
+      isnrnrp = 0
+      isstatep= 0
+      isstatea = 0
+      isdeltaonly = 0
+      inotwopi = 0
+      
+******************** end of test variables ************************
+c         mass     width     BR_p+p_   BR_e+e-  BR_JPsi+X            
+      data((JPsi_prop(ijp1,ijp2),ijp2=1,5),ijp1=1,3)
+     &  /3.0969, 0.0000929,  2.12D-3,  0.0597 , 0.,
+     &   3.6861, 0.000296,   2.88D-4,  0.00789, 0.61,
+     &   3.7731, 0.027,      1.50D-4,  0.96D-5, 0.004/
+
+      id_JPsi(1) = 1
+      id_JPsi(2) = 2
+      id_JPsi(3) = 3
+
+
+********************end of test variables ************************
+
+      write(*,*) 'vor einlesen'
+c      open(22,file='filename.dat',status='old',iostat=i)
+c      read(22,fnames)
+c      write(6,fnames)
+c      close(22)
+      read(5,adatok)
+      ikaondi = ikaon                   !  hw
+      write(*,*) 'beolvasas utan', rdist, delpi, dispi
+      call inputwri(0)
+      open(isum,file=totoutp,status='new',iostat=i)
+      if(i.ne.0) open(isum,file=totoutp,status='old',iostat=i)
+      call inputwri(1)
+      if(inuclpri.eq.1)
+     &      open(mnucpri,file=barout,status='unknown')
+      if(ipionpri.eq.1)
+     &      open(mpiopri,file=pioout,status='unknown')
+      if(idilpri.eq.1)
+     &      open(mdilpri,file=dilout,status='unknown')
+      if(ikaopri.eq.1)
+     &      open(mkaopri,file=kaoout,status='unknown')
+      if(iomepri.eq.1)
+     &      open(momepri,file=omeout,status='unknown')
+      if(imespri.eq.1)
+     &      open(mmespri,file=mesout,status='unknown')
+      if(imestimpri.eq.1)
+     &      open(mmestimpri,file=mestimout,status='unknown')
+*      if(ithermo.eq.1)
+*     &      open(mterpri,file=terout,status='unknown')
+      if(ippipri.eq.1)
+     &      open(mppipri,file=ppiout,status='unknown')
+      if(icpipri.eq.1 )
+     &      open(mcpipri,file=cpiout,status='unknown')
+      if(icpipri.eq.1 )
+     &      open(mcpipri1,file=cpiout1,status='unknown')
+      if(ifserat.ge.1 )
+     &      open(mfserat,file=fsout,status='unknown')
+      open(mspfpri,file=spfout,status='unknown')
+*--------------------------------------------------------------------
+
+      return
+      end

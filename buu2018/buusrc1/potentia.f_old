@@ -1,0 +1,103 @@
+************************************************************************
+*                                                                      *
+      subroutine potential(ipot,rpo,smu,tt0,tt3,yv,u00,aaa,bbb,rkk,
+     &                            idel, vzero)
+*                                                                      *
+*       purpose:     determine potential parameters                    *
+*       variables:                                                     *
+*         ipot                - choice of potential    (integer,input) *
+*         rpot                - power of den.dep.pot.     (real,input) *
+*         tt0                 - coefficient of t0 term   (real,output) *
+*         tt3                 - coefficient of t3 term   (real,output) *
+*                                                                      *
+************************************************************************
+*     ebind = -16 mev; 0.2 e_fermi-e_bind = 23.6 mev                   *
+*                      16/15 e_fermi/rho0 = -241.27 mev*fm**3          *
+*    dimension of tt0 = gev*fm**3                                      *
+*    dimension of tt3 = gev*fm**(3+3*rpot)                             *
+      implicit none
+      real*8 udel0,rpo,smu,tt0,tt3,vzero,rpot,t3,t0,tty
+      real*8 u0,u00,yv,aaa,bbb,rkk,potn,potd,potnd,rho,xx,yy,zz
+      integer ipot,idel,ix,iy,iz,idelpot
+      parameter         (udel0=-0.03)
+      include"common"
+*
+*
+*
+      save t0,t3,u0,rpot,idelpot
+*-----------------------------------------------------------------------
+*
+      rpot = rpo
+      idelpot = idel
+      if(ipot.eq.0) then
+      t3 = 8./3./rpot/rho0**(1.+rpot)*23.6
+      t0 =-241.27-(1.+rpot)*t3*rho0**rpot
+      u0 = (0.75*t0*rho0 + 0.375*(2.+rpot)*t3*rho0**(1.+rpot))
+      u00=0.001 * u0
+      yv =-378.2
+      end if
+*
+      if(ipot.eq.1) then
+      t3 = 8./3./rpot/rho0**(1.+rpot)*23.6
+      t0 = -t3*rho0**rpot
+      yv =-smu**3/pi/rho0*(3./8.*t0*rho0+15.2+3./8.*(1.+rpot)
+     &    *t3*rho0**(1.+rpot))/2.
+      end if
+*
+*
+      aaa=3./4.*t0*rho0
+      bbb=3./8.*t3*(rpot+2.)*rho0**(1.+rpot)
+      rkk=45.6+9./4.*t0*rho0+9./8.*(rpot+1.)*(3.*rpot+2.)*t3
+     &    *rho0**(rpot+1.)
+      if(ipot.eq.1) then
+      rkk=rkk+12.*pi*yv/smu**3*rho0
+      end if
+*
+      vzero=yv*0.001
+      tty=4.0*pi/smu**3*vzero*rho0
+      tt3=t3*0.001
+      tt0=t0*0.001
+*
+*-----------------------------------------------------------------------
+      return
+*-----------------------------------------------------------------------
+*                                                                      *
+      entry epot(xx,yy,zz,potn,potd,potnd)
+*                                                                      *
+*       purpose:     determine potential energy at (xx,yy,zz)          *
+*       variables:                                                     *
+*         idelpot             - choice of delta pot.   (integer,input) *
+*         xx,yy,zz            - position                  (real,input) *
+*         potn                - pot. energy for nucleon  (real,output) *
+*         potd                - potenergy for delta      (real,output) *
+*                                                                      *
+*-----------------------------------------------------------------------
+*
+      ix = nint(xx)
+      iy = nint(yy)
+      iz = nint(zz)
+      potn= 0.0
+      potd= 0.0
+      potnd=0.0
+      if(iabs(ix) .gt. maxx)                                  return
+      if(iabs(iy) .gt. maxx)                                  return
+      if(iabs(iz) .gt. maxz)                                  return
+      rho = rhb(ix,iy,iz)
+      if(rho .le. 1.0e-6)                                      return
+      potn=0.001 * (0.75*t0*rho + 0.375*(2.+rpot)*t3*rho**(1.+rpot))
+      potd= potn
+      if(idelpot.eq.1) potd=udel0/u0 * potn *1000.0
+      if(idelpot.eq.2) potd=udel0 * (rho/rho0)
+      potnd = potd - potn
+      return
+*-----------------------------------------------------------------------
+      end
+c
+      subroutine  zero_pot
+      implicit none
+      include"common"
+      integer irun
+      do irun = 1,maxpar
+            upot(irun) = .0
+      enddo
+      end

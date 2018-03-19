@@ -1,0 +1,280 @@
+************************************************************************
+*                                                                      *
+      subroutine epair_out(wref,wmin,wmax,isu)
+*                                                                      *
+*       variables:                                                     *
+*         yref    - -1 * target rapidity in the frame                  *
+*         nyk     - number of rapidities               (integer,input) *
+*         nqtk    - number of transverse momenta       (integer,input) *
+*         nfk     - number of angles                   (integer,input) *
+*         isu     - loop number of runs                                *
+*                                                                      *
+*----------------------------------------------------------------------
+      implicit none
+      include 'common'
+      include 'cominput'
+      include 'com_kminu'
+      include 'com_cont_epair'
+*----------------------------------------------------------------------*
+      real  wref,wmin,wmax
+      integer ninvmas,ninvmas_omega,  mode
+      parameter (ninvmas = 80, ninvmas_omega=40)
+      real minmas,maxmas,minmas_om,maxmas_om
+      parameter (minmas=0., maxmas=1., minmas_om=0.73, maxmas_om=0.83)
+      integer  isu
+      real sig_invmas(1:2,0:ninvmas),invmas,dinvmas, d_pt
+      real sig_invmas_omega(0:ninvmas)
+      real fsig_pt(1:2, 0:ninvmas), sig_pt(1:2, 0:ninvmas)
+      real fsig_invmas_omega(0:ninvmas),  fsig_invmas(1:2,0:ninvmas)
+      integer  ik, ich, n_pt, n_dens5
+      real  p0, px, py, pz, pzlab, e0lab, plab, rap, chlab, shlab
+      real  prob,br_omega, ptra, ptra2, xtrav, thl, acc, dens5
+      integer ninv,ninv_om,kanums(1:2)
+      real dilmass,dinv,dilmass_cont,ddilmas
+      real ma_initial, ma_final, ma_in, ma_fin, dens5_mean
+      real getHadesPairAcceptance, invmas_old, ptra_old, rap_old
+      integer bin_num
+      logical flag
+c
+      save  kanums,sig_invmas,sig_invmas_omega, fsig_invmas_omega,
+     1           fsig_invmas, sig_pt, fsig_pt, dens5, n_dens5,
+     2            ma_in, ma_fin
+c-------------------------------------
+c
+      d_pt = .025
+      IF (isu .eq. 1)   then
+        n_dens5 = 0
+        dens5  = .0
+        ma_in  = .0
+        ma_fin = .0
+        do ich=1,2
+          do ninv=0,ninvmas
+            sig_invmas(ich,ninv) = 0.
+            fsig_invmas(ich,ninv) = 0.
+            sig_pt(ich,ninv) = 0.
+            fsig_pt(ich,ninv) = 0.
+            kanums(ich) = 0
+          end do
+        end do
+        do ninv=0,ninvmas_omega
+          sig_invmas_omega(ninv) = 0.
+          fsig_invmas_omega(ninv) = 0.
+        end do
+      ENDIF
+c
+cc-----------------------------------------------------------e_pair
+      chlab = cosh(wref)
+      shlab = sinh(wref)
+c
+      do  2000  ik = 1, max_epair
+        if(nx_epair(0,ik) .ne. 1) goto 2000
+        prob = p_epair(4,ik) / real(num*isubs)
+        invmas = p_epair(0,ik)
+        px   = p_epair(1,ik)
+        py   = p_epair(2,ik)
+        pz   = p_epair(3,ik)
+        ich = nx_epair(2,ik)
+
+        ptra2 = px**2 + py**2
+        ptra  = sqrt(ptra2)
+        xtrav = sqrt(invmas**2+ptra2)
+        p0    = sqrt(xtrav**2 + pz**2)
+        pzlab =  p0 * shlab + pz * chlab
+        e0lab  =  p0 * chlab + pz * shlab
+        plab  =  sqrt(pzlab**2 + ptra2)
+        thl   = acos(pzlab / plab)
+        rap   =  pzlab / e0lab
+        rap   =  0.5 * log((1.+rap)/(1.-rap))
+c       if (ich .eq. 2) write(43,*) ' omega ', ik, invmas, prob
+
+
+c     write(isum,*)  '  epair-out ',isu, ik,ike,
+c    1               px,py,pz,       prob
+c------------------
+        ninv  = bin_num(invmas,ninvmas,minmas,maxmas,dinvmas)
+        if (ninv.le.ninvmas) then
+          acc = getHadesPairAcceptance(invmas, ptra, rap, 0)
+c         write(48, *) ' in epair_out1 ', ik, invmas, ptra, rap, acc
+          sig_invmas(ich,ninv) = sig_invmas(ich,ninv) + prob/dinvmas
+          fsig_invmas(ich,ninv) = fsig_invmas(ich,ninv) +
+     1                            acc*prob/dinvmas
+          kanums(ich) = kanums(ich) + 1
+c         write(43,*) ' d_electron ', isu, ik, invmas, ptra, rap,
+c    1    prob, acc, kanums(ich)
+        end if
+        invmas_old = invmas
+        ptra_old   = ptra
+        rap_old    = rap
+        mode       = 1
+        call smearHadesPair(invmas,ptra,rap,mode)
+c       write(48,742) invmas_old,ptra_old,rap_old,invmas,ptra,rap
+c 742 format( ' m,pt,y  old',3e12.4, ' new ',3e12.4)
+        n_pt = nint(ptra/d_pt)
+        if (n_pt .lt. ninvmas) then
+          sig_pt(ich,n_pt) = sig_pt(ich,n_pt) + prob/d_pt
+          fsig_pt(ich,n_pt) = fsig_pt(ich,n_pt) + acc*prob/d_pt
+        endif
+        if (ich.eq.2 .and. invmas.gt.minmas_om) then      ! omega
+          ninv  = bin_num(invmas,ninvmas_omega,minmas_om,maxmas_om,
+     &       dinvmas)
+          if (ninv.le.ninvmas_omega) then
+            sig_invmas_omega(ninv) = sig_invmas_omega(ninv)
+     &         + prob/dinvmas
+            fsig_invmas_omega(ninv) = fsig_invmas_omega(ninv)
+     &         + acc*prob/dinvmas
+          end if
+        end if
+
+ 2000 continue
+c-------- dielecrons from final omegas
+      br_omega = 7.14e-5
+      do ik=1,maxppar
+        if (ipi(ik,1).eq.5) then
+          n_dens5 = n_dens5 + 1
+          dens5   = dens5 + rpie(7,ik)
+          ma_in   = ma_in + rpie(5,ik)
+          ma_fin  = ma_fin + epi(ik)
+c         write(45,*)  '  dens5 ', isu, ik, n_dens5, dens5
+          ich = 2
+          prob = br_omega / real(num*isubs)
+          invmas = epi(ik)   !  shoudn't they be on mass shell ???
+        px   = ppi(1,ik)
+        py   = ppi(2,ik)
+        pz   = ppi(3,ik)
+        ptra2 = px**2 + py**2
+        ptra  = sqrt(ptra2)
+        xtrav = sqrt(invmas**2+ptra2)
+        p0    = sqrt(xtrav**2 + pz**2)
+        pzlab =  p0 * shlab + pz * chlab
+        e0lab  =  p0 * chlab + pz * shlab
+        plab  =  sqrt(pzlab**2 + ptra2)
+        thl   = acos(pzlab / plab)
+        rap   =  pzlab / e0lab
+        rap   =  0.5 * log((1.+rap)/(1.-rap))
+        n_pt = nint(ptra/d_pt)
+          ninv  = bin_num(invmas,ninvmas,minmas,maxmas,dinvmas)
+          if (ninv.le.ninvmas) then
+            acc = getHadesPairAcceptance(invmas, ptra, rap, 0)
+        write(*,*) ' in epair_out2 ', ik, invmas, ptra, rap, acc
+            sig_invmas(ich,ninv) = sig_invmas(ich,ninv) + prob/dinvmas
+            fsig_invmas(ich,ninv) = fsig_invmas(ich,ninv) +
+     1                              acc*prob/dinvmas
+            kanums(ich) = kanums(ich) + 1
+          end if
+        if (n_pt .lt. ninvmas) then
+          sig_pt(ich,n_pt) = sig_pt(ich,n_pt) + prob/d_pt
+          fsig_pt(ich,n_pt) = fsig_pt(ich,n_pt) + acc*prob/d_pt
+        endif
+          if (invmas.gt.minmas_om) then
+            ninv  = bin_num(invmas,ninvmas_omega,minmas_om,maxmas_om,
+     &         dinvmas)
+            if (ninv.le.ninvmas_omega) then
+              sig_invmas_omega(ninv) = sig_invmas_omega(ninv)
+     &           + prob/dinvmas
+              fsig_invmas_omega(ninv) = fsig_invmas_omega(ninv)
+     &           + acc*prob/dinvmas
+            end if
+          end if
+
+        end if
+      end do
+
+      if (isu .lt. isubs)   return
+c
+
+      dens5_mean = dens5 / n_dens5
+      ma_final = ma_fin / n_dens5
+      ma_initial = ma_in / n_dens5
+
+      write(isum,850)  (kanums(ich),ich=1,2), dens5_mean,
+     1                 ma_initial, ma_final
+  850 format(/,'#   di_electron - production ',
+     1         ' ---    fictive numbers:', 2i9,/,
+     2         '#    omega: n_crea, m_crea, m_fin ',3f7.3)
+      write(isum,855)
+ 855  format('# dN/dm(inv_mass)','     rho          omega',
+     1     '  filtered: rho omega ')
+      do ninv=1,ninvmas
+        write(isum,853) ninv,dilmass(ninv,ninvmas,minmas,maxmas,dinv),
+     &     sig_invmas(1,ninv),sig_invmas(2,ninv),
+     2     fsig_invmas(1,ninv),fsig_invmas(2,ninv)
+      end do
+ 853  format(i5,f8.3,2e14.4,2x,2e14.4)
+c
+      write(isum, 720)
+  720 format('#  pt spectra ',/, '#    pt         rho         omega',
+     1                   '## ')
+      do  ninv = 0,50
+        write(isum, 722) ninv, ninv*d_pt,
+     1  sig_pt(1,ninv), sig_pt(2,ninv),
+     2                             fsig_pt(1,ninv), fsig_pt(2,ninv)
+      enddo
+  722 format(i5, f8.3,2e14.4,2x,2e14.4)
+c printout for omega channel with fine binning:
+      write(isum,'(//''#   omega -> e+e-'')')
+
+      flag = .true.
+      do ninv=1,ninvmas
+        if (dilmass(ninv,ninvmas,minmas,maxmas,dinv).lt.minmas_om .or.
+     &     dilmass(ninv,ninvmas,minmas,maxmas,dinv).gt.maxmas_om) then
+          write(isum,'(i5,f8.3,2e14.4)') ninv,
+     &       dilmass(ninv,ninvmas,minmas,maxmas,dinv),
+     &       sig_invmas(2,ninv), fsig_invmas(2,ninv)
+        else if (flag) then
+          do ninv_om=1,ninvmas_omega
+            write(isum,'(i5,f8.3,2e14.4)') ninv_om,
+     &         dilmass(ninv_om,ninvmas_omega,minmas_om,maxmas_om,dinv),
+     &         sig_invmas_omega(ninv_om), fsig_invmas_omega(ninv_om)
+          end do
+          flag = .false.
+        end if
+      end do
+c printout for dileptons from continuous channels:
+      ddilmas = max_dilmas/n_mass_bins
+c      write(isum,
+c     &   '(//''#  e+e- from continuous channels (Dalitz dec.)'')')
+c      write(isum,'(5x,a8,27a14)') 'mass','pi_0','eta','omega','brems',
+c     &   'D(1232)','N(1440)','N(1520)','N(1535)','N(1650)','N(1675)',
+c     &   'N(1680)','N(1700)','N(1710)','N(1720)','N(2000)','N(2080)',
+c     &   'N(2190)','N(2220)','N(2250)','D(1600)','D(1620)','D(1700)',
+c     &   'D(1900)','D(1905)','D(1910)','D(1920)','D(1930)','D(1950)'
+c      do ninv=1,n_mass_bins
+c        write(isum,'(i5,f8.3,30e14.4)') ninv,dilmass_cont(ninv),
+c     &     prob_cont_epair(ch_pi,ninv)/ddilmas,
+c     &     prob_cont_epair(ch_eta,ninv)/ddilmas,
+c     &     prob_cont_epair(ch_omega,ninv)/ddilmas,
+c     &     prob_cont_epair(ch_brems,ninv)/ddilmas,
+c     &     (prob_cont_epair(ires+bary_chan_offset,ninv)/ddilmas,
+c     &     ires=1,nres)
+c      end do
+      write(isum,
+     &   '(//''#  e+e- from continuous channels (Dalitz dec.)'')')
+      write(isum,'(5x,a8,27a14)') 'mass','pi_0','eta','omega','brems',
+     &   'D(1232)','N(1520)'
+      do ninv=1,n_mass_bins
+        write(isum,'(i5,f8.3,30e14.4)') ninv,dilmass_cont(ninv),
+     &     prob_cont_epair(ch_pi,ninv)/ddilmas,
+     &     prob_cont_epair(ch_eta,ninv)/ddilmas,
+     &     prob_cont_epair(ch_omega,ninv)/ddilmas,
+     &     prob_cont_epair(ch_brems,ninv)/ddilmas,
+     &     prob_cont_epair(1+bary_chan_offset,ninv)/ddilmas,
+     &     prob_cont_epair(3+bary_chan_offset,ninv)/ddilmas
+      end do
+
+      write(isum,
+     &   '(//''#  e+e- from continuous channels (Dalitz dec.)'')')
+      write(isum,'(''#  with HADES acceptance'')')
+      write(isum,'(5x,a8,27a14)') 'mass','pi_0','eta','omega','brems',
+     &   'D(1232)','N(1520)'
+      do ninv=1,n_mass_bins
+        write(isum,'(i5,f8.3,30e14.4)') ninv,dilmass_cont(ninv),
+     &     prob_cont_epair_hades(ch_pi,ninv)/ddilmas,
+     &     prob_cont_epair_hades(ch_eta,ninv)/ddilmas,
+     &     prob_cont_epair_hades(ch_omega,ninv)/ddilmas,
+     &     prob_cont_epair_hades(ch_brems,ninv)/ddilmas,
+     &     prob_cont_epair_hades(1+bary_chan_offset,ninv)/ddilmas,
+     &     prob_cont_epair_hades(3+bary_chan_offset,ninv)/ddilmas
+      end do
+      return
+      end
+

@@ -1,0 +1,9 @@
+#!/bin/zsh
+limit coredumpsize 0
+# cd /home/gwolf/BUU/buu2018
+set OUTFILE=pbarAu08b02d_JPsi_mat.out
+# set OUTFILE=/dev/null
+set INFILE=readin/pbarAu08b02d_JPsi_mat.in
+cat job_pbarAu08b02d_JPsi_mat > $OUTFILE
+cat $INFILE >> $OUTFILE
+buusrc0/BUU.x < $INFILE >> $OUTFILE

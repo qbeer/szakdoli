@@ -1,0 +1,38 @@
+c
+      integer max_kminu, max_ksi, max_epair, max_omega
+      parameter (max_kminu=40000, max_ksi=10000)
+      parameter (max_epair=20000, max_omega=40000)
+      integer i_kminu, i_kminu_pot, i_kminu_cr, i_epair,
+     1        i_kminu_coll, nx_hyp, nx_kminu, nx_epair,
+     2        i_ksi, i_ksi_pot,nx_ksi,i_hyp,nx_omega,nx_eta
+c
+      real*8 p_hyp, r_hyp, p_kminu, r_kminu, r_ksi,
+     1     p_ksi, p_epair, p_omega,r_omega,p_eta,r_eta
+c
+c         nx_hyp(0,i)   =   0 (no hyperon) , 1=lambda, 2=sigma
+c         ika(1,i)      =   0 (no hyperon) , 1=K+,     2=K0
+c         ika(6,i)  =  nx_kminu(5,i)   ==  time of creation/collision
+c
+      real*8 kmi_phi(0:999,0:999),kmi_time(0:999)
+c      real*8 kmi_hpi(0:999,0:999),kmi_hyp(0:999,0:999)
+      real*8 kmi_dbb(0:999,0:999),kmi_dpi(0:999,0:999)
+      integer  kpl_phi(0:999,0:999)
+      common/k_minu_co1/ p_hyp(0:4,max_kminu),
+     1                   r_hyp(3,max_kminu),
+     2                   p_kminu(0:4,max_kminu),
+     3                   r_kminu(3,max_kminu),
+     4                   r_ksi(3,max_kminu),
+     5                   p_ksi(0:4,max_kminu),
+     6                   p_epair(0:5,max_kminu),
+     8                   p_omega(0:4,2*max_omega),r_eta(0:4,2*maxeta),
+     9                   r_omega(0:4,2*max_omega),p_eta(0:4,2*maxeta)
+
+      common/k_minu_co2/ i_kminu, i_kminu_pot, i_kminu_cr,
+     1                   i_kminu_coll, i_epair,i_hyp,
+     2                   i_ksi, i_ksi_pot, 
+     4                   nx_hyp(0:5,max_kminu),
+     5                   nx_kminu(0:6,max_kminu),
+     6                   nx_ksi(0:1,max_ksi),
+     7                   nx_epair(0:2,max_epair),
+     8                   nx_eta(0:9,2*maxeta),
+     9                   nx_omega(0:9,2*max_omega)

@@ -1,0 +1,2 @@
+rho -> e+e- is calculated in rho_dec.f
+               printed out in kaonout.f

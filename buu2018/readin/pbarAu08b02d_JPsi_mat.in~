@@ -1,0 +1,465 @@
+ &adatok
+ totoutp='buuout/ppbar/buu/pbarAu08b02d_JPsi_mat.dat',
+ barout='buuout/ppbar/bar/pbarAu08b02d_JPsi_mat.dat',
+ pioout='buuout/ppbar/pio/pbarAu08b02d_JPsi_mat.dat',
+ cpiout='buuout/ppbar/cpi/pbarAu08b02d_JPsi_mat.dat',
+ cpiout1='buuout/ppbar/cpi/pbarAu08b02d_JPsi_mat.dat1',
+ delout='buuout/ppbar/del/pbarAu08b02d_JPsi_mat.dat',
+ dilout='buuout/ppbar/dil/pbarAu08b02d_JPsi_mat.dat',
+ mesout='buuout/ppbar/mes/pbarAu08b02d_JPsi_mat.dat',
+ mestimout='buuout/ppbar/mes/pbarAu08b02d_JPsi_mat.dat1',
+ omeout='buuout/ppbar/ome/pbarAu08b02d_JPsi_mat.dat',
+ kaoout='buuout/ppbar/kao/pbarAu08b02d_JPsi_mat.dat',
+ ppiout='buuout/ppbar/ppi/pbarAu08b02d_JPsi_mat.dat',
+ gamout='buuout/ppbar/ppi/pbarAu08b02d_JPsi_mat.dat1',
+ denout='buuout/ppbar/ppi/pbarAu08b02d_JPsi_mat.dat1',
+ fsout='buuout/ppbar/fserat/pbarAu08b02d_JPsi_mat.dat',
+ spfout='buuout/ppbar/specfunc/pbarAu08b02d_JPsi_mat.dat',
+ JPsiout='buuout/ppbar/buu/pbarAu08b02d_JPsi_mat_JPsi.dat',
+ massta=197,     ! coll  system  ! target mass
+ mstapr=79,                      ! target proton number
+ masspr=-1,                      ! projectile mass
+ msprpr=-1,                      ! projectile proton number
+ mpion=0,                        ! 0 no pion beam, +-1 pi+- beam
+ elab=08.0,                      ! E/A (in GeV)
+ b=2.0,                          ! impact parameter (in fm)
+ dt=0.2,                         ! timestep (in fm/c)
+ ntmax=120,                       ! number of timestep
+ isubs=100,                        ! number of subsequent runs
+ num=200,                          ! number of paralel runs
+ numpaul=5,                      ! every numpaulth baryon selected for pauli
+ iseed=-7529,   ! ccccccccc     ! random number
+ icoll=0,                        ! 0-> buu; 1-> Vlasov; -1-> cascade;
+ insys=1,                        ! 1-> c.m. system 0 -> lab-system
+ ipauli=1,                       ! 1-> Pauli is taken into account, 0-> no
+ icomp=1,        ! potential       
+ ipou=1,                         ! 1-> coulomb, 0-> no Coulomb
+ istrangepot = 1,                ! strange baryon pot from lattice
+ ireslife=0,     !resonances     ! 0-> 1/Gamma, 1-> Danielewitz, 2-> Baz, 3-> Wolf (2,3 not used)
+ iavoid=1,                       ! 1-> avoid first collision in the target or projectile nucleons
+ irescol=2,                      ! 2-> all, 0-> no nx->nx, dd->nx, pi+R; 1-> nx->nx, dd->nx no pi+R
+ mescol=1,                       ! 1-> pi rho included, 0-> only pipi
+ ippbarcoll = 1,                 ! 1-> pbar can only collide once; 0-> any times
+ masdis=1,                       ! 1-> in NR final state R mass dist is corrected by the outgoing cm mom
+ iwidth=1,                       ! 1-> standard (for Delta Moniz), 0-> mom indep, 3-> Mosel (wrong for Delta), 4-> Manley
+ iresmode=3,                     ! BW form: 3-> rel. with s, 1-> nonrelativistic, 2-> rel. with M
+ idec2pi=1,                      ! Gam_2pi: 1-> integral over the spectr func., 0-> 0, 2 -> constant, 
+ dlife=1.,                       ! res lifetime: res lifetime * dlife
+ idipi=2,         ! pions
+ iabso=1,
+ iempi=1,
+ ipiab=1,
+ ipico=2,
+ nbound=0,       ! box
+ boxx=2.0,       ! 
+ boxz=3.0,
+ ntcell=10,
+ cell=60.,
+ nther=10,
+ delr=0.5,
+ delp=0.050,
+ npartcel=10,
+ nfreq=90,
+ timinsp=10.,
+ ifit=1,
+ nfrba=10,
+ ibaspe=0,
+ iparti=1,
+ tminba=0.2,
+ tmaxba=0.7,
+ binkba=0.10,
+ bintba=0.1,
+ binmba=0.10,
+ dangleb=12.0,
+ iframeb=1,
+ nangleb=1,
+ anba(1)=41.0,
+ anba(2)=40.0,
+ anba(3)=60.0,
+ anba(4)=80.0,
+ anba(5)=90.0,
+ nfrpi=10,
+ ipispe=1,
+ tminpi=0.1,
+ tmaxpi=0.6,
+ binkpi=0.05,
+ bintpi=0.25,
+ binmpi=0.05,
+ danglep=10.0,
+ iframep=1,
+ nanglep=1,
+ anpi(1)=20.0,
+ anpi(2)=40.0,
+ anpi(3)=60.0,
+ anpi(4)=80.0,
+ anpi(5)=90.0,
+ nfrpira=1000,
+ idilepton=1,
+ ivmesdil=1,
+ ibrems=1,
+ ipiNbrems=0,
+ iresdalitz=1,
+ imesdalitz=1,
+ ifilt=0,
+ idiltra=0,
+ ndlmaslow=26,
+ ndlmas=150,
+ dlmasl=0.100,
+ ddlmaslow=0.020,
+ ddlmashigh=0.004,
+ ny=10,
+ nqt=10,
+ nf=4,
+ qtmaxi=1.0,
+ ymaxscal=1.2,
+ yminscal=1.2,
+ nbrems=100,
+ npiNbrems=10,
+ ideltad=2,
+ ndalitz=1,
+ irand=2,
+ idal=2,
+ ndiltim=20,
+ timindi=10.,
+ idildelm=0,
+ iformro=0,
+ densste=0.20,
+ dimasmi=0.52,
+ ipertpi=0,
+ ndmas=5,
+ iszog=5,
+ mqt=20,
+ my=10,
+ mf=4,
+ qtmaxp=0.80,
+ npertpi=800,
+ idilper=0,
+ ndilper=40,
+ ndelmas=5,
+ iszogd=5,
+ ikaon=0,
+ ikaonpot=0,
+ ikaoncr=4,
+ pidelka=0.25,
+ pkaonnum=1.,
+ nqtk=12,
+ nyk=6                     
+ nfk=4,
+ ymaxsk=1.2,
+ yminsk=1.2,
+ qtmaxk=1.2,
+ npl=20,
+ plstep=0.05,
+ angkaon=40.0,
+ nphikaon=4,
+ timkao=1.0,
+ i_phi = 1,
+ iphi_pot = 0,
+ max_phi = 20000,
+ iphi_cr = 1,       
+ pphi_num = 1.,
+ iphi_col = 1,
+ iphi_dec = 1,
+ i_epair  = 0,
+ i_kminu = 1,
+ i_kminu_pot = 0,
+ i_kminu_cr = 0,
+ i_kminu_coll = 0,
+ i_ksi = 0,
+ i_ksi_pot = 0,
+ i_JPsi = 5,
+ JPsi_scale_factor=1.0,
+ iJPsimat=1,
+ i_charm_matt_dec = 1, ! 0: branching ratio,  1: em width does not change
+ JPsi_massshift(1)=-0.015,  !SuHoung Lee: nucl-th/0310080
+ JPsi_massshift(2)=-0.100,  !SuHoung Lee: nucl-th/0310080
+ JPsi_massshift(3)=-0.14,   !SuHoung Lee: nucl-th/0310080
+ JPsi_widthshift(1)=0.02,   !SuHoung Lee: nucl-th/0310080
+ JPsi_widthshift(2)=0.02,   !SuHoung Lee: nucl-th/0310080
+ JPsi_widthshift(3)=0.02,   !SuHoung Lee: nucl-th/0310080
+ JP_dlmas=240,
+ JP_dlmasl=2.700,
+ JP_ddlmas=0.005,
+ JP_y=10,
+ JP_qt=10,
+ JP_f=4,
+ JP_qtmaxi=1.0,
+ JP_ymaxscal=1.2,
+ JP_yminscal=1.2,
+ iDrellYan=1,
+ iDmes=1,
+ IR_dlmasl=1.0,
+ IR_ddlmas=0.05,
+ IR_qtmaxi=2.0,
+ IR_yminscal=1.1,
+ IR_ymaxscal=1.1,
+ IR_dlmas=80,
+ IR_y=10,
+ IR_qt=10,
+ IR_f=4,
+ iomega=0,
+ imeson=1,
+ nmesma=33,
+ dmesma=0.025,
+ xmesmi=0.27,
+ xmesm2=0.77,
+ nmesm2=5,
+ dmesm2=0.005,
+ ncalmes=010,
+ sigpiom=0.005,
+ gammesma=4.0,
+ ivecmatt=0,
+ icbro=1,                        ! collisional broadening
+ rhomshift=-0.14,
+ rhowbroad=1.0,
+ omemshift=-0.05,
+ omewbroad=1.0,
+ igamma=0,
+ igamsys=1,
+ pgamma=1.0,
+ pgammad=1.0,
+ nplgam=20,
+ plstepga=0.01,
+ plmingam=0.01,
+ nphigam=4,
+ nanglgam=1,
+ anglegam(1)=15.0,
+ anglegam(2)=45.0,
+ anglegam(3)=75.0,
+ anglegam(4)=105.0,
+ anglegam(5)=135.0,
+ anglegam(6)=165.0,
+ nqtg=20,
+ nyg=20,
+ nfg=4,
+ qtmaxg=0.2,
+ yminsg=1.2,
+ ymaxsg=1.2,
+ ngamtim=20,
+ timinga=10.,
+ ifserat=0,
+ ipipot=0,
+ ireapl=0,
+ isplipi = 0
+ iorder = 1
+ ideltapot=0,
+ inuclpri=0,
+ nnuclpri=2000,
+ ipionpri=0,
+ icpipri=0,
+ npionpri=2000,
+ ideltpri=0,
+ idilpri=0,
+ imespri=0,
+ imestimpri=0,              
+ iomepri=0,
+ ikaopri=0,
+ igampri=0,
+ ippipri=0,
+ ithermo=0,
+ idenspr=0,
+ icelpri=0,
+ ncont = 0,
+ ihades = 0,
+ timecpu=600000.,
+ $end
+
+40,   system *  massta (target mass)                                    
+20,             mstapr (proton in target)                               
+0,             masspr (projectile mass)                                
+0,             msprpr (proton in projectile)                           
+0,   (pi+nucl)  mpion:0->nucl-nucl; +-1->pi+- -nucl.; 2->pi0-nucl coll  
+0.0,            elab   (energy in gev)                                  
+0,              ielab 0-> no, 1-> relativistic correction               
+0.0,            b (impact parameter in fm)                              
+1,              idicr: 0-> cross sect. is scaled from central; 1-> not. 
+4.0, #buu par#  rdist; rmax=radta+radpr+rdist                           
+0000332,        iseed (for rand. gen.)                                  
+0.5,            dt (deltat in fm/c)                                     
+080,            ntmax (# of t-steps)                                    
+0,              icoll -----> buu: 0;  mean f.:1 ; cascade -1            
+1,              isubs (# subsequent runs)                               
+0400,           num (# part. / nucleon, use at least 30)                
+010,            numpaul(part.involved in pauli / particles)             
+1,              ipauli d-decay:1->testp.,2->local 3->1)+ ;4->2)+blocking
+1,    <-------- insys: 0-> lab-system, 1-> cm-system                    
+1, ## coll. ##  iavoid: 1-> avoid 1st col in one nucleus; 0->allow      
+2,              irescol: 0-> no nr->nr', 1-> nr->nr' and dd->nr;        
+2,              iangc: 0->isotr.; 1->elas.; 2->exp.ang.dist. for res.   
+1,              iwidth: 0->b.-wigner; 1->moniz; 2->kitazoe width (delta)
+1.0,            ggam: 0-> res width=width*(1-f), else-> width=width*ggam
+1.0,            a1: decay of delta a1+b1*cos(thet) in delta rest frame  
+0.0,            b1: if  b1<0.01 isotropic decay                         
+0,              idnfac: dnfa: 0->1; 1->dnfac; 2-> 1+rho/rho0*dnfac;     
+1.0,            dnfac: sigma(dn->nn)= sigma(dn->nn)*dnfa;               
+2,              idbl: 1-> bertsch; 2-> my detailed balance;             
+0,              ndist: 1-> exp delta mass distribution; else see iwidth 
+1.,             etacros: sigma(xx->yq)= sigma(xx->yq)*etacros           
+3,              ietanq: sigma(nq): 0->depaoli;1->vetter;2->laget;3->new;
+4.0,            pnperpp: sigma(np->eta)/sigma(pp->eta);                 
+1.,             dlife: delta life time times dlife                      
+0,              ipaulres: 0-> no pauli for resonances, 1-> pauli for res
+0,  potential   ipot: 0-> t0,t3,  1-> t0,t3,yukawa, 2-> t0,t3,ggbmom    
+0,              idelpot: pot delta:0-> nucl; 1-> shifted nucl; 2-> lin; 
+0,              ipou: 0-> no coulomb, 1-> with coulomb                  
+0.666666,       rpot: power of density dependent force                  
+1.5,            rlam: cutoff momentum (unit=fermi mom.) for ggbmom      
+0.7,            emss: effective/rest mass at fermi mom.for ggbmom       
+2.175,          smu: range of yukawa potential (1/fm)       2.175       
+10,             in: number of iterations for initial condition          
+0,              20-mmx; restricted space for coulomb                    
+0,              24-mmz; restricted space for coulomb                    
+3,              numd: delta of num for boundary of coulomb              
+10,             ncob: each ncob steps calculate the boundary of coulomb 
+1,              nitc: number of iteration for coulomb in each time step 
+1,              nity: number of iteration for yukawa  in each time step 
+2,  #pion part# idipi, pions: 0=> no, 1=> pions at end, 2=> direct pions
+1,              iabso: pion absorption: 0=> no, 1=> yes;                
+1,              iempi: pion emition   : 0=> no, 1=> yes;                
+1,              ipiab: pion abs. : 0=> b-w, 1=> 1/k**2;                 
+0,              ipico: pion-pion coll.: 0=> no, 1=> yes;                
+0,  output      isumm: 0-> no output of summry, 1-> with summry         
+10, thermodyn   ntcell: time step interval for big thermooutput         
+60.,            cell: cell size for thermooutput                        
+10,             nther: time step interval for small thermooutput        
+0.5,            delr: cell size for small thermooutput                  
+0.050,          delp: momentum cell size for small thermooutput         
+10,             npartcel: max. number of testparticles in one cell      
+2, coll.output  nfreq: time step interval for output of time evolution  
+1000,  koji     nfrep: time step interval for output of figures         
+0,              nbig1: (1=>xz-dens at y=0; 2=>rt-z-dens)                
+0,              nbig2: (1=>px,pz-dens py=0; 2=>pt-pz dens)              
+0,              nbig3: (1=>z,pz-dens integrated over all coord.)        
+10., #spectra#  timinsp: min. time for spectra;                         
+21,             ikinsp: num. of points in spectra;                      
+1,              ifit: 1-> exp. fit to the kin. energy spectra; 0->no;   
+10,  # baryon#  nfrba: time step interval for output of baryon spect.   
+0,              ibaspe: 0-> isospin average for ba spect.; 1-> pro only;
+1,              iparti: 0-> both; 1-> all; -1-> only participants;      
+0.2,            tminba:min. cut for fit baryon kinetic energy spectrum  
+0.7,            tmaxba:max. cut for fit baryon kinetic energy spectrum  
+0.10,           binkba: energy bin for baryon kinetic energy spectrum   
+0.1,            bintba: transv.mom./mass bin for baryon momentum distr. 
+0.10,           binmba: mom.bin for baryon invariant cross-section;     
+05.0,           dangleb: gives dfi(in degree) around angles;            
+1,              iframeb: 0-> inv.cross-sect. in cms; 1-> in lab.;       
+1,              nangleb:number of angles in anba (max. 5);              
+41.0,           anba(1):                                                
+40.0,           anba(2):                                                
+60.0,           anba(3): angles for invariant cross sections;           
+80.0,           anba(4):                                                
+90.0,           anba(5):                                                
+10, # spectra # nfrpi: time step interval for output of pion spect.     
+1,              ipispe: 0-> isospin average for pi spect.; 1-> pi- only;
+0.1,            tminpi:min. cut for fit pion kinetic energy spectrum    
+0.6,            tmaxpi:max. cut for fit pion kinetic energy spectrum    
+0.05,           binkpi: energy bin for the pion kinetic energy spectrum 
+0.25,           bintpi: transv.mom./pmass bin for pion momentum distr.  
+0.05,           binmpi: mom.bin for the pion invariant cross-section;   
+10.0,           danglep: gives dfi(in degree) around angles;            
+1,              iframep: 0-> inv.cross-sect. in cms; 1-> in lab.;       
+1,              nanglep:number of angles in anpi (max. 5);              
+41.0,           anpi(1):                                                
+40.0,           anpi(2):                                                
+60.0,           anpi(3): angles for invariant cross sections;           
+80.0,           anpi(4):                                                
+90.0,           anpi(5):                                                
+1000,           nfrpira:time step interval for output of pion density   
+1,  dilepton    ipiann: 1-> dileptons from pi annihilation; 0-> no;     
+1,              ibrems: 0-> no bremstr, 1-> bremstr. dileptons;         
+1,              ideldil: 0->no delta dalitz dec.; 1->dt;2->lifetime     
+0,              ipi0d: 1-> pi0 dalitz decay is calculated; 0-> no;      
+0,              ifilt: 0-> no filter; 1-> filter for dileptons;         
+0,              idiltra: 1-> dilepton transv. mom. spectra; 0-> no;     
+0.270,          dlmasl : min. invariant mass of dilepton                
+0.050,          ddlmas : step of invariant mass of dilepton             
+15,             ndlmas: number of steps of invariant mass of dilepton   
+10,             ny: number of steps in rapidity                         
+10,             nqt: number of steps in transvers momentum              
+4,              nf: number of steps in phi                              
+1.0,            qtmaxi: maximum transv. mom. for dileptons              
+3.0,            ymaxscal:max.rapidity for dileptons(ymax=scal*ypr)      
+3.0,            yminscal:min.rapidity for dileptons(ymin=scal*yta)      
+4.0,            delpi: maximal range of pion absorption in fixed frame  
+1.0,            dispi: range of pion annihilation                       
+4000,           nbrems: 1/npbrems is the probab. to call for bremsstr.  
+2,              ideltad: 1-> delta decay like bremsstr, 0-> no; 2->both;
+0800,           ndalitz: the ratio of selected events;                  
+2,              irand: number of random q vectors in deltadil;          
+2.70,           fd: coupling const. in delta decay                      
+5.000,          cutof: cutoff in delta decay                            
+2,              idal: 1-> first version of the coupling; 2-> second one;
+20, dil. output ndiltim: timestep interval for output of dileptons      
+10.,            timindi: minimal time for dilepton output               
+0,              idildelm:dalitz dec: 1->delta massbin; 2->dens.;0-> no; 
+0,              iformro: 1-> ro formfactor for dileptons; 0-> no;       
+0.20,           densste: step in density for dilepton study;            
+0.52,           dimasmi: minimmal dilepton mass for density dependence; 
+0,  pert.pion   ipertpi: 1:-> perurbative pions; 0-> no.                
+5,              ndmas: number of delta mass for pert. pions.            
+5,              iszog: number of delta angles for pert. pions.          
+20,             mqt: number of steps in transvers momentum              
+10,             my: number of steps in rapidity                         
+4,              mf: number of steps in phi                              
+0.80,           qtmaxp: max. transv. mom. for pert. pions.              
+800,            npertpi: the ratio of selected events;                  
+0, pert.delta   idilper: 1-> perturbative delta dalitz dec.; 0-> no;    
+40,             ndilper: ratio of selected events;                      
+5,              ndelmas: number of delta masses;                        
+5,              iszogd: number of delta scattering angles;              
+2.2, heavy mes. ymaxsk:max.rapidity for pert.particles(ymax=scal*ypr)   
+2.2,            yminsk:min.rapidity for pert.particles(ymin=scal*yta)   
+0,    kaon      ikaon: kaons are calculated       
+0,    ikaonpot  controlls kaon potentials     NEW - hw                      
+200.,           pkaonnum: the probability to call kaonbb: 1/pkaonnum    
+25,             nqtk: number of steps in transv. mom.;for spectra min 20
+20,             myk: number of steps in rapidity;     for spectra min 20
+20,             npl: number of points in the kaon spectrum              
+0.05,           plstep: step in kaon lab. momentum                      
+0.715,          angkaon:lab angle for kaons in radian                   
+4,              nphikaon:number of polar angles for kaons               
+0,              i_phi    =1:  Phi production
+0               iphi_pot =1:  potential for Phi
+10000           max_phii::   storage for Phi vectors, shared with maxkao 
+1               iphi_cr = 1: Chung+Ko, =2 Sibirtsev,=3 Titov for Phiprod.
+1.              pphi_num  > 1.0, probabilty to call Phi production
+1.              JPsi_scale_factor  > 1.0, 1/probabilty to call JPsi production
+1,    omega     iomega: omega is calculted                              
+1,    meson     imeson: vector mesons are calculted                     
+20,             nmesma: number of masses for meson production           
+0.02,           dmesma: step for masses for meson production            
+0.61,           xmesmi: minimal mass for meson production               
+0.77,           xmesm2: minimal mass for meson production in dense      
+4,              nmesm2: number of masses for meson production in dense  
+0.005,          dmesm2: step for masses for meson production in dense   
+010,            ncalmes: 1/ncalmes is the probab. to call for mesonbb   
+0.005,          sigpiom: xsection for pi+pi->omega;                     
+4.0,            gammesma: *width is the allowed mass reg. for vmesons   
+0,  gamma       igamma: gamma is calculated                             
+1,              igamsys:1-> spectrum in the lab system, else->cm system;
+1.0,            pgamma: probability to call for pn bremsstrahlung       
+1.0,            pgammad: probability to call for delta decay            
+20,             nplgam: number of points in the gamma spectra           
+0.01,           plstepga: step in the gamma momentum                    
+0.01,           plmingam: minimum gamma energy                          
+4,              nphigam: number of phi angle to average                 
+1,              nanglegam: number of theta angle to calculate           
+0.5,            anglegam(1)                                             
+0.1,            anglegam(2)                                             
+0.1,            anglegam(3)    all in radian                            
+0.1,            anglegam(4)                                             
+0.1,            anglegam(5)                                             
+1,  # output #  inuclpri: '17': 1-> nucleon output;                     
+2000,           nnuclpri: number of parallel runs to output of baryons; 
+1,              ipionpri: '18': 1-> pion output; 0-> no;                
+2000,           npionpri: number of parallel runs to output of pions;   
+1,              idilpri: '16': 1-> dilepton printout;                   
+0,              ikaopri: '14': 1-> kaon full printout,                  
+0,              iomepri: '11': 1-> omega full printout                  
+1,              imespri: '12': 1-> meson full printout                  
+1,              imestimpri: '50': 1-> meson time dep. printout
+0,              ithermo: '13': 1-> small thermo output                  
+0,              idenspr: '19': 1-> dens profil printout                 
+0,              iperpri: '19': 1-> output of pert. pions.               
+0,              icelpri: '31-30+10*isubs': 1-> big thermo output        
+09485., time    timecpu: -> time to jumpout for output;                 

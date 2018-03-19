@@ -1,0 +1,93 @@
+
+************************************************************************
+*                                                                      *
+      subroutine tpot(ipot,ipou,massta,masspr,rpot,tt0,tt3,
+     &          pott,potp,potn,potm,potc,
+     &          rmst,rmsp,rmsn,mstapr,msprpr,ecthe)
+*                                                                      *
+*       purpose:     determine potential energy density                *
+*       variables:                                                     *
+*         ipot                - choice of potential    (integer,input) *
+*         ipou                - choice of coulomb      (integer,input) *
+*         massta              - target mass            (integer,input) *
+*         masspr              - projectile mass        (integer,input) *
+*         rpot                - power of den.dep.int.     (real,input) *
+*         tt0                 - coefficient of t0 term    (real,input) *
+*         tt3                 - coefficient of t3 term    (real,input) *
+*         ttc                 - coefficient of gbd term   (real,input) *
+*         pott                - potential energy density of total      *
+*         potp                - potential energy density of proton     *
+*         potn                - potential energy density of neutron    *
+*         potm                - potential energy density for gbdmom    *
+*         potc                - potential energy density for coulomb   *
+*         rmst                - root mean square of radius of total    *
+*         rmsp                - root mean square of radius of proton   *
+*         rmsn                - root mean square of radius of neutron  *
+*         mstapr              - proton in target       (integer,input) *
+*         msprpr              - proton in projectile   (integer,input) *
+*         ecthe               - cold thermal energy                    *
+*                                                                      *
+************************************************************************
+      implicit none
+      real*8 e0,rpot,tt0,tt3,pott,potp,potn,potm,potc,
+     &          rmst,rmsp,rmsn,ecthe,cpp,skcc
+      real*8 skp,skn,srp,srn,skm,skc,rrt,rrp,rrn,rrr,ssr
+      integer ipot,ipou,massta,masspr,mstapr,msprpr,iz,iy,ix
+      parameter         (e0=0.9383)
+      include"common"
+*
+*-----------------------------------------------------------------------
+      skp=0.0
+      skn=0.0
+      srp=0.0
+      srn=0.0
+      skm=0.0
+      skc=0.0
+      ecthe=0.0
+      do 300 iz = -maxz,maxz
+      do 200 iy = -maxx,maxx
+      do 100 ix = -maxx,maxx
+          rrt=rhb(ix,iy,iz)
+          rrp=rhob_4(4,ix,iy,iz)
+          rrn=rhob_4(5,ix,iy,iz)
+          rrr=rrt
+          if(rrt.ne.0.0) rrr=rrr/rhob_4(6,ix,iy,iz)
+          if(masspr.eq.0) then
+          ssr=float(ix**2+iy**2+iz**2)
+          srp=srp+ssr*rrp
+          srn=srn+ssr*rrn
+          end if
+          ecthe=ecthe+3./5.*hbc**2/2./e0*(3./2.*pi**2*rrr)**(2./3.)*rrt
+          cpp=0.0
+          if(rrt.ne.0.0) then
+          cpp=(3./8.*tt0*rrr+3./8.*tt3*rrr**(rpot+1.))*rrt
+          if(ipot.eq.1) cpp=cpp+1./2.*yup(ix,iy,iz)*rrt
+          skp=skp+cpp*rrp/rrt
+          skn=skn+cpp*rrn/rrt
+          end if
+          if(ipou.eq.1) then
+           skcc=1./2.*cop(ix,iy,iz)*rrp
+           skc=skc+skcc
+           skp=skp+skcc
+          end if
+  100 continue
+  200 continue
+  300 continue
+*
+*
+      if(mstapr+msprpr.ne.0)
+     &potp =skp/float(mstapr+msprpr)
+      if(massta-mstapr+masspr-msprpr.ne.0)
+     &potn =skn/float(massta-mstapr+masspr-msprpr)
+      pott =(skp+skn)/float(massta+masspr)
+      potm =skm/float(massta+masspr)
+      potc =skc/float(massta+masspr)
+      ecthe=ecthe/float(massta+masspr)
+      if(mstapr.ne.0)
+     &rmsp =sqrt(srp/float(mstapr))
+      if(massta-mstapr.ne.0)
+     &rmsn =sqrt(srn/float(massta-mstapr))
+      rmst =sqrt((srp+srn)/float(massta))
+*
+      return
+      end

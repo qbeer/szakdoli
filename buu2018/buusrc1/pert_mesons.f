@@ -1,0 +1,699 @@
+************************************************************************
+*                                                                      *
+      subroutine pert_meson_init
+*                                                                      *
+************************************************************************
+      implicit none
+      include"cominput"
+      include"com_pert"
+      integer ii,i_pert,nt
+      real*8 abs_JPsi_bar(3),abs_JPsi_mes(3)
+      common/charmonium_abs/ abs_JPsi_bar,abs_JPsi_mes
+      integer jj(3),nJPmass
+      real*8 mass_evol_store(3,max_JPtime,max_part_id,10)
+      common/Charm_store/mass_evol_store,jj
+
+      call phi_din !initialize the phi prod.
+      
+      abs_JPsi_bar(1) = 0.0
+      abs_JPsi_bar(2) = 0.0
+      abs_JPsi_bar(3) = 0.0
+      abs_JPsi_mes(1) = 0.0
+      abs_JPsi_mes(2) = 0.0
+      abs_JPsi_mes(3) = 0.0
+
+      jj(1) = 0
+      jj(2) = 0
+      jj(3) = 0
+      
+      do ii = 1,3
+        do nt = 0,200
+          collbro_JPsi(ii,nt) = 0.0
+        end do
+        do nt=1,ntmax
+          do i_pert =1,10
+             mass_evol_store(1,nt,id_JPsi(ii),i_pert)=0.0
+          end do ! i_pert
+          do nJPmass = 1,max_JPmass
+            JPsi_massdist(1,ii,nt,nJPmass) = 0.0
+            JPsi_massdist(2,ii,nt,nJPmass) = 0.0
+            JPsi_massdist(3,ii,nt,nJPmass) = 0.0
+          end do ! nJPmass
+        end do ! nt
+      end do  ! ii
+      do ii=1,2
+        do nt=0,200
+          JPsi_init_pos(ii,nt) = 0.0
+        end do ! nt
+      end do  ! ii
+      return
+      end
+************************************************************************
+*                                                                      *
+      subroutine pert_meson_init_isu
+*                                                                      *
+************************************************************************
+      implicit none
+      include"cominput"
+      include"com_pert"
+      integer jj(3),ii,i_pert,nt
+      real*8 mass_evol_store(3,max_JPtime,max_part_id,10)
+      common/Charm_store/mass_evol_store,jj
+
+      do ii = 1,max_part_id
+        do i_pert =1,max_pert
+          nx_pert(ii,0,i_pert)=0  
+          do nt=1,ntmax
+            mass_evol(1,nt,ii,i_pert)=0.0
+          end do
+        end do 
+      end do
+
+      return
+      end
+************************************************************************
+*                                                                      *
+      subroutine pert_meson(nt,dt0,isu,yref)
+*                                                                      *
+************************************************************************
+      implicit none
+      include"common"
+      include"com_pert"
+      include"cominput"
+      real*8 abs_JPsi_bar(3),abs_JPsi_mes(3),beta(3)
+      common/charmonium_abs/ abs_JPsi_bar,abs_JPsi_mes
+      integer ii,irun,i_pert,size_of_run,ix,iy,iz,nt,ib,nJPmass,isu
+      real*8 prob, rself,iself,dens,vrel,gamma,sgamma,ww,dt0,ener,yref
+      real*8 px1,py1,pz1,em1,meff1,e1,px2,py2,pz2,em2,meff2,e2
+      real*8 b12,a12,c12,p12,p1dr,p2dr,brel,t1,t2,b21,dx,dy,dz,rsqare
+      real*8 bmax,rn,j0,j1,j2,j3
+      parameter (bmax=1.0) ! impact parameter when collision may happen
+      write(*,*) 'in pert_mesons'
+
+*=======================================================================
+*            omega-baryon elastic scattering + absorption
+c      if(i_phi.eq.1)     call omegacoll(isu)
+*=======================================================================
+*            eta-baryon phi prod. elastic scattering + absorption
+c      if(i_phi.eq.1) call etacoll(isu)
+*=======================================================================
+*            phi-baryon elastic scattering    + absorption
+
+        if( (ikaon.ge.1 .or. imeson.eq.1) .and. i_phi.eq.1 .and.
+     &     iphi_col.eq.1 ) then
+         call phicoll(isu,yref,nt)
+        endif
+        write(*,*) 'after phicoll'
+*=======================================================================
+*            phi decay to K+ K-
+c      if(i_phi.eq.1 .and. iphi_dec.eq.1) call phi_dec(yref)
+*
+      write(*,*) 'after phi_dec'
+
+      size_of_run = max_pert/num
+*=======================================================================
+c                     Charmonium
+c
+      do irun = 1, num
+        do i_pert = (irun-1) * size_of_run + 1, irun * size_of_run
+          do ii = 1,3
+            if(nx_pert(id_JPsi(ii),0,i_pert).gt.0) then
+              if(nx_pert(id_JPsi(ii),0,i_pert).ne.ii) then
+                 write(*,*) 'hiba in pert_mesons, id.ne',id_JPsi(ii),ii,
+     &                nx_pert(id_JPsi(ii),0,i_pert)
+              end if
+
+              nJPmass =  nint((p_pert(id_JPsi(ii),0,i_pert)-
+     &              JP_masl)/JP_dmas)
+              nJPmass=min(max_JPmass,nJPmass)
+              nJPmass=max(1,nJPmass)
+              JPsi_massdist(1,ii,nt,nJPmass) =
+     &          JPsi_massdist(1,ii,nt,nJPmass)+
+     &             p_pert(id_JPsi(ii),4,i_pert)
+              JPsi_massdist(2,ii,nt,nJPmass) =
+     &          JPsi_massdist(2,ii,nt,nJPmass)+ 1.0
+              
+              px1 = p_pert(id_JPsi(ii),1,i_pert)
+              py1 = p_pert(id_JPsi(ii),2,i_pert)
+              pz1 = p_pert(id_JPsi(ii),3,i_pert)
+              em1 = p_pert(id_JPsi(ii),0,i_pert)
+              e1=sqrt(px1**2+py1**2+pz1**2+em1**2)
+              gamma=e1/em1
+              
+              if(abs(em1-JPsi_prop(ii,1)).gt.0.5)write(*,*)'pert_m_dil',
+     &             ii,em1,nx_pert(id_JPsi(ii),0,i_pert),
+     &       nx_pert(id_JPsi(ii),1,i_pert),nx_pert(id_JPsi(ii),2,i_pert)
+              meff1 = em1
+              ix = nint(r_pert(id_JPsi(ii),1,i_pert))
+              iy = nint(r_pert(id_JPsi(ii),2,i_pert))
+              iz = nint(r_pert(id_JPsi(ii),3,i_pert))
+
+              dens = 0.0
+              j0 = 0.0
+              if(iabs(ix).le.maxx.and.iabs(iy).le.maxx.and.
+     &             iabs(iz).le.maxz)then
+                j0=rhob_4(0,ix,iy,iz)  
+                j1=rhob_4(1,ix,iy,iz)  
+                j2=rhob_4(2,ix,iy,iz)  
+                j3=rhob_4(3,ix,iy,iz)  
+                dens = sqrt(j0**2-j1**2-j2**2-j3**2)
+c                write(*,*) 'JPpertmes dens:', j0,dens,rhb(ix,iy,iz)
+                dens = rhb(ix,iy,iz)
+              end if
+              if (dens.lt.1.0e-3) then
+                dens=0.
+                vrel = 0.
+              else
+                call f77flush()
+                if(j1**2+j2**2+j3**2.gt.j0**2) then
+                  write(*,*) "hiba propa, mass<0",j0,j1,j2,j3
+                  stop
+                end if
+                call lorentz(px1/e1,py1/e1,pz1/e1,
+     &                j1,j2,j3,j0)
+                vrel = sqrt(j1**2+j2**2+j3**2)/j0
+              end if
+c              if(dens.lt.0.01) write(*,*) 'pert_mes JPsi dens',
+c     &              dens,ix,iy,iz
+     
+              call self_JPsi(ii,vrel,dens,rself,iself,sgamma)
+
+              ww=0.0
+              if(dt0.lt.10.) ww  = exp(-dt0 * sgamma / hbc/gamma)
+              prob = p_pert(id_JPsi(ii),4,i_pert)*(1.0-ww)
+              if(i_charm_matt_dec.eq.1)
+     &             prob = p_pert(id_JPsi(ii),4,i_pert)*
+     &                   (1.0-exp(-dt0 * JPsi_prop(ii,2) / hbc/gamma))
+              if(abs(em1-JPsi_prop(ii,1)).gt.0.5)
+     &          write(*,*)  'JPsimes JPsimass',
+     &           p_pert(id_JPsi(ii),0,i_pert),JPsi_prop(ii,1),
+     &           ii,i_pert,rself,iself,nx_pert(id_JPsi(ii),2,i_pert)
+              call JPsi_dilep(ii,em1,px1,py1,pz1,
+     &             r_pert(id_JPsi(ii),1,i_pert),
+     &             r_pert(id_JPsi(ii),2,i_pert),
+     &             r_pert(id_JPsi(ii),3,i_pert),prob)
+
+              p_pert(id_JPsi(ii),4,i_pert)=
+     &                p_pert(id_JPsi(ii),4,i_pert)*ww
+c         write(*,*) 'pert_mes',id_JPsi(ii),p_pert(id_JPsi(ii),0,i_pert),
+c     &             p_pert(id_JPsi(ii),1,i_pert),
+c     &             p_pert(id_JPsi(ii),2,i_pert),
+c     &             p_pert(id_JPsi(ii),3,i_pert),
+c     &             r_pert(id_JPsi(ii),1,i_pert),
+c     &             r_pert(id_JPsi(ii),2,i_pert),
+c     &             r_pert(id_JPsi(ii),3,i_pert),
+c     &             p_pert(id_JPsi(ii),4,i_pert)
+              mass_evol(1,nt,id_JPsi(ii),i_pert)
+     &              = p_pert(id_JPsi(ii),0,i_pert)
+              mass_evol(2,nt,id_JPsi(ii),i_pert) = e1
+              mass_evol(3,nt,id_JPsi(ii),i_pert) = dens/rho0
+c      absorption on a nucleon
+              if(2*(i_JPsi/2).eq.i_JPsi)  then
+                do 10 ib=(irun-1)*maxb+1, irun*maxb
+                  if(id(1,ib).eq.0) goto 10
+                  dx= r_pert(id_JPsi(ii),1,i_pert)- r(1,ib)
+                  if (abs(dx) .gt. delpi)                        goto 10
+                  dy= r_pert(id_JPsi(ii),2,i_pert)- r(2,ib)
+                  if (abs(dy) .gt. delpi)                        goto 10
+                  dz= r_pert(id_JPsi(ii),3,i_pert)- r(3,ib)
+                  if (abs(dz) .gt. delpi)                        goto 10
+                  rsqare = dx**2 + dy**2 + dz**2
+                  if (rsqare .gt. delpi**2)                      goto 10
+*   is their impact parameter small enough?
+                  px2        = p(1,ib)
+                  py2        = p(2,ib)
+                  pz2        = p(3,ib)
+                  em2        = e(ib)
+                  meff2      = em2 + upot(ib)
+                  e2         = sqrt (meff2**2+px2**2+py2**2+pz2**2 )
+
+                  p12    = e1 * e2 - px1 * px2 - py1 * py2 - pz1 * pz2
+                  p1dr   = px1 * dx + py1 * dy + pz1 * dz
+                  p2dr   = px2 * dx + py2 * dy + pz2 * dz
+                  a12    = 1.0 - ( meff1 * meff2 / p12 ) ** 2
+                  b12    = p1dr / meff1 - p2dr * meff1 / p12
+                  c12    = rsqare + ( p1dr / meff1 )**2
+                  brel   = sqrt( abs(c12 - b12**2/a12) )
+                  if(brel.gt.bmax)                               goto 10
+                  b21    = - p2dr / meff2 + p1dr * meff2 / p12
+                  t1     = ( p1dr / meff1 - b12 / a12 ) * e1 / meff1
+                  t2     = ( - p2dr / meff2 - b21 / a12 ) * e2 / meff2
+*   will particles get closest point in this time interval ?
+                  if ( abs(t1+t2) .gt. dt )                      goto 10
+                  p_pert(id_JPsi(ii),4,i_pert)=
+     &               p_pert(id_JPsi(ii),4,i_pert)*
+     &                 (1.-min(1.0,sigJPsib(ii)/(bmax**2*pi*10.)))
+                  abs_JPsi_bar(ii) = abs_JPsi_bar(ii)
+     &                          + min(1.0,sigJPsib(ii)/(bmax**2*pi*10.))
+  10            continue
+c     absorption on a meson
+                do 20 ib=(irun-1)*maxp+1, irun*maxp
+                  if(ipi(1,ib).eq.0) goto 20
+                  dx= r_pert(id_JPsi(ii),1,i_pert)- rpi(1,ib)
+                  if (abs(dx) .gt. delpi)                        goto 20
+                  dy= r_pert(id_JPsi(ii),2,i_pert)- rpi(2,ib)
+                  if (abs(dy) .gt. delpi)                        goto 20
+                  dz= r_pert(id_JPsi(ii),3,i_pert)- rpi(3,ib)
+                  if (abs(dz) .gt. delpi)                        goto 20
+                  rsqare = dx**2 + dy**2 + dz**2
+                  if (rsqare .gt. delpi**2)                      goto 20
+*   is their impact parameter small enough?
+                  px2        = ppi(1,ib)
+                  py2        = ppi(2,ib)
+                  pz2        = ppi(3,ib)
+                  em2        = epi(ib)
+                  meff2      = em2 + mpot(ib)
+                  e2         = sqrt (meff2**2+px2**2+py2**2+pz2**2 )
+
+                  p12    = e1 * e2 - px1 * px2 - py1 * py2 - pz1 * pz2
+                  p1dr   = px1 * dx + py1 * dy + pz1 * dz
+                  p2dr   = px2 * dx + py2 * dy + pz2 * dz
+                  a12    = 1.0 - ( meff1 * meff2 / p12 ) ** 2
+                  b12    = p1dr / meff1 - p2dr * meff1 / p12
+                  c12    = rsqare + ( p1dr / meff1 )**2
+                  brel   = sqrt( abs(c12 - b12**2/a12) )
+                  if(brel.gt.bmax)                               goto 20
+                  b21    = - p2dr / meff2 + p1dr * meff2 / p12
+                  t1     = ( p1dr / meff1 - b12 / a12 ) * e1 / meff1
+                  t2     = ( - p2dr / meff2 - b21 / a12 ) * e2 / meff2
+*   will particles get closest point in this time interval ?
+                  if ( abs(t1+t2) .gt. dt )                      goto 20
+                  p_pert(id_JPsi(ii),4,i_pert)=
+     &               p_pert(id_JPsi(ii),4,i_pert)*
+     &                 (1.-min(1.0,sigJPsim(ii)/(bmax**2*pi*10.)))
+                  abs_JPsi_mes(ii) = abs_JPsi_mes(ii)
+     &                          + min(1.0,sigJPsim(ii)/(bmax**2*pi*10.))
+  20            continue
+              end if
+            end if
+          end do
+        end do
+      end do 
+
+*     
+      write(*,*) 'return from pert_mesons'
+      call f77flush()
+      return
+*
+      end
+************************************************************************
+*                                                                      *
+      subroutine pert_meson_store
+*                                                                      *
+************************************************************************
+      implicit none
+      include"com_pert"
+      include"common"
+      include"cominput"
+      integer ii,i_pert,irtot,kk,ll,nn,nJPmass
+      real*8 dens,vrel,dt0,ener,rn
+      real*8 kaonmass
+      parameter (kaonmass=0.495)
+      real*8 px,py,pz,qx,qy,qz,xx,yy,zz,rr,ranp,pmax2,pmax,dilmass
+      real*8 e_el,e_po,transf,s_prime,pbeta,gamma,p_abs_kaon,e_kaon
+      real*8 p_prime,p_x_kaon,p_y_kaon,p_z_kaon,factn1,factn2,traf
+      real*8 e_prime,srt,s
+      real*8 beta(3)
+      integer jj(3),irun,size_of_run,i_DD
+      real*8 mass_evol_store(3,max_JPtime,max_part_id,10)
+      common/Charm_store/mass_evol_store,jj
+*     meson dileptonic decay
+*
+      size_of_run = max_pert/num
+
+      irtot = 0
+ 20   i_pert = max(1,nint(rn(iseed)*max_pert))
+      irtot = irtot + 1
+      if(jj(1).lt.10.and.mass_evol(1,1,id_JPsi(1),i_pert).gt.0.0001)then
+        jj(1) = jj(1)+1
+        do nn=1,ntmax
+          mass_evol_store(1,nn,id_JPsi(1),jj(1)) =
+     &                 mass_evol(1,nn,id_JPsi(1),i_pert)
+          mass_evol_store(2,nn,id_JPsi(1),jj(1)) =
+     &                 mass_evol(2,nn,id_JPsi(1),i_pert)
+          mass_evol_store(3,nn,id_JPsi(1),jj(1)) =
+     &                 mass_evol(3,nn,id_JPsi(1),i_pert)
+        end do
+      end if
+      if(jj(1).lt.10 .and. irtot.lt.1000) go to 20
+
+ 30   i_pert = max(1,nint(rn(iseed)*max_pert))
+      irtot = irtot + 1
+      if(jj(2).lt.10.and.mass_evol(1,1,id_JPsi(2),i_pert).gt.0.0001)then
+        jj(2) = jj(2)+1
+        do nn=1,ntmax
+        mass_evol_store(1,nn,id_JPsi(2),jj(2)) =
+     &                 mass_evol(1,nn,id_JPsi(2),i_pert)
+        mass_evol_store(2,nn,id_JPsi(2),jj(2)) =
+     &                 mass_evol(2,nn,id_JPsi(2),i_pert)
+        mass_evol_store(3,nn,id_JPsi(2),jj(2)) =
+     &                 mass_evol(3,nn,id_JPsi(2),i_pert)
+        end do
+      end if
+      if(jj(2).lt.10 .and. irtot.lt.1000) go to 30
+
+      irtot = 0
+ 40   i_pert = max(1,nint(rn(iseed)*max_pert))
+      irtot = irtot + 1
+      if(jj(3).lt.10.and.mass_evol(1,1,id_JPsi(3),i_pert).gt.0.0010)then
+        jj(3) = jj(3)+1
+        do nn=1,ntmax
+          mass_evol_store(1,nn,id_JPsi(3),jj(3)) =
+     &                 mass_evol(1,nn,id_JPsi(3),i_pert)
+          mass_evol_store(2,nn,id_JPsi(3),jj(3)) =
+     &                 mass_evol(2,nn,id_JPsi(3),i_pert)
+          mass_evol_store(3,nn,id_JPsi(3),jj(3)) =
+     &                 mass_evol(3,nn,id_JPsi(3),i_pert)
+        end do
+      end if
+      if(jj(3).lt.10 .and. irtot.lt.1000) go to 40
+      
+      do ii = 1,3
+        do i_pert = 1,max_pert
+          if(mass_evol(1,1,id_JPsi(ii),i_pert).gt.0.1) then
+              
+            do nn = 1,ntmax
+              nJPmass =  nint((mass_evol(1,nn,id_JPsi(ii),i_pert)-
+     &              JP_masl)/JP_dmas)
+              nJPmass=min(max_JPmass,nJPmass)
+              nJPmass=max(1,nJPmass)
+              JPsi_massdist(3,ii,nn,nJPmass) =
+     &            JPsi_massdist(3,ii,nn,nJPmass) + 1.0
+            end do
+          end if
+        end do
+      end do
+      
+*=======================================================================
+c                     Open Charm
+      i_DD = 0
+      do irun = 1, num
+        do i_pert = (irun-1) * size_of_run + 1, irun * size_of_run
+          do ii = 1,3,2
+            if(nx_pert(id_Dmes(ii),0,i_pert).gt.0) then
+c     electron
+              i_DD = i_DD + 1
+c              write(*,*)'OpenCharm',ii,i_DD,p_pert(id_Dmes(ii),4,i_pert)
+              ener=sqrt(p_pert(id_Dmes(ii),0,i_pert)**2+
+     &            p_pert(id_Dmes(ii),1,i_pert)**2
+     &           +p_pert(id_Dmes(ii),2,i_pert)**2
+     &           +p_pert(id_Dmes(ii),3,i_pert)**2)
+              beta(1) = p_pert(id_Dmes(ii),1,i_pert)/ener
+              beta(2) = p_pert(id_Dmes(ii),2,i_pert)/ener
+              beta(3) = p_pert(id_Dmes(ii),3,i_pert)/ener
+              gamma = 1.0/sqrt(1.0-(beta(1)**2+beta(2)**2+beta(3)**2)) 
+              traf  = gamma / (gamma+1.0)
+              srt = p_pert(id_Dmes(ii),0,i_pert)
+              s   = srt**2
+c---------------------------------------------
+c--------------- kaon momentum ----------------
+c---------------------------------------------
+
+ 41           ranp     = rn(iseed)
+              xx = ranp**2 * sqrt(1.00001-ranp**2) / 0.385 ! p^2*sqrt(1-p^2) is the momentum distribution 
+c          0.385 is the normalization factor, the maximal value of xx is 1.
+              if(xx .lt. rn(iseed)) goto 41
+              pmax2=.25*(s-(kaonmass+.001)**2)*(s-(kaonmass-.001)**2)/s
+              if(pmax2 .le. 0.0) return
+c     pmax  = the maximal kaon momentum
+              pmax  = sqrt(pmax2)
+              p_abs_kaon = pmax*ranp ! outgoing kaon momentum absolute value  
+              E_kaon   = sqrt(p_abs_kaon**2 + kaonmass**2) ! kaon energy in the 3 particle c.m. system
+              s_prime  = s - 2.0*srt*E_kaon+ kaonmass**2 ! s'=(p_e + p_nu)^2 : electron+neutrino s in the 3 particle c. m. system
+              if(s_prime.le.0.0) write(*,*)'pertmes_OC hiba spr',s_prime 
+              E_prime = 0.5* sqrt(s_prime) ! energy of the electron in the two lepton c. m. system
+              p_prime = E_prime
+
+ 42           xx       = 1. - 2. * rn(iseed)
+              yy       = 1. - 2. * rn(iseed)
+              zz       = 1. - 2. * rn(iseed)
+              rr       = sqrt( xx**2 + yy**2 + zz**2 )
+              if((rr .lt. 0.001) .or. (rr .gt. 1.) ) goto 42
+              p_x_kaon = p_abs_kaon * xx / rr ! kaon  momentum components
+              p_y_kaon = p_abs_kaon * yy / rr
+              p_z_kaon = p_abs_kaon * zz / rr
+
+c----------------------------------------------
+c--------------- electron momentum ----------------
+c----------------------------------------------
+
+ 43           xx       = 1. - 2. * rn(iseed)
+              yy       = 1. - 2. * rn(iseed)
+              zz       = 1. - 2. * rn(iseed)
+              rr       = sqrt( xx**2 + yy**2 + zz**2 )
+              if((rr .lt. 0.001) .or. (rr .gt. 1.) ) goto 43
+              factn1   = s_prime + sqrt(s_prime)*(srt-E_kaon)
+              factn2   = p_prime*(p_x_kaon*xx+p_y_kaon*yy+p_z_kaon*zz)
+     $                   /factn1/rr-E_prime/sqrt(s_prime)
+*     p3:                 electron momentum in electron - neutrino c.m. system (it is the same as the 3 particle c.m.s.)
+c            to the 3 particle c.m.s (kaon + electron' + neutrino')
+              px    = p_prime*xx/rr + factn2*p_x_kaon ! Lorentz transformation from the electron+neutrino (A' + B') system
+              py    = p_prime*yy/rr + factn2*p_y_kaon
+              pz    = p_prime*zz/rr + factn2*p_z_kaon
+              e_el  = sqrt(px**2+py**2+pz**2)
+*                     electron momentum in observable system
+              pbeta  = beta(1)*px + beta(2)*py + beta(3)*pz
+              transf = gamma * (traf * pbeta + e_el)
+              px  = px + beta(1) * transf
+              py  = py + beta(2) * transf
+              pz  = pz + beta(3) * transf
+              e_el = gamma * (e_el + pbeta)
+c              write(*,*)'pertmes OC transf',e_el1,
+c     &              sqrt(px**2+py**2+pz**2)
+
+              ener=sqrt(p_pert(id_Dmes(ii+1),0,i_pert)**2+
+     &            p_pert(id_Dmes(ii+1),1,i_pert)**2
+     &           +p_pert(id_Dmes(ii+1),2,i_pert)**2
+     &           +p_pert(id_Dmes(ii+1),3,i_pert)**2)
+              beta(1) = p_pert(id_Dmes(ii+1),1,i_pert)/ener
+              beta(2) = p_pert(id_Dmes(ii+1),2,i_pert)/ener
+              beta(3) = p_pert(id_Dmes(ii+1),3,i_pert)/ener
+              gamma = 1.0/sqrt(1.0-(beta(1)**2+beta(2)**2+beta(3)**2)) 
+              traf  = gamma / (gamma+1.0)
+              srt = p_pert(id_Dmes(ii),0,i_pert)
+              s   = srt**2
+c---------------------------------------------
+c--------------- kaon momentum ----------------
+c---------------------------------------------
+
+ 44           ranp     = rn(iseed)
+              xx = ranp**2 * sqrt(1.00001-ranp**2) / 0.385 ! p^2*sqrt(1-p^2) is the momentum distribution 
+c          0.385 is the normalization factor, the maximal value of xx is 1.
+              if(xx .lt. rn(iseed)) goto 44
+              pmax2=.25*(s-(kaonmass+.001)**2)*(s-(kaonmass-.001)**2)/s
+              if(pmax2 .le. 0.0) return
+c     pmax  = the maximal kaon momentum
+              pmax  = sqrt(pmax2)
+              p_abs_kaon = pmax*ranp ! outgoing kaon momentum absolute value  
+              E_kaon   = sqrt(p_abs_kaon**2 + kaonmass**2) ! kaon energy in the 3 particle c.m. system
+              s_prime  = s - 2.0*srt*E_kaon+ kaonmass**2 ! s'=(p_e + p_nu)^2 : electron+neutrino s in the 3 particle c. m. system
+              if(s_prime.le.0.0) write(*,*)'pertmes_OC hiba spr',s_prime 
+              E_prime = 0.5* sqrt(s_prime) ! energy of the electron in the two lepton c. m. system
+              p_prime = E_prime
+
+ 45           xx       = 1. - 2. * rn(iseed)
+              yy       = 1. - 2. * rn(iseed)
+              zz       = 1. - 2. * rn(iseed)
+              rr       = sqrt( xx**2 + yy**2 + zz**2 )
+              if((rr .lt. 0.001) .or. (rr .gt. 1.) ) goto 45
+              p_x_kaon = p_abs_kaon * xx / rr ! kaon  momentum components
+              p_y_kaon = p_abs_kaon * yy / rr
+              p_z_kaon = p_abs_kaon * zz / rr
+
+c----------------------------------------------
+c--------------- electron momentum ----------------
+c----------------------------------------------
+
+ 46           xx       = 1. - 2. * rn(iseed)
+              yy       = 1. - 2. * rn(iseed)
+              zz       = 1. - 2. * rn(iseed)
+              rr       = sqrt( xx**2 + yy**2 + zz**2 )
+              if((rr .lt. 0.001) .or. (rr .gt. 1.) ) goto 46
+              factn1   = s_prime + sqrt(s_prime)*(srt-E_kaon)
+              factn2   = p_prime*(p_x_kaon*xx+p_y_kaon*yy+p_z_kaon*zz)
+     $                   /factn1/rr-E_prime/sqrt(s_prime)
+*     p:                 electron momentum in electron - neutrino c.m. system (it is the same as the 3 particle c.m.s.)
+c            to the 3 particle c.m.s (kaon + electron' + neutrino')
+              qx    = p_prime*xx/rr + factn2*p_x_kaon ! Lorentz transformation from the electron+neutrino (A' + B') system
+              qy    = p_prime*yy/rr + factn2*p_y_kaon
+              qz    = p_prime*zz/rr + factn2*p_z_kaon
+              e_po  = sqrt(qx**2+qy**2+qz**2)
+*                     electron momentum in observable system
+              pbeta  = beta(1)*qx + beta(2)*qy + beta(3)*qz
+              transf = gamma * (traf * pbeta + e_po)
+              qx  = qx + beta(1) * transf
+              qy  = qy + beta(2) * transf
+              qz  = qz + beta(3) * transf
+              e_po = gamma * (e_po + pbeta)
+c              if((e_el1+e_po1)**2.le.(px+qx)**2+(py+qy)**2+(pz+qz)**2)
+c     &             write(*,*) 'pertmes OC mass',e_po1,e_po2,
+c     &         sqrt(qx**2+qy**2+qz**2),e_el1,px,py,pz,e_po1,qx,qy,qz
+              dilmass=
+     &           sqrt((e_el+e_po)**2-(px+qx)**2-(py+qy)**2-(pz+qz)**2)
+              call OpenCharm_dilep((ii+1)/2,dilmass,px+qx,py+qy,pz+qz,
+     &             p_pert(id_Dmes(ii+1),4,i_pert))
+            end if
+          end do
+        end do
+      end do 
+
+      return
+*
+      end
+************************************************************************
+*                                                                      *
+      subroutine pert_meson_out
+*                                                                      *
+************************************************************************
+      implicit none
+      include"com_pert"
+      include"common"
+      include"cominput"
+      real*8 abs_JPsi_bar(3),abs_JPsi_mes(3)
+      common/charmonium_abs/ abs_JPsi_bar,abs_JPsi_mes
+      integer ii,i_pert,kk,ll, nJPmass,nt,ntimout
+      real*8 dens,vrel,dt0,ener,rn,phiyield(30)
+      integer jj(3)
+      real*8 mass_evol_store(3,max_JPtime,max_part_id,10)
+      common/Charm_store/mass_evol_store,jj
+
+      ntimout= nint(5.0/dt)
+      write(m_JPsipri,'(79(''*''))')
+      write(m_JPsipri,'(''#     charmonium''/''#''/
+     &            ''# bombarding energy:'',f8.2,'' GeV''/
+     &            ''# impact parameter: '',f8.2,'' fm''/
+     &            ''# coll. broadening: '',i3,'' em branching'',i3)')
+     & elab,b,icbro,i_charm_matt_dec
+      do ii = 1,3
+        do nJPmass = 1,max_JPmass
+          JPsi_massdist(1,ii,max_JPtime,nJPmass) = 0.0
+          JPsi_massdist(2,ii,max_JPtime,nJPmass) = 0.0
+          JPsi_massdist(3,ii,max_JPtime,nJPmass) = 0.0
+        end do
+        do nt = 1,ntmax
+          do nJPmass = 1,max_JPmass
+            JPsi_massdist(1,ii,max_JPtime,nJPmass) =
+     &        JPsi_massdist(1,ii,max_JPtime,nJPmass)
+     &           + JPsi_massdist(1,ii,nt,nJPmass)
+            JPsi_massdist(2,ii,max_JPtime,nJPmass) =
+     &        JPsi_massdist(2,ii,max_JPtime,nJPmass)
+     &           + JPsi_massdist(2,ii,nt,nJPmass)
+            JPsi_massdist(3,ii,max_JPtime,nJPmass) =
+     &        JPsi_massdist(3,ii,max_JPtime,nJPmass)
+     &           + JPsi_massdist(3,ii,nt,nJPmass)
+          end do
+        end do
+c
+*
+        write(m_JPsipri,*)"# time dep of mass spect*prob of JPsi typ",ii
+        write(m_JPsipri,'("# mass  final",8i11)') (ll,ll=5,35,5)
+        do nJPmass = 1,max_JPmass
+          write(m_JPsipri,101) JP_masl+float(nJPmass)*JP_dmas,
+     &          JPsi_massdist(1,ii,max_JPtime,nJPmass),
+     &     (JPsi_massdist(1,ii,ll,nJPmass),ll=ntimout,7*ntimout,ntimout)
+        end do
+        write(m_JPsipri,*) ""
+        write(m_JPsipri,*) ""
+
+        write(m_JPsipri,*) "# time dep of mass spect*1 of JPsi type",ii
+        write(m_JPsipri,'("# mass  final",8i11)') (ll,ll=5,35,5)
+        do nJPmass = 1,max_JPmass
+          write(m_JPsipri,101) JP_masl+float(nJPmass)*JP_dmas,
+     &          JPsi_massdist(2,ii,max_JPtime,nJPmass),
+     &     (JPsi_massdist(2,ii,ll,nJPmass),ll=ntimout,7*ntimout,ntimout)
+        end do
+        write(m_JPsipri,*) ""
+        write(m_JPsipri,*) ""
+
+c        write(m_JPsipri,*) "# time dep of 3mass spect of JPsi type",ii
+c        write(m_JPsipri,*) "#  final", (ll,ll=10,80,10)
+c        do nJPmass = 1,max_JPmass
+c          write(m_JPsipri,101) JP_masl+float(nJPmass)*JP_dmas,
+c     &          JPsi_massdist(3,ii,max_JPtime,nJPmass),
+c     &     (JPsi_massdist(3,ii,ll,nJPmass),ll=20,160,20)
+c        end do
+      end do
+      
+*
+      if(2*(i_JPsi/2).eq.i_JPsi)  then
+        write(m_JPsipri,'(''# JPsi absorption'')')
+       write(m_JPsipri,'(''# baryon'',3e12.4)')(abs_JPsi_bar(kk),kk=1,3)
+        write(m_JPsipri,'(''# meson'',3e12.4)')(abs_JPsi_mes(kk),kk=1,3)
+        write(m_JPsipri,*) ""
+        write(m_JPsipri,*) ""
+      end if
+      do ii = 1,3
+        write(m_JPsipri,'(''# JPsi'',i3,'' mass evolution'')') ii
+        write(m_JPsipri,*)'# t        mass'
+        do kk = 1,ntmax
+           write(m_JPsipri,100) float(kk)*dt,
+     &      (mass_evol_store(1,kk,id_JPsi(ii),ll),ll=1,jj(ii))
+        end do
+        write(m_JPsipri,'(//''# JPsi'',i3,'' energy evolution'')') ii
+        write(m_JPsipri,*)'# t        energy'
+        do kk = 1,ntmax
+           write(m_JPsipri,100) float(kk)*dt,
+     &      (mass_evol_store(2,kk,id_JPsi(ii),ll),ll=1,jj(ii))
+        end do
+        write(m_JPsipri,'(//''# JPsi'',i3,'' density evolution'')') ii
+        write(m_JPsipri,*)'# t        density'
+        do kk = 1,ntmax
+           write(m_JPsipri,100) float(kk)*dt,
+     &      (mass_evol_store(3,kk,id_JPsi(ii),ll),ll=1,jj(ii))
+        end do
+        write(m_JPsipri,*) ""
+        write(m_JPsipri,*) ""
+      end do
+      write(m_JPsipri,'(''# JPsi creation pos z'',f8.2)')
+     &          sqrt(max(radius**2-b**2,0.0))
+      write(m_JPsipri,*)'# zz    num'
+      do kk = 0,60
+        write(m_JPsipri,103)
+     &  float(kk-10)*.2-sqrt(max(radius**2-b**2,0.)),JPsi_init_pos(1,kk)
+     &   /float(num*isubs)
+      end do
+      write(m_JPsipri,'(//''# JPsi creation density'')')
+      write(m_JPsipri,*)'# dens  num'
+      do kk = 0,15
+        write(m_JPsipri,103) float(kk)*0.1,JPsi_init_pos(2,kk)
+     &   /float(num*isubs)
+      end do
+      write(m_JPsipri,'(//''# JPsi creation width'')')
+      write(m_JPsipri,*)'# width    JPsi    Psi1         Psi2'
+      do kk = 0,200
+        write(m_JPsipri,103)float(kk)*.0005,(collbro_JPsi(ii,kk)
+     &   /float(num*isubs),ii=1,3)
+      end do
+ 100  format(f6.2, 10f8.3)
+ 101  format(f6.3, 9e11.3)
+ 102  format(f7.4, 3e11.3)
+ 103  format(f7.3, 3f11.5)
+*=======================================================================
+      if(i_phi.gt.0) then
+        do ii=1,30
+          phiyield(ii) = 0.0
+        end do
+        do 999 ii=1,max_pert
+          if(nx_pert(id_phi,0,ii) .eq. 0) goto 999
+          phiyield(nx_pert(id_phi,2,ii)) =phiyield(nx_pert(id_phi,2,ii))
+     &         + p_pert(id_phi,4,ii)
+ 999    continue
+        do ii=1,30
+          phiyield(ii) = phiyield(ii)/(num*isubs)
+        end do
+        write(isum,*)''
+        write(isum,*)''
+        write(isum,*)'phi yield p:phiK-K+',iphi_pot
+        write(isum,*) (phiyield(ii),ii=1,30)
+        write(*,*)''
+        write(*,*)''
+        write(*,*) 'phi yields'
+        write(*,*) (phiyield(ii),ii=1,30)
+      end if
+************************************************************************
+*
+      write(*,*) 'return from pert_mesonout'
+      call f77flush()
+      return
+*
+      end

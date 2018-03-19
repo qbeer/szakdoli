@@ -1,0 +1,5 @@
+change linint1, linint_prev -> linear interpolation
+do spline interpolation similarly
+real part of rho selfenergy
+look in propa.f: meff, mpot(i) ???
+dilepton decay only for rho0

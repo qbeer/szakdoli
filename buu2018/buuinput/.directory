@@ -1,0 +1,7 @@
+[Dolphin]
+Timestamp=2017,10,28,23,22,1
+Version=3
+VisibleRoles=Icons_text,Icons_size,Icons_date
+
+[Settings]
+HiddenFilesShown=true

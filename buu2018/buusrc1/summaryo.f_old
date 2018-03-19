@@ -1,0 +1,711 @@
+
+************************************************************************
+*                                                                      *
+      subroutine summry(io,masspr,massta,mstapr,msprpr,num,mpion,icoll,
+     &                  ilast,tim,ntime,time1,idipi,
+     &                  ipot,ipou,rpot,tt0,tt3,
+     &                  ptxyz,ppxyz,pixyz,rtxyz,rpxyz,rixyz,rmeson,
+     &                  edif,eptt,epct,ettt,ektt,ectt,eitt,eftt,emtt,
+     &                  etpi,ekpi,ecpi,eipi,eflo,eflpi,tij,tijpi,fptp,
+     &                  etta,etpr,ekta,ekpr,ecta,ecpr,emta,empr,
+     &                  eipr,eita,eket,eztt)
+
+*                                                                      *
+*       purpose:   providing statistical summary                       *
+*       variables:                                                     *
+*         io     - output-unit (normal)                (integer,input) *
+*         masspr - projectile mass                     (integer,input) *
+*         massta - target mass                         (integer,input) *
+*         mstapr - proton in target                    (integer,input) *
+*         msprpr - proton in projectile                (integer,input) *
+*         num    - number of parallel runs             (integer,input) *
+*         mpion  -                                     (integer,input) *
+*         icoll  - choice of dynamics -1=> cascade     (integer,input) *
+*         ilast  - 1 -> last call of summry            (integer,input) *
+*         tim    - time                                   (real,input) *
+*         ntime  - number of call sub. summry          (integer,input) *
+*         time1  - stored times when summry was called   (real,output) *
+*         ipot   - choice of potential                 (integer,input) *
+*         ipou   - 0-> no coulomb 1-> with coulomb     (integer,input) *
+*         rpot   - power of density dependent force       (real,input) *
+*         tt0    - coefficient of t0 term                 (real,input) *
+*         tt3    - coefficient of t3 term                 (real,input) *
+*                                                                      *
+*	  edif	 - total(kin+pot) energy change/particle (real,output) *
+*	  eptt	 - total potential energy		 (real,output) *
+*	  epct	 - total coulomb energy 		 (real,output) *
+*	  eftt	 - cold kinetic (fermi) energy/particle  (real,output) *
+*	  ptxyz	 - target momentum/particle              (real,output) *
+*	  ppxyz	 - projectile momentum/particle          (real,output) *
+*         pixyz	 - meson momentum/particle               (real,output) *
+*	  rtxyz	 - target cm position                    (real,output) *
+*	  rtxyz	 - projectile cm position                (real,output) *
+*	  rixyz	 - meson cm position                     (real,output) *
+*         rmeson - meson/nucleon ratio          	 (real,output) *
+*	  ettt	 - total (kin+mass)   energy/particle	 (real,output) *
+*	  etta	 - target tot energy/particle (no pot)	 (real,output) *
+*	  etpr	 - projectile tot energy/particle (no pot)(real,output)*
+*	  etpi	 - meson total energy/meson (no pot)	 (real,output) *
+*	  ektt	 - total kinetic energy/particle	 (real,output) *
+*	  ekta	 - target     kinetic energy/particle	 (real,output) *
+*	  ekpr	 - projectile kinetic energy/particle	 (real,output) *
+*	  ekpi	 - meson      kinetic energy/particle	 (real,output) *
+*	  ectt	 - collective(kin-local) energy/particle (real,output) *
+*	  ecta	 - collective target energy/particle	 (real,output) *
+*	  ecpr	 - collective projectile energy/particle (real,output) *
+*	  ecpi	 - collective meson energy/meson         (real,output) *
+*	  eitt	 - local(summed in loc.frame)kin.en./part(real,output) *
+*	  eita	 - local target kinetic energy/particle  (real,output) *
+*	  eipr	 - local projectil kinetic energy/particle(real,output)*
+*         eipi	 - local meson kinetic energy/meson      (real,output) *
+*	  eflo	 - collective flow-energy/particle	 (real,output) *
+*	  eflpi	 - collective pion flow energy/particle	 (real,output) *
+*	  emtt	 - mass change energy/particle	         (real,output) *
+*	  emta	 - target mass change energy/particle	 (real,output) *
+*	  empr	 - projectile mass change energy/particle(real,output) *
+*	  eket	 - effective energy/particle		 (real,output) *
+*	  eztt	 - targ+proj kinetic(noexc)energy/particle(real,output)*
+*                                                                      *
+*       dimensions:                                                    *
+*         all coordinates r in fm                                      *
+*         all momenta p in gev/c per nucleon                           *
+*         all energies e in GeV per nucleon                            *
+*                                                                      *
+************************************************************************
+      implicit none
+      real*8 tim,rpot,tt0,tt3,ecthe,potc,potm,potn,difte,potp
+      real*8 pott,rmsn,rmsp,rmst
+      real*8 teinit,totpxt,totpyt,totpzt,totpxp,totpyp,totpzp,totpxx
+      real*8 totpyy,totpzz,totpxy,totpxz,totpyx,totpyz,totpzx,totpzy
+      real*8 totxt,totyt,totzt,totmt,totxp,totyp,totzp,totmp,etott,etotp
+      real*8 ekinp,ekint,ekcmt,ekcmp,eflowt,eflowp,eztht,ezthp
+      real*8 ekintp,ekintn,ekinpp,ekinpn,totpxpi,totpypi,totpzpi,totpxxi
+      real*8 totpyyi,totpzzi,totpxyi,totpxzi,totpyxi,totpyzi,totpzxi
+      real*8 totpzyi,totxpi,totypi,totzpi,totmpi,etotpio,ekinpi,ekcmpi
+      real*8 eflowpi,e0,px,py,pz,x,y,z,p2,etot,ekin,ekinc,eflow,qx,qy,qz
+      real*8 betax,betay,betaz,gamma,pbeta,gfact,trans,pdsq
+      real*8 betaxt,betayt,betazt,gammat,betaxp,betayp,betazp,gammap
+      real*8 betaxpi,betaypi,betazpi,gammapi
+      integer io,masspr,massta,mstapr,msprpr,num,mpion,icoll,ilast
+      integer ntime,idipi,ipot,ipou,mstanu,msprnu,nmeson,i,j,iacoll
+      integer ix,iy,iz,irun
+      include"common"
+      real*8    ptxyz(3,0:200),ppxyz(3,0:200),pixyz(3,0:200),
+     &        rtxyz(3,0:200),rpxyz(3,0:200),rixyz(3,0:200),
+     &        etta(0:200),etpr(0:200),ekta(0:200),ekpr(0:200),
+     &        ecta(0:200),ecpr(0:200),eita(0:200),eipr(0:200),
+     &        emtt(0:200),emta(0:200),eket(0:200)
+      real*8    time1(0:200),epct(0:200),eptt(0:200),edif(0:200),
+     &        ettt(0:200),ektt(0:200),ectt(0:200),eitt(0:200),
+     &        eftt(0:200),eflo(0:200),empr(0:200),eztt(0:200),
+     &        etpi(0:200),ekpi(0:200),ecpi(0:200),eipi(0:200),
+     &        eflpi(0:200),rmeson(0:200),
+     &        tij(3,3,0:200),tijpi(3,3,0:200),fptp(6,20)
+      save    teinit
+*-----------------------------------------------------------------------
+      mstanu=massta-mstapr
+      msprnu=masspr-msprpr
+*-----------------------------------------------------------------------
+*     initialize counting variables
+*
+      nmeson = 0
+      totpxt = 0.0
+      totpyt = 0.0
+      totpzt = 0.0
+      totpxp = 0.0
+      totpyp = 0.0
+      totpzp = 0.0
+      totpxx = 0.0
+      totpyy = 0.0
+      totpzz = 0.0
+      totpxy = 0.0
+      totpxz = 0.0
+      totpyx = 0.0
+      totpyz = 0.0
+      totpzx = 0.0
+      totpzy = 0.0
+      totxt  = 0.0
+      totyt  = 0.0
+      totzt  = 0.0
+      totmt  = 0.0
+      totxp  = 0.0
+      totyp  = 0.0
+      totzp  = 0.0
+      totmp  = 0.0
+      etott  = 0.0
+      etotp  = 0.0
+      ekint  = 0.0
+      ekinp  = 0.0
+      ekcmt  = 0.0
+      ekcmp  = 0.0
+      eflowt = 0.0
+      eflowp = 0.0
+      eztht  = 0.0
+      ezthp  = 0.0
+      ekintp = 0.0
+      ekintn = 0.0
+      ekinpp = 0.0
+      ekinpn = 0.0
+      totpxpi= 0.0
+      totpypi= 0.0
+      totpzpi= 0.0
+      totpxxi= 0.0
+      totpyyi= 0.0
+      totpzzi= 0.0
+      totpxyi= 0.0
+      totpxzi= 0.0
+      totpyxi= 0.0
+      totpyzi= 0.0
+      totpzxi= 0.0
+      totpzyi= 0.0
+      totxpi = 0.0
+      totypi = 0.0
+      totzpi = 0.0
+      totmpi = 0.0
+      etotpio= 0.0
+      ekinpi = 0.0
+      ekcmpi = 0.0
+      eflowpi= 0.0
+c      ekiet  = 0.0
+c      ekiep  = 0.0
+      if(icoll.ne.1.and.ilast.ne.0) then
+        do 10 i=1,6
+        do 10 j=1,20
+          fptp(i,j)=0.0
+   10   continue
+      end if
+*
+*       find out target and projectile mean momentum and kinetic energy,
+*
+*
+      do 400 irun = 1,num
+         do 100 i = 1+(irun-1)*maxb,massta+(irun-1)*maxb
+          if(id(1,i).eq.0) goto 100
+          e0       = e(i)
+          px       = p(1,i)
+          py       = p(2,i)
+          pz       = p(3,i)
+          x        = r(1,i)*e0
+          y        = r(2,i)*e0
+          z        = r(3,i)*e0
+          ix       = nint(r(1,i))
+          iy       = nint(r(2,i))
+          iz       = nint(r(3,i))
+          p2       = px**2 + py**2 + pz**2
+          etot     = sqrt( e0**2 + p2 )
+          ekin     = etot - e0
+*
+          ekinc    = 0.0
+          eflow    = 0.0
+          if(abs(ix).lt.maxx.and.abs(iy).lt.maxx.and.abs(iz).lt.maxz)
+     &        then
+              betax = 0.0
+              betay = 0.0
+              betaz = 0.0
+              if(rhob_4(0,ix,iy,iz) .gt. 1.e-4) then
+              betax=rhob_4(1,ix,iy,iz)/rhob_4(0,ix,iy,iz)
+              betay=rhob_4(2,ix,iy,iz)/rhob_4(0,ix,iy,iz)
+              betaz=rhob_4(3,ix,iy,iz)/rhob_4(0,ix,iy,iz)
+              end if
+              gamma=rhob_4(6,ix,iy,iz)
+              pbeta=px*betax+py*betay+pz*betaz
+              gfact=gamma/(gamma+1.)
+              trans=gamma*(gfact*pbeta-etot)
+              qx=px+betax*trans
+              qy=py+betay*trans
+              qz=pz+betaz*trans
+              if(gamma.ge.1.0) eflow = e0*(gamma-1.0)
+              if(abs(gamma).gt.1.e-4 .and. gamma.lt.1.0) write(*,*)
+     &'hiba sumryt gamm<1',gamma,betax,i,ix,iy,iz,rhb(ix,iy,iz)
+            pdsq=qx**2+qy**2+qz**2
+            ekinc    = sqrt( e0**2 + pdsq ) - e0
+          end if
+*
+          totpxt = totpxt + px
+          totpyt = totpyt + py
+          totpzt = totpzt + pz
+          totpxx = totpxx + px*px/etot
+          totpyy = totpyy + py*py/etot
+          totpzz = totpzz + pz*pz/etot
+          totpxy = totpxy + px*py/etot
+          totpxz = totpxz + px*pz/etot
+          totpyx = totpyx + py*px/etot
+          totpyz = totpyz + py*pz/etot
+          totpzx = totpzx + pz*px/etot
+          totpzy = totpzy + pz*py/etot
+          totxt  = totxt  + x
+          totyt  = totyt  + y
+          totzt  = totzt  + z
+          totmt  = totmt  + e0
+          etott  = etott  + etot
+          ekint  = ekint  + ekin
+          ekcmt  = ekcmt  + ekinc
+          eflowt = eflowt + eflow
+          if(id(2,i).eq.1) then
+            ekintp = ekintp+ ekin
+          else
+            ekintn = ekintn+ ekin
+          end if
+c          if(ipot.eq.2) ekiet=ekiet+sqrt(f(i)**2+q(1,i)**2+q(2,i)**2
+c     &                             +q(3,i)**2)-f(i)
+          if(icoll.ne.1.and.ilast.ne.0.and.abs(id(6,i)).le.20) then
+            iacoll=abs(id(6,i))
+            fptp(3,iacoll)=fptp(3,iacoll)+1.0
+            fptp(1,iacoll)=fptp(1,iacoll)+(px*px/etot+py*py/etot)
+            fptp(2,iacoll)=fptp(2,iacoll)+pz*pz/etot*2.0
+          end if
+  100   continue
+*
+        if (masspr .ne. 0) then
+           do 200 i = 1+massta+(irun-1)*maxb,maxb*irun
+          if(id(1,i) .eq. 0 ) goto 200
+          e0       = e(i)
+          px       = p(1,i)
+          py       = p(2,i)
+          pz       = p(3,i)
+          x        = r(1,i)*e0
+          y        = r(2,i)*e0
+          z        = r(3,i)*e0
+          ix       = nint(r(1,i))
+          iy       = nint(r(2,i))
+          iz       = nint(r(3,i))
+          p2       = px**2 + py**2 + pz**2
+          etot     = sqrt( e0**2 + p2 )
+          ekin     = etot - e0
+*
+          ekinc    = 0.0
+          eflow    = 0.0
+          if(abs(ix).lt.maxx.and.abs(iy).lt.maxx.and.abs(iz).lt.maxz)
+     &       then
+              betax = 0.0
+              betay = 0.0
+              betaz = 0.0
+              if(rhob_4(0,ix,iy,iz) .gt. 1.e-4) then
+              betax=rhob_4(1,ix,iy,iz)/rhob_4(0,ix,iy,iz)
+              betay=rhob_4(2,ix,iy,iz)/rhob_4(0,ix,iy,iz)
+              betaz=rhob_4(3,ix,iy,iz)/rhob_4(0,ix,iy,iz)
+              end if
+              gamma=rhob_4(6,ix,iy,iz)
+              pbeta=px*betax+py*betay+pz*betaz
+              gfact=gamma/(gamma+1.)
+              trans=gamma*(gfact*pbeta-etot)
+              qx=px+betax*trans
+              qy=py+betay*trans
+              qz=pz+betaz*trans
+              if(gamma.ge.1.0) eflow = e0*(gamma-1.0)
+              if(abs(gamma).gt.1.e-4 .and. gamma.lt.1.0) write(*,*)
+     &'hiba sumryp gamm<1',gamma,betax,i,ix,iy,iz,rhb(ix,iy,iz)
+            pdsq=qx**2+qy**2+qz**2
+            ekinc    = sqrt( e0**2 + pdsq ) - e0
+          end if
+*
+          totpxp = totpxp + px
+          totpyp = totpyp + py
+          totpzp = totpzp + pz
+          totpxx = totpxx + px*px/etot
+          totpyy = totpyy + py*py/etot
+          totpzz = totpzz + pz*pz/etot
+          totpxy = totpxy + px*py/etot
+          totpxz = totpxz + px*pz/etot
+          totpyx = totpyx + py*px/etot
+          totpyz = totpyz + py*pz/etot
+          totpzx = totpzx + pz*px/etot
+          totpzy = totpzy + pz*py/etot
+          totxp  = totxp  + x
+          totyp  = totyp  + y
+          totzp  = totzp  + z
+          totmp  = totmp  + e0
+          etotp  = etotp  + etot
+          ekinp  = ekinp  + ekin
+          ekcmp  = ekcmp  + ekinc
+          eflowp = eflowp + eflow
+          if(id(2,i).eq.1) then
+            ekinpp = ekinpp+ ekin
+          else
+            ekinpn = ekinpn+ ekin
+          end if
+c          if(ipot.eq.2) ekiep=ekiep+sqrt(f(i)**2+q(1,i)**2+q(2,i)**2
+c     &                             +q(3,i)**2)-f(i)
+          if(icoll.ne.1.and.ilast.ne.0.and.abs(id(6,i)).le.20) then
+            iacoll=abs(id(6,i))
+            fptp(3,iacoll)=fptp(3,iacoll)+1.0
+            fptp(1,iacoll)=fptp(1,iacoll)+(px*px/etot+py*py/etot)
+            fptp(2,iacoll)=fptp(2,iacoll)+pz*pz/etot*2.0
+          end if
+  200   continue
+      end if
+      if (idipi .eq. 2) then
+        do 300 i = 1+(irun-1)*maxp,maxp*irun
+          if(ipi(1,i) .eq.0)                                 goto 300
+          nmeson   = nmeson + 1
+          e0       = epi(i)
+          px       = ppi(1,i)
+          py       = ppi(2,i)
+          pz       = ppi(3,i)
+          x        = rpi(1,i)*e0
+          y        = rpi(2,i)*e0
+          z        = rpi(3,i)*e0
+          ix       = nint(rpi(1,i))
+          iy       = nint(rpi(2,i))
+          iz       = nint(rpi(3,i))
+          p2       = px**2 + py**2 + pz**2
+          etot     = sqrt( e0**2 + p2 )
+          ekin     = etot - e0
+*
+          ekinc    = 0.0
+          eflow    = 0.0
+          if(abs(ix).lt.maxx.and.abs(iy).lt.maxx.and.abs(iz).lt.maxz)
+     &       then
+              betax = 0.0
+              betay = 0.0
+              betaz = 0.0
+              if(rhob_4(0,ix,iy,iz) .gt. 1.e-4) then
+              betax=rhob_4(1,ix,iy,iz)/rhob_4(0,ix,iy,iz)
+              betay=rhob_4(2,ix,iy,iz)/rhob_4(0,ix,iy,iz)
+              betaz=rhob_4(3,ix,iy,iz)/rhob_4(0,ix,iy,iz)
+              end if
+              gamma=rhob_4(6,ix,iy,iz)
+              pbeta=px*betax+py*betay+pz*betaz
+              gfact=gamma/(gamma+1.)
+              trans=gamma*(gfact*pbeta-etot)
+              qx=px+betax*trans
+              qy=py+betay*trans
+              qz=pz+betaz*trans
+              if(gamma.ge.1.0) eflow = e0*(gamma-1.0)
+              if(abs(gamma).gt.1.e-4 .and. gamma.lt.1.0) write(*,*)
+     &'hiba sumrypi gamm<1',gamma,betax,i,ix,iy,iz,rhb(ix,iy,iz)
+            pdsq=qx**2+qy**2+qz**2
+            ekinc    = sqrt( e0**2 + pdsq ) - e0
+          end if
+*
+          totpxpi = totpxpi + px
+          totpypi = totpypi + py
+          totpzpi = totpzpi + pz
+          totpxxi = totpxxi + px*px/etot
+          totpyyi = totpyyi + py*py/etot
+          totpzzi = totpzzi + pz*pz/etot
+          totpxyi = totpxyi + px*py/etot
+          totpxzi = totpxzi + px*pz/etot
+          totpyxi = totpyxi + py*px/etot
+          totpyzi = totpyzi + py*pz/etot
+          totpzxi = totpzxi + pz*px/etot
+          totpzyi = totpzyi + pz*py/etot
+          totxpi  = totxpi  + x
+          totypi  = totypi  + y
+          totzpi  = totzpi  + z
+          totmpi  = totmpi  + e0
+          etotpio = etotpio + etot
+          ekinpi  = ekinpi  + ekin
+          ekcmpi  = ekcmpi  + ekinc
+          eflowpi = eflowpi + eflow
+          if(ilast.ne.0.and.abs(ipi(4,i)).le.20.and.ipi(4,i).ne.0) then
+            iacoll=min(abs(ipi(4,i)),19)
+            fptp(6,iacoll)=fptp(6,iacoll)+1.0
+            fptp(4,iacoll)=fptp(4,iacoll)+(px*px/etot+py*py/etot)
+            fptp(5,iacoll)=fptp(5,iacoll)+pz*pz/etot*2.0
+            fptp(6,20)=fptp(6,20)+1.0
+            fptp(4,20)=fptp(4,20)+(px*px/etot+py*py/etot)
+            fptp(5,20)=fptp(5,20)+pz*pz/etot*2.0
+          end if
+  300   continue
+      end if
+  400 continue
+*
+        betaxt=totpxt/etott
+        betayt=totpyt/etott
+        betazt=totpzt/etott
+        gammat=1./sqrt(1.-betaxt**2-betayt**2-betazt**2)
+*
+      totpxt = totpxt/ float(num*massta)
+      totpyt = totpyt/ float(num*massta)
+      totpzt = totpzt/ float(num*massta)
+      totxt  = totxt / totmt
+      totyt  = totyt / totmt
+      totzt  = totzt / totmt
+      etott  = etott / float(num*massta)
+      ekint  = ekint / float(num*massta)
+      ekcmt  = ekcmt / float(num*massta)
+      eflowt = eflowt/ float(num*massta)
+c      ekiet  = ekiet / float(num*massta)
+      if(mstapr.ne.0) then
+        ekintp = ekintp/ float(num*mstapr)
+      else
+        ekintp = 0.0
+      end if
+      if(mstanu.ne.0) then
+        ekintn = ekintn/ float(num*mstanu)
+      else
+        ekintn = 0.0
+      end if
+*
+      if (masspr .ne. 0) then
+*
+          betaxp=totpxp/etotp
+          betayp=totpyp/etotp
+          betazp=totpzp/etotp
+          gammap=1./sqrt(1.-betaxp**2-betayp**2-betazp**2)
+*
+        totpxp = totpxp/ float(num*masspr)
+        totpyp = totpyp/ float(num*masspr)
+        totpzp = totpzp/ float(num*masspr)
+        totxp  = totxp / totmp
+        totyp  = totyp / totmp
+        totzp  = totzp / totmp
+        etotp  = etotp / float(num*masspr)
+        ekinp  = ekinp / float(num*masspr)
+        ekcmp  = ekcmp / float(num*masspr)
+        eflowp = eflowp/ float(num*masspr)
+c        ekiep  = ekiep / float(num*masspr)
+        if(msprpr.ne.0) then
+          ekinpp = ekinpp/ float(num*msprpr)
+        else
+          ekinpp = 0.0
+        end if
+        if(msprnu.ne.0) then
+          ekinpn = ekinpn/ float(num*msprnu)
+        else
+          ekinpn = 0.0
+        end if
+      end if
+*
+      if (idipi .eq. 2 .and. nmeson.ne.0) then
+*
+          betaxpi=totpxpi/etotpio
+          betaypi=totpypi/etotpio
+          betazpi=totpzpi/etotpio
+          gammapi=1./sqrt(1.-betaxpi**2-betaypi**2-betazpi**2)
+*
+        if(nmeson.ne.0) then
+          totpxpi = totpxpi/ float(nmeson)
+          totpypi = totpypi/ float(nmeson)
+          totpzpi = totpzpi/ float(nmeson)
+          totxpi  = totxpi / totmpi
+          totypi  = totypi / totmpi
+          totzpi  = totzpi / totmpi
+          etotpio = etotpio/ float(nmeson)
+          ekinpi  = ekinpi / float(nmeson)
+          ekcmpi  = ekcmpi / float(nmeson)
+          eflowpi = eflowpi/ float(nmeson)
+        end if
+      end if
+*
+      do 310 irun = 1,num
+        do 110 i = 1+(irun-1)*maxb,massta+(irun-1)*maxb
+           if(id(1,i).eq.0) goto 110
+           etot=sqrt(e(i)**2+p(1,i)**2+p(2,i)**2+p(3,i)**2)
+           pbeta=p(1,i)*betaxt+p(2,i)*betayt+p(3,i)*betazt
+           gfact=gammat/(gammat+1.)
+           trans=gammat*(gfact*pbeta-etot)
+           px=p(1,i)+betaxt*trans
+           py=p(2,i)+betayt*trans
+           pz=p(3,i)+betazt*trans
+           pdsq=px**2+py**2+pz**2
+          eztht=eztht+sqrt(e(i)**2+pdsq)-e(i)
+  110   continue
+*
+        do 210 i = 1+massta+(irun-1)*maxb,maxb*irun
+           if(id(1,i).eq.0) goto 210
+           etot=sqrt(e(i)**2+p(1,i)**2+p(2,i)**2+p(3,i)**2)
+           pbeta=p(1,i)*betaxp+p(2,i)*betayp+p(3,i)*betazp
+           gfact=gammap/(gammap+1.)
+           trans=gammap*(gfact*pbeta-etot)
+           px=p(1,i)+betaxp*trans
+           py=p(2,i)+betayp*trans
+           pz=p(3,i)+betazp*trans
+           pdsq=px**2+py**2+pz**2
+          ezthp=ezthp+sqrt(e(i)**2+pdsq)-e(i)
+  210   continue
+*
+  310 continue
+      eztht  = eztht / float(massta*num)
+      if(masspr.ne.0) then
+      ezthp  = ezthp / float(masspr*num)
+      end if
+*-----------------------------------------------------------------------
+      if( icoll.ne.-1) then
+        call tpot(massta,masspr,mstapr,msprpr,ipot,ipou,rpot,
+     &            tt0,tt3,pott,potp,potn,potm,potc,ecthe,
+     &            rmst,rmsp,rmsn)
+      end if
+*
+      if(tim .lt.0.001) then
+        teinit=pott+(etotp*float(masspr)+etott*float(massta))/
+     &       float(massta+masspr)
+      end if
+      difte=pott+(etotp*float(masspr)+etott*float(massta)
+     &    +etotpio*float(nmeson)/float(num))/float(massta+masspr)-teinit
+      time1(ntime)=tim
+      eptt(ntime)=pott
+      epct(ntime)=potc
+      edif(ntime)=difte
+      eftt(ntime)=ecthe
+
+      ptxyz(1,ntime)=totpxt
+      ptxyz(2,ntime)=totpyt
+      ptxyz(3,ntime)=totpzt
+      rtxyz(1,ntime)=totxt
+      rtxyz(2,ntime)=totyt
+      rtxyz(3,ntime)=totzt
+      etta(ntime)=etott
+      ekta(ntime)=ekint
+      ecta(ntime)=ekint-ekcmt
+      eita(ntime)=ekcmt
+      eztht=ekint-eztht
+      emta(ntime)=etott-ekint-rmass
+*
+      tij(1,1,ntime) = totpxx / float(num*massta+num*masspr)
+      tij(2,2,ntime) = totpyy / float(num*massta+num*masspr)
+      tij(3,3,ntime) = totpzz / float(num*massta+num*masspr)
+      tij(1,2,ntime) = totpxy / float(num*massta+num*masspr)
+      tij(1,3,ntime) = totpxz / float(num*massta+num*masspr)
+      tij(2,1,ntime) = totpyx / float(num*massta+num*masspr)
+      tij(2,3,ntime) = totpyz / float(num*massta+num*masspr)
+      tij(3,1,ntime) = totpzx / float(num*massta+num*masspr)
+      tij(3,2,ntime) = totpzy / float(num*massta+num*masspr)
+*
+      if (masspr .ne. 0) then
+        ppxyz(1,ntime)=totpxp
+        ppxyz(2,ntime)=totpyp
+        ppxyz(3,ntime)=totpzp
+        rpxyz(1,ntime)=totxp
+        rpxyz(2,ntime)=totyp
+        rpxyz(3,ntime)=totzp
+        etpr(ntime)=etotp
+        ekpr(ntime)=ekinp
+        ecpr(ntime)=ekinp-ekcmp
+        eipr(ntime)=ekcmp
+        ezthp=ekinp-ezthp
+        empr(ntime)=etotp-ekinp-rmass
+      end if
+*
+      if (idipi .eq. 2) then
+        pixyz(1,ntime)=totpxpi
+        pixyz(2,ntime)=totpypi
+        pixyz(3,ntime)=totpzpi
+        rixyz(1,ntime)=totxpi
+        rixyz(2,ntime)=totypi
+        rixyz(3,ntime)=totzpi
+        etpi(ntime)=etotpio
+        ekpi(ntime)=ekinpi
+        ecpi(ntime)=ekinpi-ekcmpi
+        eipi(ntime)=ekcmpi
+        eflpi(ntime)=eflowpi
+        rmeson(ntime)    =float(nmeson)/ float(num*massta+num*masspr)
+        if(nmeson.ne.0) then
+          tijpi(1,1,ntime) = totpxxi / float(nmeson)
+          tijpi(2,2,ntime) = totpyyi / float(nmeson)
+          tijpi(3,3,ntime) = totpzzi / float(nmeson)
+          tijpi(1,2,ntime) = totpxyi / float(nmeson)
+          tijpi(1,3,ntime) = totpxzi / float(nmeson)
+          tijpi(2,1,ntime) = totpyxi / float(nmeson)
+          tijpi(2,3,ntime) = totpyzi / float(nmeson)
+          tijpi(3,1,ntime) = totpzxi / float(nmeson)
+          tijpi(3,2,ntime) = totpzyi / float(nmeson)
+        end if
+      end if
+*
+      ettt(ntime)=(etpr(ntime)*float(masspr)+etta(ntime)*float(massta))/
+     &            float(massta+masspr)
+      ektt(ntime)=(ekpr(ntime)*float(masspr)+ekta(ntime)*float(massta))/
+     &            float(massta+masspr)
+      ectt(ntime)=(ecpr(ntime)*float(masspr)+ecta(ntime)*float(massta))/
+     &            float(massta+masspr)
+      eitt(ntime)=(eipr(ntime)*float(masspr)+eita(ntime)*float(massta))/
+     &            float(massta+masspr)
+      eflo(ntime)=(eflowp*float(masspr)+eflowt*float(massta))/
+     &            float(massta+masspr)
+      emtt(ntime)=(empr(ntime)*float(masspr)+emta(ntime)*float(massta))/
+     &            float(massta+masspr)
+      eztt(ntime)=(ezthp*float(masspr)+eztht*float(massta))/
+     &            float(massta+masspr)
+c      eket(ntime)=(ekiep*float(masspr)+ekiet*float(massta))/
+c     &            float(massta+masspr)
+*
+      if(icoll.ne.1.and.ilast.ne.0) then
+        do 20 i=1,20
+          if(fptp(3,i).gt.0.0) then
+            fptp(1,i)=fptp(1,i)/fptp(2,i)
+            fptp(2,i)=fptp(1,i)/sqrt(fptp(3,i))
+          end if
+          if(fptp(6,i).gt.0.0) then
+            fptp(4,i)=fptp(4,i)/fptp(5,i)
+            fptp(5,i)=fptp(4,i)/sqrt(fptp(6,i))
+          end if
+   20   continue
+      end if
+*
+*-----------------------------------------------------------------------
+*     output for test of ground state of target
+      if(masspr.eq.0.and. mpion.eq.0) then
+      if(tim .lt.0.001) then
+      write(io,'(/''c:plot of time change of energy/nucleon ***''/
+     &        ''n: time (fm/c)''/
+     &        ''n: energy (GeV)''/
+     &        ''n: x y'',e12.5,''(kin),mr0 y+'',e11.5,''(pot),db0'',
+     &        '' y(bin),lg0 y-10(rms),pbg0 '',
+     &        ''n(binp),d0 n(binn),l0 n(rmsp),p0 n(rmsn),d0'')')
+     &        pott,ekint
+      end if
+         write(io,'(3x,9e13.5)') tim ,ekint,pott,
+     &         (ekint+pott),rmst,(ekintp+potp),(ekintn+potn),rmsp,rmsn
+      end if
+*-----------------------------------------------------------------------
+*
+      return
+      end
+
+************************************************************************
+*                                                                      *
+      subroutine ovrlap(xcmta,ycmta,zcmta,rta,xcmpr,ycmpr,zcmpr,rpr,
+     &                  rhomax,rhoavr,inover)
+*                                                                      *
+*       purpose:     calculation of mean nuclear density and maximum   *
+*                    density in the overlap region                     *
+*       variables:                                                     *
+*         xcmta,ycmta,                                                 *
+*         zcmta   -  location of target c.m. "fm"         (real,input) *
+*         rta     -  target radius "fm"                   (real,input) *
+*         xcmpr,ycmpr,                                                 *
+*         zcmpr   -  location of projectile c.m. "fm"     (real,input) *
+*         rpr     -  projectile radius "fm"               (real,input) *
+*         rhomax,                                                      *
+*         rhoavr  -  maximum and average density in                    *
+*                    overlap region "fm**-3"             (real,output) *
+*         inover  -  overlap volume "fm**3"           (integer,output) *
+*                                                                      *
+************************************************************************
+      implicit none
+      real*8 xcmta,ycmta,zcmta,rta,xcmpr,ycmpr,zcmpr,rpr,rhomax,rhoavr
+      real*8 rrd,dispr,dista
+      integer inover,ix,iy,iz
+      include"common"
+*
+*
+      rhomax = 0.0
+      rhoavr = 0.0
+      inover = 0
+*
+      do 300 iz = -maxz,maxz
+      do 200 iy = -maxx,maxx
+      do 100 ix = -maxx,maxx
+            dista  = sqrt(  (float(ix)-xcmta)**2
+     &                    + (float(iy)-ycmta)**2
+     &                    + (float(iz)-zcmta)**2 )
+            dispr  = sqrt(  (float(ix)-xcmpr)**2
+     &                    + (float(iy)-ycmpr)**2
+     &                    + (float(iz)-zcmpr)**2 )
+            if ((dista .le. rta) .and. (dispr .le. rpr)) then
+              rrd = rhb(ix,iy,iz)
+              if(rrd.gt.0.) rrd=rrd/rhob_4(6,ix,iy,iz)
+              rhoavr = rhoavr + rrd
+              inover = inover + 1
+              if (rrd .gt. rhomax) rhomax = rrd
+            end if
+  100 continue
+  200 continue
+  300 continue
+*
+      if (inover .gt. 0) rhoavr = rhoavr / float(inover)
+*
+      return
+      end

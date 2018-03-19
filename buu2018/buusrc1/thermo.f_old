@@ -1,0 +1,215 @@
+
+************************************************************************
+*                                                                      *
+       subroutine thermo(delr,delp,masspr,massta,num,tt0,tt3,rpot)
+*                                                                      *
+*       purpose:    calculating the thermodynamical quantities in the  *
+*                   central cell  - relativistic formula used          *
+*                   -------------------------------------------------  *
+*                                                                      *
+*       variables:                                                     *
+*         masspr  - number of nucleons in projectile   (integer,input) *
+*         massta  - number of nucleons in target       (integer,input) *
+*         num     - number of testparticles per nucleon(integer,input) *
+*         dt      - time step size                        (real,input) *
+*                                                                      *
+************************************************************************
+      implicit none
+      integer maxtx,maxtz,masspr,massta,num,ix,iy,iz,lpart,i1,ii
+      integer jj,j2
+      real*8 delr,delp,tt0,tt3,rpot,vol,ener,em,dens,poten,ent
+      real*8 betax,betay,betaz,gamma,enerki1,enerki2,enerki3,pbeta,trans
+      real*8 hbf,specent,facta
+      parameter (maxtx = 20, maxtz = 40)
+      include"common"
+      real*8 pp(4),tij(4,4), xni(4),xnil(4), bi(4), press(4,4), gij(4,4)
+c     dimension p(3,10000),r(3,10000),id(10000),e(10000)
+      real*8 ff(-maxtx:maxtx,-maxtx:maxtx,-maxtz:maxtz)
+      real*8 jf(-maxtx:maxtx,-maxtx:maxtx,-maxtz:maxtz)
+*-----------------------------------------------------------------------
+c     open(6,file='thermo.out',status='new')
+c     open(44,file='ca150b.dat',status='old' )
+c     hbc=.19733
+c     delr=2.0
+c     delp=.075
+*-----------------------------------------------------------------------
+c     read(44,*) massta,masspr,num,isubs,elab,b
+c     write(44,*) massta,masspr,num,isubs,elab,b
+*.......................................................................
+      vol  = 4./3. * pi * delr**3
+      facta = float(num) * vol
+c.......................................................................
+*  loop over all pseudoparticles 1 in the same run
+c     do 99 itime=1,99999
+*     initialization of counting variables
+      ener   = 0.0
+      do 12 ix= 1,4
+        do 11 iy= 1,4
+          tij(ix,iy) = 0.0
+          press(ix,iy)= 0.0
+          gij(ix,iy) = 0.0
+  11    continue
+        xni(ix)  = 0.0
+        xnil(ix) = 0.0
+        bi(ix)   = 0.0
+  12  continue
+      gij(1,1) =-1.0
+      gij(2,2) =-1.0
+      gij(3,3) =-1.0
+      gij(4,4) = 1.0
+      do ix=-maxtx,maxtx
+        do iy=-maxtx,maxtx
+          do iz=-maxtz,maxtz
+            ff(ix,iy,iz)=0.0
+            jf(ix,iy,iz)=0
+          enddo
+        enddo
+      enddo
+*-----------------------------------------------------------------------
+        lpart=0
+c       do 800 i2 = 1,10000
+c         i1=lpart+1
+c         read(44,*,end=999,err=1000)
+c    *      id(i1),(r(k,i1),k=1,3),e(i1),(p(k,i1),k=1,3)
+c          write(*,*) i1,(r(k,i1), k=1,3)
+        do 800 i1 = 1,maxpar
+          if(id(1,i1).eq.0) goto 800
+          if(r(1,i1)**2+r(2,i1)**2+r(3,i1)**2.gt.delr**2)    goto 800
+          lpart=lpart+1
+          pp(1) = p(1,i1)
+          pp(2) = p(2,i1)
+          pp(3) = p(3,i1)
+          em = e(i1)
+          pp(4) = sqrt( em**2 + pp(1)**2 + pp(2)**2 + pp(3)**2 )
+          do 14 ii=1,4
+            xni(ii)   = xni(ii) + pp(ii) /pp(4)
+            do 13 jj=1,4
+              tij(ii,jj) = tij(ii,jj) + pp(ii)*pp(jj) /pp(4)
+  13        continue
+  14      continue
+  800   continue
+*
+c 1000 continue
+*-----------------------------------------------------------------------
+       write(mterpri,'(//'' time: '',f6.1,/)') time
+      if(lpart.eq.0)                              return
+      dens = sqrt(xni(4)**2-xni(1)**2-xni(2)**2-xni(3)**2)/facta
+      poten= .375 * (tt0*dens**2 + tt3 * dens**(2.+rpot))
+      do 15 ii= 1,4
+        xni(ii) = xni(ii)/facta/dens
+  15  continue
+       do i1=1,4
+         write(mterpri,'(e12.4,3x,4e12.4)') xni(i1),(tij(i1,j2)/facta,
+     &           j2=1,4)
+       enddo
+      write(mterpri,*)
+*....................................................................
+      betax=xni(1)/xni(4)
+      betay=xni(2)/xni(4)
+      betaz=xni(3)/xni(4)
+      gamma=xni(4)
+      do ix= 1,4
+        do iy= 1,4
+          tij(ix,iy) = 0.0
+        enddo
+        xni(ix)  = 0.0
+      enddo
+      enerki1 = 0.0
+      enerki2 = 0.0
+      enerki3 = 0.0
+        do 810 i1 = 1,maxpar
+          if(id(1,i1).eq.0) goto 810
+          if(r(1,i1)**2+r(2,i1)**2+r(3,i1)**2.gt.delr**2)    goto 810
+c       do 810 i1 = 1,lpart
+          pp(1) = p(1,i1)
+          pp(2) = p(2,i1)
+          pp(3) = p(3,i1)
+          em = e(i1)
+          pp(4) = sqrt( em**2 + pp(1)**2 + pp(2)**2 + pp(3)**2 )
+          pbeta=pp(1)*betax+pp(2)*betay+pp(3)*betaz
+          trans=gamma*(gamma*pbeta/(gamma+1.)-pp(4))
+          pp(1)=betax*trans+pp(1)
+          pp(2)=betay*trans+pp(2)
+          pp(3)=betaz*trans+pp(3)
+          pp(4) = sqrt( em**2 + pp(1)**2 + pp(2)**2 + pp(3)**2 )
+          enerki1= enerki1 + sqrt(em**2+pp(1)**2+pp(2)**2+pp(3)**2)
+          enerki2= enerki2 + sqrt(em**2+pp(1)**2+pp(2)**2+pp(3)**2)-em
+          enerki3= enerki3 + 0.5*(pp(1)**2+pp(2)**2+pp(3)**2)/em
+             do 148 ii=1,4
+            xni(ii)   = xni(ii) + pp(ii) /pp(4)
+            do 138 jj=1,4
+              tij(ii,jj) = tij(ii,jj) + pp(ii)*pp(jj) /pp(4)
+  138        continue
+  148      continue
+          ix=nint(pp(1)/delp)
+          iy=nint(pp(2)/delp)
+          iz=nint(pp(3)/delp)
+          if(iabs(ix).le.maxtx.and.iabs(iy).le.maxtx.and.
+     &          iabs(iz).le.maxtz) then
+            ff(ix,iy,iz) = ff(ix,iy,iz) + 1.0
+            jf(ix,iy,iz) = jf(ix,iy,iz) + 1
+          else
+            write(mterpri,'('' momentum too large:'',3f10.4)')
+     *            pp(1),pp(2),pp(3)
+          endif
+  810   continue
+      do 17 ii= 1,4
+        xni(ii)=xni(ii)/dens/facta
+        do 16 jj= 1,4
+          tij(ii,jj) = tij(ii,jj)/facta
+  16    continue
+  17  continue
+      enerki1= enerki1/facta
+      enerki2= enerki2/facta
+      enerki3= enerki3/facta
+      xnil(1) = - xni(1)
+      xnil(2) = - xni(2)
+      xnil(3) = - xni(3)
+      xnil(4) =   xni(4)
+*-----------------------------------------------------------------------
+      do 19 ii= 1,4
+        do 18 jj= 1,4
+          ener   = ener + tij(ii,jj)*xnil(ii)*xnil(jj)
+          bi(ii) = bi(ii) + tij(ii,jj)*xnil(jj)
+  18    continue
+  19  continue
+      do 20 ii= 1,4
+        bi(ii) = bi(ii) - ener*xni(ii)
+  20  continue
+      do 22 ii= 1,4
+        do 21 jj= 1,4
+          press(ii,jj) =tij(ii,jj)-xni(ii)*bi(jj)-bi(ii)*xni(jj)
+     &     - ener * xni(ii)*xni(jj)
+  21    continue
+  22  continue
+      ent=0.0
+      do ix=-maxtx,maxtx
+        do iy=-maxtx,maxtx
+          do iz=-maxtz,maxtz
+            if(jf(ix,iy,iz) .ne. 0) then
+              ff(ix,iy,iz)=ff(ix,iy,iz) / float(num) /delp**3/vol
+              hbf = hbc**3*ff(ix,iy,iz)
+              if(hbf .lt. 1.0) then
+                ent = ent+hbf*log(hbf)+(1.-hbf)*log(1.0-hbf)
+              else
+                write(mterpri,'(''f > 1 ; f= '',f8.3)') hbf
+              endif
+            endif
+          enddo
+        enddo
+      enddo
+      ent=-ent*delp**3/hbc**3
+      specent=ent/dens
+c.......................................................................
+       do i1=1,4
+        write(mterpri,'(e12.4,3x,4e12.4)') xni(i1),(tij(i1,j2), j2=1,4)
+       enddo
+       write(mterpri,'(''energy:t00,tot,kin,nonrel,pot:'',5e10.3)')
+     &       ener,enerki1,enerki2,enerki3,poten
+       write(mterpri,'(''n,e,s,s/n,npart'',4e12.4,i8)')
+     &       dens,ener,ent,specent,lpart
+c99     continue
+*-----------------------------------------------------------------------
+c999    continue
+       return
+       end

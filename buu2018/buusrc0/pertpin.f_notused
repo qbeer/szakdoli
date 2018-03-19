@@ -1,0 +1,374 @@
+
+************************************************************************
+*                                                                      *
+      subroutine pertpin(mdmas,jszog,my,mqt,mf,jwidth,jso,mum,jsubs,
+     &                  npertpi,ndilper,qtmax,ymax,ymin,jpertpi,jdilper)
+*                                                                      *
+*       purpose:    calculating the perturbative pion production       *
+*                   -------------------------------------------------  *
+*                   initialization by subroutine pertpin               *
+*                   -------------------------------------------------  *
+*                   final cross section by entry pionout               *
+*                   -------------------------------------------------  *
+*                                                                      *
+*       method :    calculating and summing up the probabilities       *
+*                      to produce a pionat a given momentum            *
+*                      and than integrating over the pion 3-momentum   *
+*                                                                      *
+*     important remark: the my,mqt,mf! ymax and ymin are still not     *
+*     ----------------  chosen correctly, to represent a correct       *
+*                       mom.distribution (see dilepton prod.)          *
+*                                                                      *
+*     let j the index of the integration point in the pion momentum    *
+*          space, then qq and qy give the appopriate momenta in the    *
+*          common frame, and sig gives the cross sections, namely      *
+*                                                                      *
+*         qq(i,j) /i=1-3/   -  i. coord. of the j. point in mom.space  *
+*         qq(4,j)           -  the energy of the j. point              *
+*         qy(1,j)           -  the rapidity       belonging to j.      *
+*         qy(2,j)           -  the transverse mom belonging to j.      *
+*         qy(3,j)           -  angle in trans.dir.belonging to j.      *
+*         sig(2*ic+3,j)     -  for pions without pauli                 *
+*         sig(2*ic+4,j)     -  for pions with    pauli (ic:pi charge)  *
+*         iqq(j)            -  number of n+n  with    pauli            *
+*       variables:                                                     *
+*         yref    - -1 * target rapidity in the frame                  *
+*         mdmas   - number of delta mass               (integer,input) *
+*         jszog   - number of delta angles             (integer,input) *
+*         my      - number of rapidities               (integer,input) *
+*         mqt     - number of transverse momenta       (integer,input) *
+*         mf      - number of angles                   (integer,input) *
+*                                                                      *
+************************************************************************
+c      parameter     (maxq =1000)
+      parameter     (maxq =1)
+      parameter     (gamr   = 0.11,  bet2  = 0.090,  qqr2  = 0.051936)
+      include"common"
+*----------------------------------------------------------------------*
+*
+      integer  iqq(maxq)
+      real     qq(4,maxq),qy(3,maxq),sig(6,maxq)
+*----------------------------------------------------------------------*
+      real          probp(-1:1)
+      real          propi(-1:1)
+*----------------------------------------------------------------------*
+      dimension beta(3),pcm(3),puj(3),probm(20)
+      dimension syi(6),totp(6)
+      dimension ekinp(6,50)
+      dimension eke(50)
+*----------------------------------------------------------------------*
+*          save for the whole                                          *
+      save iqq,ny,nqt,nf,ndmas,iszog
+      save iwidth,iso,pm2,rm2,num,isubs,pipert,dilper,ipertpi,idilper
+*----------------------------------------------------------------------*
+      iso    = jso
+      iszog  = jszog
+      iwidth = jwidth
+      num    = mum
+      isubs  = jsubs
+      ipertpi= jpertpi
+      idilper= jdilper
+      pipert = 1.0/float(npertpi)
+      dilper = 1./float(ndilper)
+      rm2    = rmass**2
+      pm2    = pmass**2
+      ny     = max0(1,my    )
+      nqt    = max0(1,mqt   )
+      nf     = max0(1,mf    )
+      ndmas  = max0(1,mdmas )
+      ntotq  = ny*nqt*nf
+      if(ntotq .gt. maxq) then
+        write(*,*)'hiba pertpin: too many q-s are to be calculated'
+      end if
+      ntotq  = min(maxq, ntotq)
+***                                                                  ***
+      dqt    = qtmax / float(nqt)
+      dy     = (ymax - ymin)/ float(ny)
+      dphi   = 2. * pi / float(nf)
+      ii = 0
+        do 1400 iqt= 1,nqt
+          qtra = (float(iqt) - 0.5) * dqt
+          do 1300 iy = 1,ny
+            yrap = ymin + (float(iy) - 0.5) * dy
+            do 1200 iph = 0,nf-1
+              ii = ii + 1
+              iqq(ii) = 0
+              do 1100 jj = 1,6
+                sig(jj,ii) = 0.0
+ 1100         continue
+              phi = - pi + (float(iph)+0.5) * dphi
+              qy(1,ii) = yrap
+              qy(2,ii) = qtra
+              qy(3,ii) = phi
+              tramass  = sqrt(pm2+qtra**2)
+              qq(1,ii) = qtra * cos(phi)
+              qq(2,ii) = qtra * sin(phi)
+              qq(3,ii) = tramass * sinh(yrap)
+              qq(4,ii) = tramass * cosh(yrap)
+ 1200       continue
+ 1300     continue
+ 1400   continue
+      return
+************************************************************************
+*                                                                      *
+      entry pertupi(pcm,srt,iseed,sigt,prcm,
+     &                 i1,i2,iz1,iz2,xxx,yyy,zzz,beta,gamma)
+*                                                                      *
+*           pcm(3)   - momentum coordinates of one particle in cm frame*
+*           srt      - sqrt of s                                       *
+*           i1,i2    - identificator of particle 1 and 2               *
+*           iseed    - seed for random number generator                *
+*           sigt     - max cross section at cutoff energy              *
+*           iso      - 0-> without isospin, 1-> with                   *
+*           prcm     - sqrt(pcm)                                       *
+*                                                                      *
+************************************************************************
+*-----------------------------------------------------------------------
+*
+*     sij(l) = s10(srt), where srt = 2.016 + 0.002 * (l-1)
+*
+*-----------------------------------------------------------------------
+*
+      if(srt    .le. 2.016    )                                  return
+      rnxx  = rn(iseed)
+      if(amax1(pipert,dilper) .le. rnxx)                         return
+      c2  = pcm(3) / prcm
+      if(pcm(1) .eq. 0.0 .and. pcm(2) .eq. 0.0) then
+        t2 = 0.0
+      else
+        t2=atan2(pcm(2),pcm(1))
+      end if
+*
+*-----------------------------------------------------------------------
+*
+*     com: parametrisation of energy-dependence of n-n-xsect.
+*
+*     sij(l) = s10(srt), where srt = 2.016 + 0.002 * (l-1)
+      l    = max1( ((srt - 2.016)*500.0) , 0.0 ) + 1
+*
+      if((iz1+iz2) .eq. 1) then
+        probp(-1) = 0.5*s11(l)/sigt
+        probp( 0) = 0.5*s10(l)/sigt
+        probp( 1) = 0.5*s11(l)/sigt
+        probdel   = (s11(l)+0.5*s10(l))/sigt
+      else if((iz1+iz2) .eq. 2) then
+        probp(-1) = 0.0
+        probp( 0) = s11(l)/sigt
+        probp( 1) = (s10(l)+s11(l))/sigt
+        probdel   = 1.5*s11(l)/sigt
+      else if((iz1+iz2) .eq. 0) then
+        probp(-1) = (s10(l)+s11(l))/sigt
+        probp( 0) = s11(l)/sigt
+        probp( 1) = 0.0
+        probdel   = 1.5*s11(l)/sigt
+      end if
+      dmin=pmass+rmass
+      dmax=srt  -rmass
+      ddmas= (dmax-dmin)/float(ndmas)
+      dint = 0.0
+      do 2000 im = 1,ndmas
+        dem = dmin + (float(im)-0.5) * ddmas
+        dm2 = dem**2
+        if(iwidth.ne.0) then
+          qq2 = amax1(0.0,0.25*((dm2-rm2+pm2)/dem)**2-pm2)
+          if(iwidth .eq. 1) then
+            form= (1.+qqr2/bet2)/(1.+qq2/bet2)
+            gam2 = (sqrt(qq2/qqr2)**3 * dmass/dem * gamr * form**2)**2
+          else
+            gam2 = (0.47 / (1.0+0.6*qq2/pm2) * qq2/pm2 * sqrt(qq2))**2
+          end if
+        else
+          gam2 = gdelt**2
+        end if
+        probm(im) =0.25*gam2/((dmass-dem)**2+.25*gam2)
+        dint = dint + probm(im)
+ 2000 continue
+      do 2600 im = 1,ndmas
+        probm(im) =probm(im)/dint
+        dem = dmin + (float(im)-0.5) * ddmas
+        dm2 = dem**2
+        pr2 = amax1(0.0,((srt**2+rm2-dm2)/(2.0*srt))**2-rm2)
+        pr  = sqrt(pr2)
+*
+        do 2500 ig = 1,iszog
+          c1 = 1.0 - 2.0 * rn(iseed)
+          t1 = 2.0 * pi * rn(iseed)
+*
+*     com: set the new momentum coordinates
+*
+          s1   = sqrt( 1.0 - c1**2 )
+          s2   = sqrt( 1.0 - c2**2 )
+          ct1  = cos(t1)
+          st1  = sin(t1)
+          ct2  = cos(t2)
+          st2  = sin(t2)
+          ss   = c2 * s1 * ct1  +  s2 * c1
+          puj(1) = pr * ( ss*ct2 - s1*st1*st2 )
+          puj(2) = pr * ( ss*st2 + s1*st1*ct2 )
+          puj(3) = pr * ( c1*c2 - s1*s2*ct1 )
+*
+          e1cm  = sqrt (dm2 + pr2)
+          p1beta  = puj(1)*beta(1) + puj(2)*beta(2) + puj(3)*beta(3)
+          transf  = gamma * ( gamma * p1beta / (gamma + 1) + e1cm )
+          ede     = gamma * (e1cm + p1beta)
+          pdx     = beta(1) * transf + puj(1)
+          pdy     = beta(2) * transf + puj(2)
+          pdz     = beta(3) * transf + puj(3)
+          betax   = pdx/ede
+          betay   = pdy/ede
+          betaz   = pdz/ede
+          gammad  = ede/dem
+*
+          e2cm  = sqrt (rm2 + pr2)
+          transf  = gamma * (-gamma * p1beta / (gamma + 1.) + e2cm)
+          pnx     = beta(1) * transf - puj(1)
+          pny     = beta(2) * transf - puj(2)
+          pnz     = beta(3) * transf - puj(3)
+*
+          call pauli(i2,ntag,iseed,phase,xxx,yyy,zzz,
+     &                                          pnx,pny,pnz)
+          tag = (1.-phase) * probm(im) / pipert / float(num*iszog*isubs)
+          tagd= (1.-phase) * probm(im) / dilper / float(iszog)
+          propi(-1) = probp(-1) * tag
+          propi( 0) = probp( 0) * tag
+          propi( 1) = probp( 1) * tag
+          prodelta  = probdel   * tagd
+c          if((idilper.eq.1) .and. (dilper.gt.rnxx))
+c     &    call deldil(100.0,i1,2,dem,xxx,yyy,zzz,pdx,pdy,pdz,
+c     &              prodelta,1,ndedel,iendel)
+          if((ipertpi.eq.0) .or. (pipert.le.rnxx))            goto 2500
+          prp0 = (dm2-rm2+pm2)/(2.0*dem)
+          prpi = sqrt(amax1(0.0,prp0**2-pm2))
+          rapydel = 0.5 * alog((1.+betaz)/(1.-betaz))
+          ii = 0
+          do 2400 iqt=1,nqt
+            do 2300 iy=1,ny
+              do 2200 iph=1,nf
+                ii = ii + 1
+                qbtra = qq(1,ii) * betax + qq(2,ii) * betay
+                trams = sqrt(pm2 + qy(2,ii)**2)
+                xyz   = cosh(rapydel) * (prp0/gammad+qbtra)/trams
+                if(abs(xyz) .le. 1.0)                         goto 2200
+                rap1= rapydel - alog(xyz + sqrt(xyz**2 - 1.0))
+                rap2= rapydel + alog(xyz + sqrt(xyz**2 - 1.0))
+                dif1= abs(rap1-qy(1,ii))
+                dif2= abs(rap2-qy(1,ii))
+                if((dif1.gt.dy/2.).and.(dif2.gt.dy/2.))       goto 2200
+                if(dif1.le.dy/2.) rap = rap1
+                if(dif2.le.dy/2.) rap = rap2
+                px     = pdx - qq(1,ii)
+                py     = pdy - qq(2,ii)
+                pz     = pdz - qq(3,ii)
+                call pauli(i1,ntag,iseed,phase,xxx,yyy,zzz,
+     &                                                px,py,pz)
+                qzpr = trams * sinh(rap)
+                q0pr = trams * cosh(rap)
+                fact = prpi * gammad * dy * abs(qzpr-betaz*q0pr) *4.0*pi
+                do 2100 ic = -1,1
+                 sig(2*ic+3,ii)=sig(2*ic+3,ii)+propi(ic)/fact
+                 sig(2*ic+4,ii)=sig(2*ic+4,ii)+propi(ic)/fact*(1.-phase)
+ 2100           continue
+                iqq(ii) = iqq(ii) + 1
+ 2200         continue
+ 2300       continue
+ 2400     continue
+ 2500   continue
+ 2600 continue
+*-----------------------------------------------------------------------
+      return
+*----------------------------------------------------------------------*
+*                                                                      *
+      entry pi0decay
+*----------------------------------------------------------------------*
+*
+      do 5000 jtot =1,ntotq
+        if(sig(4,jtot) .le. 1.e-9)                            goto 5000
+        probpi0 = sig(4,jtot) * qy(2,jtot) * dqt * dy * dphi
+c        call pi0dec(qq(1,jtot),qq(2,jtot),qq(3,jtot),1,probpi0)
+ 5000 continue
+*
+      return
+*----------------------------------------------------------------------*
+*                                                                      *
+      entry pionout(scala,elab,b)
+*----------------------------------------------------------------------*
+*
+      do 3100 ic = 1,6
+        totp(ic) = 0.0
+        do 3000 kk = 1,50
+          ekinp(ic,kk) = 0.0
+ 3000   continue
+ 3100 continue
+*
+      ii = 0
+      do 3700 iqt= 1,nqt
+        do 3200 ij=1,6
+          syi(ij) = 0.
+ 3200   continue
+        do 3500 iy = 1,ny
+          do 3400 iph= 1,nf
+            ii = ii + 1
+            do 3300 ij =1,6
+              syi(ij) = syi(ij) + sig(ij,ii)
+ 3300       continue
+ 3400     continue
+ 3500   continue
+        do 3600 ij = 1,6
+          totp(ij)  =totp(ij)  +syi(ij)  *dphi*qy(2,ii)*dy*dqt
+ 3600   continue
+ 3700 continue
+*
+      ii = 0
+      do 3950 iqt= 1,min0(nqt,50)
+        do 3900 iy = 1,ny
+          do 3850 iph= 1,nf
+            ii = ii + 1
+            if(nint(qy(1,ii)/dy+1.0) .ne. 1)                   goto 3850
+            eke(iqt) = qq(4,ii)-pmass
+            do 3800 ij =1,6
+              ekinp(ij,iqt)=ekinp(ij,iqt) + sig(ij,ii)
+ 3800       continue
+ 3850     continue
+ 3900   continue
+ 3950 continue
+*
+      write(isum,'(///79(''*'')//''c:       pion production''//
+     &            ''c:bombarding energy:'',f8.2,'' gev''/
+     &            ''c:impact parameter: '',f8.2,'' fm'')') elab,b
+      write(isum,'(/''c: ny:'',i5,5x,''nqt:'',i5,5x,''nphi:'',i5)')
+     &                                  ny,nqt,nf
+*
+      do 3975 ic = -1,1
+        write(isum,'(/''c:charge of the pion:'',i3)') ic
+        write(isum,'(''n: total yield'')')
+        write(isum,'(
+     &    ''c:                 without      with pauli'')')
+        write(isum,'(''c:probability:     '',2(5x,e9.4))')
+     &                             totp(2*ic+3),totp(2*ic+4)
+        write(isum,'(''c:cross-section(mb)'',2(5x,e9.4))')
+     &                             totp(2*ic+3)*scala,totp(2*ic+4)*scala
+        write(isum,'(''c: transverse energy spectra'')')
+        write(isum,'(''x: kinetic energy (gev)'')')
+        write(isum,'(''y: invariant cross-section (mb/gev**2)'')')
+        write(isum,'(
+     &    ''c:            without      with pauli'')')
+        do 3960 iqt = 1, min0(nqt,50)
+          write(isum,'(f8.3,2(3x,e12.4))') eke(iqt),
+     &      scala*ekinp(2*ic+3,iqt),scala*ekinp(2*ic+4,iqt)
+ 3960   continue
+ 3975 continue
+*
+      return
+*----------------------------------------------------------------------*
+      entry finalpip
+*----------------------------------------------------------------------*
+        write(mppipri,'(i8)') ntotq
+        write(mppipri,'(''c:   qt(gev)     y        phi'',
+     &       ''      pi-       pi- pauli       p0  '',
+     &       ''     p0 pauli      pi+     pi+ pauli     event'')')
+      do 4000 ii = 1,ntotq
+       write(mppipri,'(3f10.4,6e12.4,i8)') qy(2,ii),qy(1,ii),qy(3,ii),
+     &               (sig(jj,ii),jj=1,6),iqq(ii)
+ 4000 continue
+      return
+      end

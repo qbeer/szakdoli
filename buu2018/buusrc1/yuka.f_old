@@ -1,0 +1,226 @@
+
+************************************************************************
+*                                                                      *
+      subroutine yuint(vzero, rmc, rmy)
+*                                                                      *
+*       purpose:    calculate the initial value of coulomb and yukawa  *
+*       variables:                                                     *
+*         alp     - minimum eigenvalue                                 *
+*         bet     - maxmum eigenvalue                                  *
+*         in      - number of iteratisumn (comminput)                  *
+*         vzero   - strength of potential                              *
+*         smu     - range of potential  1/fm(cominput)                 *
+*         num     - number of test particle per nucleon(cominput)      *
+*         numd    - each numd we count the testparticles(cominput)     *
+*         rmc,rmy - min and max eigenvalues                            *
+*                                                                      *
+************************************************************************
+      implicit none
+
+      include"common"
+      include"cominput"
+      real*8 rmc(2),rmy(2), vzero, alp, bet, gam, bety, alpy
+
+      integer mbx, mbz, mxx, mxz, iz, iy, ix
+*-----------------------------------------------------------------------
+      mbx=maxx
+      mbz=maxz
+      mxx=maxx-1
+      mxz=maxz-1
+*-----------------------------------------------------------------------
+****  initial value of yup(ix,iy,iz) from zero-range solutisumn
+      if((ipot.eq.1).and.(icoll.ne.-1)) then
+      do 101 iz=-mbz,mbz
+      do 101 iy=-mbx,mbx
+      do 101 ix=-mbx,mbx
+         yup(ix,iy,iz)=4.0*pi/smu**3*vzero*rhb(ix,iy,iz)
+  101 continue
+      call yukw(2*initit,rmy,vzero)
+      end if
+*-----------------------------------------------------------------------
+      return
+*-----------------------------------------------------------------------
+*
+      entry yupri(alp,bet,rmc,rmy)
+*
+*-----------------------------------------------------------------------
+      write(isum,'(''c:'',43x,''==== parameters of yukawa '',
+     &         '' ======= ================'')')
+      write(isum,'(''c:'',43x,''1) input parameters'')')
+      write(isum,'(''c:'',45x,''   initit='',i4,'' initial iteratsumn'',
+     & '' number'')') initit
+      write(isum,'(''c:'',45x,''   nity  ='',i4,'' iteratisumn'',
+     & '' number of yukawa'')') nity
+      write(isum,'(''c:'',45x,''   numd  ='',i4,'' each numd test '',
+     & ''particles (proton),''/''c:'',60x)')numd
+      write(isum,'(''c:'',43x,''2) min and max eigen values'')')
+*-----------------------------------------------------------------------
+      gam=(alp*bet)**0.25*sqrt((alp+bet)/2.0)
+      rmc(1)=gam-sqrt(gam**2-alp*bet)
+      rmc(2)=gam+sqrt(gam**2-alp*bet)
+      write(isum,'(''c:'',
+     &           45x,''   alp   ='',f7.3,''   bet   ='',f7.3,
+     &   /''c:'',45x,''   rmc(1)='',e13.5,''  rmc(2)='',e13.5)')
+     &           alp,bet,rmc(1),rmc(2)
+      alpy=alp+1.0/3.0*smu**2
+      bety=bet+1.0/3.0*smu**2
+      gam=(alpy*bety)**0.25*sqrt((alpy+bety)/2.0)
+      rmy(1)=gam-sqrt(gam**2-alpy*bety)
+      rmy(2)=gam+sqrt(gam**2-alpy*bety)
+      write(isum,'(''c:'',
+     &           45x,''   alpy  ='',f7.3,''   bety  ='',f7.3,
+     &   /''c:'',45x,''   rmy(1)='',e13.5,''  rmy(2)='',e13.5)')
+     &           alpy,bety,rmy(1),rmy(2)
+      write(isum,'(''c:'',43x,''============================='',
+     &         ''========================='',15(/))')
+      return
+      end
+
+************************************************************************
+************************************************************************
+*                                                                      *
+      subroutine yukw(ni,rmm,vzero)
+*                                                                      *
+*       purpose:    calculating the yukawa  potential from (m) to (m+1)*
+*                   of the iteration for ni times                      *
+*                                                                      *
+*       variables:                                                     *
+*         ni      - number of iterations                               *
+*         rmm     - acceleration parameters rmm(1):even, rmm(2):odd    *
+*         vzero   - strength of potential                              *
+*         smu     - range of potential 1/fm                            *
+*                                                                      *
+************************************************************************
+      implicit none
+      integer maxm,mxx,mxz,ni,j,ii,jj,i,ix,iy,iz
+      real*8 vzero,ai,ci,yuppre
+      parameter  (maxm = 90000)
+      include"common"
+      include"cominput"
+      real*8 w(0:maxm), g(0:maxm), ee(0:maxm), rmm(2), rml(2), rmr(2)
+*-----------------------------------------------------------------------
+      mxx=maxx-1
+      mxz=maxz-1
+*-----------------------------------------------------------------------
+      rml(1)=rmm(1)+1.0/3.0*smu**2
+      rml(2)=rmm(2)+1.0/3.0*smu**2
+      rmr(1)=rmm(1)-2.0/3.0*smu**2
+      rmr(2)=rmm(2)-2.0/3.0*smu**2
+      do 1000 j=1,ni
+      ii=1
+      jj=j/2*2
+      if(jj.eq.j) ii=2
+*-----------------------------------------------------------------------
+      w(0)=0.0
+      g(0)=0.0
+      i=0
+      do 100 iy=-mxx,mxx
+      do 100 iz=-mxz,mxz
+      do 100 ix=-mxx,mxx
+         i=i+1
+         ee(i)=vzero/smu*4.0*pi* rhb(ix,iy,iz)
+     &        +(rmr(ii)-4.0)*yup(ix,iy,iz)
+     &        + yup(ix  ,iy+1,iz  )
+     &        + yup(ix  ,iy-1,iz  )
+     &        + yup(ix  ,iy  ,iz+1)
+     &        + yup(ix  ,iy  ,iz-1)
+         if(ix.eq.-mxx) then
+             ee(i)=ee(i)+yup(ix-1,iy ,iz )
+             ai=0.0
+         else
+             ai=-1.0
+         end if
+         if(ix.eq. mxx) then
+             ee(i)=ee(i)+yup(ix+1,iy ,iz )
+             ci=0.0
+         else
+             ci=-1.0
+         end if
+         g(i)=(ee(i)-ai*g(i-1))/(2.0+rml(ii)-ai*w(i-1))
+         w(i)=ci/(2.0+rml(ii)-ai*w(i-1))
+  100 continue
+         i=i+1
+         yuppre=0.0
+      do 200 iy=mxx,-mxx,-1
+      do 200 iz=mxz,-mxz,-1
+      do 200 ix=mxx,-mxx,-1
+         i=i-1
+         yup(ix,iy,iz)=g(i)-w(i)*yuppre
+         yuppre=yup(ix,iy,iz)
+  200 continue
+*-----------------------------------------------------------------------
+         i=i-1
+      do 101 iz=-mxz,mxz
+      do 101 ix=-mxx,mxx
+      do 101 iy=-mxx,mxx
+         i=i+1
+         ee(i)=vzero/smu*4.0*pi* rhb(ix,iy,iz)
+     &        +(rmr(ii)-4.0)*yup(ix,iy,iz)
+     &        + yup(ix+1,iy  ,iz  )
+     &        + yup(ix-1,iy  ,iz  )
+     &        + yup(ix  ,iy  ,iz+1)
+     &        + yup(ix  ,iy  ,iz-1)
+         if(iy.eq.-mxx) then
+             ee(i)=ee(i)+yup(ix ,iy-1,iz )
+             ai=0.0
+         else
+             ai=-1.0
+         end if
+         if(iy.eq. mxx) then
+             ee(i)=ee(i)+yup(ix ,iy-1,iz )
+             ci=0.0
+         else
+             ci=-1.0
+         end if
+         g(i)=(ee(i)-ai*g(i-1))/(2.0+rml(ii)-ai*w(i-1))
+         w(i)=ci/(2.0+rml(ii)-ai*w(i-1))
+  101 continue
+         i=i+1
+         yuppre=0.0
+      do 201 iz=mxz,-mxz,-1
+      do 201 ix=mxx,-mxx,-1
+      do 201 iy=mxx,-mxx,-1
+         i=i-1
+         yup(ix,iy,iz)=g(i)-w(i)*yuppre
+         yuppre=yup(ix,iy,iz)
+  201 continue
+*-----------------------------------------------------------------------
+         i=i-1
+      do 102 ix=-mxx,mxx
+      do 102 iy=-mxx,mxx
+      do 102 iz=-mxz,mxz
+         i=i+1
+         ee(i)=vzero/smu*4.0*pi* rhb(ix,iy,iz)
+     &        +(rmr(ii)-4.0)*yup(ix,iy,iz)
+     &        + yup(ix+1,iy  ,iz  )
+     &        + yup(ix-1,iy  ,iz  )
+     &        + yup(ix  ,iy+1,iz  )
+     &        + yup(ix  ,iy-1,iz  )
+         if(iz.eq.-mxz) then
+             ee(i)=ee(i)+yup(ix ,iy ,iz-1)
+             ai=0.0
+         else
+             ai=-1.0
+         end if
+         if(iz.eq. mxz) then
+             ee(i)=ee(i)+yup(ix ,iy ,iz+1)
+             ci=0.0
+         else
+             ci=-1.0
+         end if
+         g(i)=(ee(i)-ai*g(i-1))/(2.0+rml(ii)-ai*w(i-1))
+         w(i)=ci/(2.0+rml(ii)-ai*w(i-1))
+  102 continue
+         i=i+1
+         yuppre=0.0
+      do 202 ix=mxx,-mxx,-1
+      do 202 iy=mxx,-mxx,-1
+      do 202 iz=mxz,-mxz,-1
+         i=i-1
+         yup(ix,iy,iz)=g(i)-w(i)*yuppre
+         yuppre=yup(ix,iy,iz)
+  202 continue
+*-----------------------------------------------------------------------
+ 1000 continue
+      return
+      end

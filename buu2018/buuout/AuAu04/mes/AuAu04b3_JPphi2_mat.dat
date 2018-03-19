@@ -1,0 +1,6 @@
+ # Time dependence of the no. of mesons
+ # phi,eta,rho,sigma: No. of part.
+ # kaon,phi: total prob. of exist.
+ # time is in fm/c
+
+ #time          pi         eta         rho         sig       omega        kaon   kaon(pert)        phi   phi_rhoN    phi_rhoD

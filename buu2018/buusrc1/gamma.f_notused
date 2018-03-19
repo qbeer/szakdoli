@@ -1,0 +1,988 @@
+************************************************************************
+*                                                                      *
+      subroutine gammain(wref,wmin,wmax)
+*                                                                      *
+*       purpose:    calculating photon production from:                *
+*                                n+n  collision      (entry gamnp)     *
+*                                delta decay         (entry delgam)    *
+*                   -------------------------------------------------  *
+*                   initialization by subroutine gammain               *
+*                   -------------------------------------------------  *
+*                   final cross section by entry gammaout              *
+*                   -------------------------------------------------  *
+*                                                                      *
+*       method :    calculating and summing up the probabilities       *
+*                      to produce a gamma at a given momentum          *
+*                      and at given angles                             *
+*                                                                      *
+*       variables:                                                     *
+*         yref    - -1 * target rapidity in the frame                  *
+*         npl     - number of photon energies          (integer,input) *
+*         nanglgam- number of theta angles             (integer,input) *
+*         plstepga- step in energy                     (real,input)    *
+*         plmingam- min. photon energy                 (real,input)    *
+*                                                                      *
+*     let j the index of the integration point in the gamma momentum   *
+*          space, then qq and qy give the appopriate momenta in the    *
+*                                                                      *
+*         qq(i,j) /i=1-4/   -  i. coord. of the j. point in mom.space  *
+*         qy(1,j)           -  the transverse mom belonging to j.      *
+*         qy(2,j)           -  the rapidity       belonging to j.      *
+*         qy(3,j)           -  angle in trans.dir.belonging to j.      *
+*         sig(1,j)          -  for n+p         +pauli                  *
+*         sig(2,j)          -  for delta decay +pauli                  *
+*         sig(3,j)          -  for pi0 decay                           *
+*                                                                      *
+************************************************************************
+      implicit none
+      include 'common'
+      include 'cominput'
+*----------------------------------------------------------------------*
+      integer  maxde,maxdp,maxco,maxang,maxy,maxq,itim,ntotq,ntoty
+      integer  ii,jj,iqt,iy,nde,ij,iph,i1,i2,ireac,ix,iz,kk,jd,ipert
+      integer  idn,itme,ipl, maxvg, nvgam
+      real*8 yref,wref,ymin,ymax,wmin,wmax,gamnum,gamnumd,dy,dqt,dphi
+      real*8 qtra,yrap,phi,tramass,plab,ptran,pzlab,ela,ylab,gamma,srt
+      real*8 xxx,yyy,zzz,em1,em2,etotal,sig0,em12,em22,emm2,s,traf
+      real*8 tcm,omax,ga,gb,gc,gd,denst,qbeta,egam,gx,gfac,szigma
+      real*8 spr,ppri,ppr,fac,fac2,xx,yy,zz,r2,rr,transf,qqx,qqy,qqz
+      real*8 qqe,facta,e3,pbeta,phase,sigm,rn,time0
+      real*8 xmass,pdx,pdy,pdz,ww,dm2,rm2,ede,gamm,betax,betay,betaz
+      real*8 delife,gam,bwdist,walo,wew,w,q0,qq2,qqabs,gamph,szig
+      real*8 q0ga,qlq0,qbt,aa,ddds,pcc1,pcc2,plmi,plma,sigm1,sigm2
+      real*8 trams,xyz,rap1,rap2,dif1,dif2,rap,qzpr,q0pr,qbtra,rapydel
+      real*8 scal,plabd,event,volm, betgan, alfgan,szigma1
+      real*8 delvg, vgam
+*----------------------------------------------------------------------*
+      parameter     (maxde=20)
+      parameter     (maxco=20)
+      parameter     (maxdp=50, maxang=6)
+      parameter     (maxq =8000)
+      parameter     (maxy =2000)
+      parameter     (delvg=0.01, maxvg=50)
+*----------------------------------------------------------------------*
+      integer  iqq(6,maxy,maxde)
+      real*8   qq(4,maxq),qy(3,maxq),sig(5,maxy,maxde),sig1(5,maxy,maxde)
+*----------------------------------------------------------------------*
+      real*8 p3(3),beta(3)
+      real*8 pk(5,maxdp,maxang),anggam(maxang)
+      real*8 dsdp(10,maxdp,maxang),dsdp1(10,maxdp,maxang)
+      real*8 dsdv(10,maxdp,maxvg),dsdv1(10,maxdp,maxvg)
+      real*8 tim(100),gamtim(5,maxdp,100),gamtimd(5,maxdp,100)
+      real*8 gamtim1(5,maxdp,100),gamtimd1(5,maxdp,100)
+      real*8 densdg(5,maxdp,maxde),densdg1(5,maxdp,maxde)
+      real*8 sigmtim(5,maxdp), sigmener(5,maxdp),scolk(3,5,maxco)
+      real*8 sigma2(6), sigma1(6), sigma3(6)
+      integer iktim(5,maxdp),ikener(5,maxdp),icolk(3,5,maxco)
+*----------------------------------------------------------------------*
+*          save for the whole                                          *
+      save yref, gamnum,gamnumd,anggam
+      save gamtim, gamtimd, itim, tim
+      save densdg,densdg1
+      save qy,qq,sig,iqq,ntotq,dy,dqt,dphi,ntoty
+*----------------------------------------------------------------------*
+      save pk,dsdp,dsdp1,dsdv,dsdv1,sig1
+      save sigmtim,  sigmener, scolk
+      save iktim, ikener, icolk
+*----------------------------------------------------------------------*
+      save sigma2, sigma1, sigma3
+*----------------------------------------------------------------------*
+      yref   = wref
+      ymin   = wmin
+      ymax   = wmax
+      gamnum=amin1(1.0,1.0/pgamma)
+      gamnumd=amin1(1.0,1.0/pgammad)
+      do jj=1,maxang
+        anggam(jj) =anglegam(jj)*pi/180.0
+      enddo
+      write(*,*) nanglgam, maxang, (anggam(jj),jj=1,6)
+
+      nplgam  = min0(nplgam, maxdp )
+      nanglgam= min0(nanglgam, maxang)
+
+      itim = 0
+
+      nyg    = max0(1,nyg )
+      nqtg   = max0(1,nqtg)
+      nfg    = max0(1,nfg )
+
+      ntotq  = nyg*nqtg*nfg
+      ntoty  = nyg*nqtg
+      if(ntoty .gt. maxy .or. ntotq.gt.maxq) then
+        write(isum,'(''c:  too many q-s are to be calculated for g'')')
+      end if
+***                                                                  ***
+***                                                                  ***
+      dy     = (ymax-ymin) / float(nyg)
+      dqt    = qtmaxk/ float(nqtg)
+      dphi   = 2. * pi / float(nfg)
+      ii = 0
+      jj = 0
+      do 1400 iqt= 1,nqtg
+        qtra = (float(iqt) - 0.5) * dqt
+        do 1300 iy = 1,nyg
+          yrap = ymin + (float(iy) - 0.5) * dy
+          jj = jj + 1
+          do 1101 nde= 1,maxde
+            do 1100 ij = 1,5
+              iqq(ij,jj,nde) = 0
+              sig(ij,jj,nde) = 0.0
+              sig1(ij,jj,nde) = 0.0
+ 1100       continue
+ 1101     continue
+          do 1200 iph = 0,nfg-1
+            ii = ii + 1
+            phi = - pi + (float(iph)+0.5) * dphi
+            qy(1,ii) = qtra
+            qy(2,ii) = yrap
+            qy(3,ii) = phi
+            tramass  = qtra
+            qq(1,ii) = qtra * cos(phi)
+            qq(2,ii) = qtra * sin(phi)
+            qq(3,ii) = tramass * sinh(yrap)
+            qq(4,ii) = tramass * cosh(yrap)
+ 1200     continue
+ 1300   continue
+ 1400   continue
+
+ccc            pk(1) pzcm
+ccc            pk(2) ptcm
+ccc            pk(3) ecm
+ccc            pk(4) thetacm
+ccc            pk(5) pcm
+      do jj=1,nanglgam
+        do ii=1,nplgam
+          plab = plmingam + plstepga * float(ii-1)
+          ptran=plab*sin(anggam(jj))
+          pzlab=plab*cos(anggam(jj))
+          ela  = plab
+          if(igamsys.eq.1) then
+            tramass = ptran
+            ylab = 0.5*alog((ela +pzlab)/(ela -pzlab))
+            pk(1,ii,jj) = tramass * sinh(ylab-yref)
+            pk(2,ii,jj) = ptran
+            pk(3,ii,jj) = tramass * cosh(ylab-yref)
+            pk(4,ii,jj) = atan2(ptran,pk(1,ii,jj))
+            pk(5,ii,jj) = sqrt(ptran**2+pk(1,ii,jj)**2)
+          else
+            pk(1,ii,jj) = pzlab
+            pk(2,ii,jj) = ptran
+            pk(3,ii,jj) = ela
+            pk(4,ii,jj) = anggam(jj)
+            pk(5,ii,jj) = plab
+          endif
+      write(*,*) ii,jj,pk(1,ii,jj),pk(2,ii,jj),pk(3,ii,jj),pk(4,ii,jj)
+          do ij=1,10
+            dsdp(ij,ii,jj) = 0.0
+            dsdp1(ij,ii,jj) = 0.0
+          enddo
+        enddo
+      enddo
+      do jj=1,maxvg
+        do ii=1,npl
+          do ij=1,6
+            dsdv(ij,ii,jj) = 0.0
+            dsdv1(ij,ii,jj) = 0.0
+          enddo
+        enddo
+      enddo
+      do ij=1,6
+        sigma1(ij)=0.0
+        sigma2(ij)=0.0
+        sigma3(ij)=0.0
+      enddo
+      do ij=1,5
+      do ii=1,nplgam
+      do jj=1,maxde
+        densdg(ij,ii,jj) = 0.0
+        densdg1(ij,ii,jj) = 0.0
+      enddo
+      enddo
+      enddo
+c     write(6,*) nplgam, nphigam, nanglgam
+      return
+*----------------------------------------------------------------------*
+      entry gamnp(i1,i2,beta,gamma,srt,xxx,yyy,zzz,em1,em2,
+     &             etotal,sig0)
+*       variables:                                                     *
+*         ireac   - 1->n+n; 2->n+d, d+d, n+r reac.     (integer,input) *
+*         iseed   - seed for random number generator   (integer,input) *
+*         beta    - velocity of the 2 part. cms in the frame           *
+*         gamma   - gamma corresponds to beta                          *
+*         srt     - cms energy                                         *
+*         xxx...zzz - coordinates of the event                         *
+*     cross-sections are taken from schafer et al., z.phys.            *
+*----------------------------------------------------------------------*
+      if(rn(iseed) .ge. gamnum)                    return
+***                                                                  ***
+***         preparing    for the pauli blocking                      ***
+***                                                                  ***
+      call paulpro0(xxx,yyy,zzz)
+***                                                                  ***
+      em12  = em1**2
+      em22  = em2**2
+      emm2  = (em1+em2)**2
+      s     = srt**2
+      traf  = gamma / (gamma+1.0)
+      ireac = 1
+      if(em1.gt.0.94 .or. em2.gt.0.94) ireac = 2
+***                                                                  ***
+***         preparing    for the cross section                       ***
+***         schafer z.phys
+      tcm   = srt-2.0 * rmass
+      omax =.5*(s-emm2)/srt
+      if(omax.le.plmingam)                                        return
+      ga     = 9.74 + 37.0*tcm
+      gb     = 0.91 - 0.14*atan(45.0*tcm -7.66)
+      gc     = 12.365/(18.27+1.e3*tcm)**2.38
+      gd     = 1.5e3*tcm
+***                                                                  ***
+***         preparing    for the cross section                       ***
+***         Gan Phys. Rev. C49 (1994) 298
+      betgan= sqrt(amax1(0.,(0.25*(s-em12-em22)**2-em12*em22)/s))/em1
+      alfgan= 0.7319 - 0.5898 * betgan
+      nvgam = nint(beta(3)/delvg) + maxvg/2
+      nvgam = min(nvgam,maxvg)
+      nvgam = max(nvgam,1    )
+c-----------------------------------------------------------------------
+c           density dependence
+      ix = nint(xxx)
+      iy = nint(yyy)
+      iz = nint(zzz)
+      denst = 0.0
+      if(iabs(ix).le.maxx .and. iabs(iy).le.maxx .and. iabs(iz).le.maxz)
+     &      denst = rhb(ix,iy,iz) / rho0
+      nde  = nint(denst/densste+1.0)
+      nde  = min(nde,maxde)
+c     write(*,*) densste,nde
+c-----------------------------------------------------------------------
+c                       momentum spectra                         -------
+      do 2000 ii=1,nplgam
+        do 2000 jj=1,nanglgam
+          do 2001 iph =1,nphigam
+            phi = 2.0 * pi * float(iph-1)/float(nphigam)
+*
+*   lorentz-transformation in i1-i2-c.m. system
+*
+            qbeta = beta(1)*pk(2,ii,jj)*cos(phi)
+     &       + beta(2)*pk(2,ii,jj)*sin(phi)+beta(3)*pk(1,ii,jj)
+*
+*   egam:    photon energy in i1-i2-c.m. system
+*
+            egam = gamma * (pk(3,ii,jj)- qbeta)
+            if(egam.ge.omax)                              goto 2001
+            gx     = egam/omax
+            gfac   = ga*1.e-3+gb*egam*exp(-gc*(1.e3*egam-gd)**2)
+            szigma = sqrt(1.0-gx)*gfac/(4.0*pi*egam**2)/float(nphigam)
+            szigma = szigma/sig0
+            szigma1= 1.671e-4/egam*(1.0-gx**2)**alfgan/gx/float(nphigam)
+c          write(*,'(''gamnp: '',e12.3)') szigma
+            dsdp(5+ireac,ii,jj) = dsdp(5+ireac,ii,jj) + szigma
+            dsdp1(5+ireac,ii,jj) = dsdp1(5+ireac,ii,jj) + szigma1
+            dsdv(5+ireac,ii,nvgam) = dsdv(5+ireac,ii,nvgam) +
+     &       szigma * sin(anggam(jj))*2*pi**2/float(nanglgam)
+            dsdv1(5+ireac,ii,nvgam)= dsdv1(5+ireac,ii,nvgam)+
+     &       szigma1 * sin(anggam(jj))*2*pi**2/float(nanglgam)
+c-----------------------------------------------------------------------
+*   spr:      total energy**2 of the nucleon+nukleon system in their cms
+        spr   = srt * (srt - 2. * egam)
+        if(spr .le. emm2)                                      goto 2001
+        ppri  = egam
+***                                                                  ***
+***              looking for the pauli blocking                      ***
+***                                                                  ***
+        if((em1 .gt.0.94) .and. (em2 .gt. 0.94))               goto 2200
+        ppr    = sqrt(amax1(0.,(0.25*(spr-em12-em22)**2-em12*em22)/spr))
+        fac    = - 0.5 * (1. + (em12-em22)/spr)
+        fac2   = ppr / (spr + (srt - egam)  * sqrt(spr))
+ 2100   continue
+        xx     = rn(iseed) - 0.5
+        yy     = rn(iseed) - 0.5
+        zz     = rn(iseed) - 0.5
+        r2     = xx**2 + yy**2 + zz**2
+        if( (r2.lt.0.0001) .or. (r2.gt.0.25) )                 goto 2100
+        rr     = sqrt(r2)
+c
+*   lorentz-transformation of gamma momentum in i1-i2-c.m. system
+        transf = gamma * (traf * qbeta - pk(3,ii,jj) )
+        qqx    = pk(2,ii,jj) * cos(phi) + beta(1) * transf
+        qqy    = pk(2,ii,jj) * sin(phi) + beta(2) * transf
+        qqz    = pk(1,ii,jj) + beta(3) * transf
+        qqe    = (qqx * xx + qqy * yy + qqz * zz) / rr
+        facta   = fac + fac2 * qqe
+*   p3:                    nucleon momentum in i1-i2-c.m. system
+        p3(1)  = facta * qqx + xx/rr * ppr
+        p3(2)  = facta * qqy + yy/rr * ppr
+        p3(3)  = facta * qqz + zz/rr * ppr
+        e3     = sqrt(em12+p3(1)**2+p3(2)**2+p3(3)**2)
+*   p3:                    nucleon momentum in observable system
+        pbeta  = beta(1)*p3(1) + beta(2)*p3(2) + beta(3)*p3(3)
+        transf = gamma * (traf * pbeta + e3)
+        p3(1)  = p3(1) + beta(1) * transf
+        p3(2)  = p3(2) + beta(2) * transf
+        p3(3)  = p3(3) + beta(3) * transf
+        phase  = 0.0
+        if(em1.lt.0.94)
+     &    call paulpro1(i1,phase,p3(1),p3(2),p3(3))
+        szigma = szigma * (1.0 - phase)
+        szigma1= szigma1 * (1.0 - phase)
+        if(em2 .gt. 0.94)                                      goto 2200
+        p3(1)  = beta(1) * etotal - p3(1) - pk(2,ii,jj) * cos(phi)
+        p3(2)  = beta(2) * etotal - p3(2) - pk(2,ii,jj) * sin(phi)
+        p3(3)  = beta(3) * etotal - p3(3) - pk(1,ii,jj)
+        call paulpro1(i2,phase,p3(1),p3(2),p3(3))
+        szigma = szigma * (1.0 - phase)
+        szigma1= szigma1 * (1.0 - phase)
+ 2200   continue
+        dsdp(ireac,ii,jj)= dsdp(ireac,ii,jj) +szigma
+        densdg(ireac,ii,nde)= densdg(ireac,ii,nde) +
+     &       szigma * sin(anggam(jj))*2*pi**2/float(nanglgam)
+        dsdp1(ireac,ii,jj)= dsdp1(ireac,ii,jj) +szigma1
+        densdg1(ireac,ii,nde)= densdg1(ireac,ii,nde) +
+     &       szigma1 * sin(anggam(jj))*2*pi**2/float(nanglgam)
+        dsdv(ireac,ii,nvgam) = dsdv(ireac,ii,nvgam) +
+     &       szigma * sin(anggam(jj))*2*pi**2/float(nanglgam)
+        dsdv1(ireac,ii,nvgam) = dsdv1(ireac,ii,nvgam) +
+     &       szigma1 * sin(anggam(jj))*2*pi**2/float(nanglgam)
+        plab = plmingam + plstepga * float(ii-1)
+        sigma2(ireac)=sigma2(ireac)+
+     &     szigma*sin(anggam(jj))*2*pi**2/float(nanglgam)*plab
+        sigma3(ireac)=sigma3(ireac)+
+     &     szigma1*sin(anggam(jj))*2*pi**2/float(nanglgam)*plab
+ 2001 continue
+ 2000 continue
+c-----------------------------------------------------------------------
+c                       lattice distribution                     -------
+      ii    = 0
+      jj    = 0
+      do 4302 iqt=1,nqtg
+      do 4301 iy =1,nyg
+        jj = jj + 1
+       do 4300 iph=1,nfg
+        ii = ii + 1
+*
+*   lorentz-transformation in i1-i2-c.m. system
+*
+        qbeta = beta(1)*qq(1,ii) + beta(2)*qq(2,ii) + beta(3)*qq(3,ii)
+*
+*   egam:    photon energy in i1-i2-c.m. system
+*
+        egam = gamma * (qq(4,ii) - qbeta)
+*   spr:      total energy**2 of the nucleon+nucleon system in their cms
+        spr   = srt * (srt - 2. * egam)
+        if(spr .le. emm2)                                      goto 4300
+        if(egam.ge.omax)                                       goto 4300
+        ppri  = egam
+        gx     = egam/omax
+        gfac   = ga*1.e-3+gb*egam*exp(-gc*(1.e3*egam-gd)**2)
+        szigma = sqrt(1.0-gx)*gfac/(4.0*pi*egam**2)/float(nphigam)
+        szigma = szigma/sig0
+        szigma1= 1.671e-4/egam*(1.0-gx**2)**alfgan/gx/float(nphigam)
+***                                                                  ***
+***              looking for the pauli blocking                      ***
+***                                                                  ***
+*   ppr:      momentum of the nucleon in the nucleon+lambda cms
+        ppr    = sqrt(amax1(0.,(0.25*(spr-em12-em22)**2-em12*em22)/spr))
+        fac    = - 0.5 * (1. + (em12-em22)/spr)
+        fac2   = ppr / (spr + (srt - egam) * sqrt(spr))
+ 4100   continue
+        xx     = rn(iseed) - 0.5
+        yy     = rn(iseed) - 0.5
+        zz     = rn(iseed) - 0.5
+        r2     = xx**2 + yy**2 + zz**2
+        if( (r2.lt.0.0001) .or. (r2.gt.0.25) )                 goto 4100
+        rr     = sqrt(r2)
+c
+*   lorentz-transformation of gamma momentum in i1-i2-c.m. system
+        transf = gamma * (traf * qbeta - qq(4,ii) )
+        qqx    = qq(1,ii) + beta(1) * transf
+        qqy    = qq(2,ii) + beta(2) * transf
+        qqz    = qq(3,ii) + beta(3) * transf
+        qqe    = (qqx * xx + qqy * yy + qqz * zz) / rr
+        facta  = fac + fac2 * qqe
+*   p3:                    nucleon momentum in i1-i2-c.m. system
+        p3(1)  = facta * qqx + xx/rr * ppr
+        p3(2)  = facta * qqy + yy/rr * ppr
+        p3(3)  = facta * qqz + zz/rr * ppr
+        e3     = sqrt(em12+p3(1)**2+p3(2)**2+p3(3)**2)
+*   p3:                    nucleon momentum in observable system
+        pbeta  = beta(1)*p3(1) + beta(2)*p3(2) + beta(3)*p3(3)
+        transf = gamma * (traf * pbeta + e3)
+        p3(1)  = p3(1) + beta(1) * transf
+        p3(2)  = p3(2) + beta(2) * transf
+        p3(3)  = p3(3) + beta(3) * transf
+        phase  = 0.0
+        if(em1.lt.0.94)
+     &    call paulpro1(i1,phase,p3(1),p3(2),p3(3))
+        szigma = szigma * (1.0 - phase)
+        szigma1= szigma1 * (1.0 - phase)
+        if(em2 .gt. 0.94)                                      goto 4200
+        p3(1)  = beta(1) * etotal - p3(1) - qq(1,ii)
+        p3(2)  = beta(2) * etotal - p3(2) - qq(2,ii)
+        p3(3)  = beta(3) * etotal - p3(3) - qq(3,ii)
+        call paulpro1(i2,phase,p3(1),p3(2),p3(3))
+        szigma = szigma * (1.0 - phase)
+        szigma1= szigma1 * (1.0 - phase)
+ 4200   continue
+        sig(ireac,jj,nde)= sig(ireac,jj,nde) + szigma
+        sig1(ireac,jj,nde)= sig1(ireac,jj,nde) + szigma1
+        iqq(ireac,jj,nde)= iqq(ireac,jj,nde) + 1
+ 4300 continue
+ 4301 continue
+ 4302 continue
+c-----------------------------------------------------------------------
+      return
+*----------------------------------------------------------------------*
+*                                                                      *
+      entry delgam(delife,kk,jd,xmass,xxx,yyy,zzz,pdx,pdy,pdz,ww,ipert)
+*                                                                      *
+*----------------------------------------------------------------------*
+      if((jd .le. 1 ) .or. (jd .gt. 4))                     return
+      if(rn(iseed) .ge. gamnumd)                            return
+***                                                                  ***
+***         preparing    for the pauli blocking                      ***
+***                                                                  ***
+      call paulpro0(xxx,yyy,zzz)
+***                                                                  ***
+      dm2   = xmass**2
+      rm2   = rmass**2
+      ede   = sqrt(dm2+pdx**2+pdy**2+pdz**2)
+      gamm  = ede / xmass
+      betax = pdx / ede
+      betay = pdy / ede
+      betaz = pdz / ede
+      rapydel = 0.5 * alog((1.+betaz)/(1.-betaz))
+c     write(6,*) jd, xmass,kk, id(1,kk),ipert
+      idn = jd - 2
+      if(jd.eq.4) idn = 3
+      gam=bwdist(dm2,idn,idec2pi,iresmode,0,0,iwidth,0)
+      walo  = delife / gamm * gam / hbc
+      wew     = 1.0
+      if(walo .lt. 5.0)   wew = 1.0 - exp( - walo )
+      w       = ww * wew /gam
+      q0      = 0.5 * (dm2 - rm2) / xmass
+      qq2     = q0**2
+      qqabs   = q0
+      if(jd .eq. 2) gamph = 0.006
+      if(jd .eq. 3) gamph = 0.0006
+      if(jd .eq. 4) gamph = 0.002
+      szig = gamph * w/gamnumd
+c          write(6,'(''delgam: '',e12.3)') szig
+c***********************************************************************
+c           density dependence
+      ix = nint(xxx)
+      iy = nint(yyy)
+      iz = nint(zzz)
+      denst = 0.0
+      if(iabs(ix).le.maxx .and. iabs(iy).le.maxx .and.
+     &       iabs(iz).le. maxz)
+     &      denst = rhb(ix,iy,iz)/rho0
+      nde  = nint(denst/densste+1.0)
+      nde  = min(nde,maxde)
+c-----------------------------------------------------------------------
+      q0ga  = q0/gamm
+c***********************************************************************
+c       lattice distribution
+      jj = 0
+      ii = 0
+      do 3300 iqt=1,nqtg
+        do 3200 iy=1,nyg
+          jj = jj + 1
+          do 3100 iph=1,nfg
+            ii = ii + 1
+************************************************************************
+*                                                                      *
+*         to fulfill the energy conservation - q=q0 in the delta frame *
+*           we look for the appropriate rapidity at a given qt, y(qt)  *
+*           function. it may happen that the domain of qt, where a     *
+*           solution exist, is inside of the qt steps, so there will   *
+*           be no contribution. when the statistic is good enough, this*
+*           will not couse big problem, the error remain in 20 %.      *
+*                                                                      *
+*           when there is no solution, then xyz**2 < 1                 *
+*                                                                      *
+************************************************************************
+            qbtra = qq(1,ii) * betax + qq(2,ii) * betay
+            trams = qy(1,ii)
+            xyz   = cosh(rapydel) * (q0/gamm+qbtra)/trams
+            if(abs(xyz) .le. 1.0)                           goto 3100
+            rap1= rapydel - alog(xyz + sqrt(xyz**2 - 1.0))
+            rap2= rapydel + alog(xyz + sqrt(xyz**2 - 1.0))
+            dif1= abs(rap1-qy(2,ii))
+            dif2= abs(rap2-qy(2,ii))
+            if((dif1.gt.dy/2.).and.(dif2.gt.dy/2.))         goto 3100
+            if(dif1.le.dy/2.) rap = rap1
+            if(dif2.le.dy/2.) rap = rap2
+            qzpr = trams * sinh(rap)
+            q0pr = trams * cosh(rap)
+            facta = 4.*pi * qqabs * gamm  * dy * abs(qzpr- betaz*q0pr)
+
+            sigm = szig/facta
+            phase = 0.0
+            p3(1) = pdx - qq(1,ii)
+            p3(2) = pdy - qq(2,ii)
+            p3(3) = pdz - qq(3,ii)
+            call paulpro1(kk,phase,p3(1),p3(2),p3(3))
+            sig(3,jj,nde) = sig(3,jj,nde)+sigm*(1.0-phase)
+            iqq(3,jj,nde) = iqq(3,jj,nde) + 1
+ 3100     continue
+ 3200   continue
+ 3300 continue
+c-----------------------------------------------------------------------
+      do 3500 ipl=1,nplgam
+      do 3500 jj=1,nanglgam
+        qlq0= pk(5,ipl,jj)/pk(3,ipl,jj)
+        do 3400 iph=1,nphigam
+          phi  = 2.0 * pi * float(iph-1)/float(nphigam)
+          qbt = sin(pk(4,ipl,jj))*cos(phi)*betax +
+     &        sin(pk(4,ipl,jj))*sin(phi)*betay+cos(pk(4,ipl,jj))*betaz
+          aa    = 1.0 - qbt**2
+          ddds  = q0ga
+          pcc1= (q0ga*qbt+ddds)/aa
+          pcc2= (q0ga*qbt-ddds)/aa
+          plmi= 0.001
+          if(ipl.gt.1) plmi= pk(5,ipl-1,jj)
+          plmi= pk(5,ipl,jj) - 0.5 * (pk(5,ipl,jj)-plmi)
+          plma= 1.e4
+          if(ipl.lt.nplgam) plma= pk(5,ipl+1,jj)
+          plma= pk(5,ipl,jj) + 0.5 * (plma-pk(5,ipl,jj))
+          sigm1= 0.0
+          sigm2= 0.0
+          facta=0.25/(pi*qqabs * gamm  * plstepga * abs(qlq0-qbt))
+          if(pcc1.gt.plmi .and. pcc1.lt.plma)
+     &        sigm1= facta
+          if(pcc2.gt.plmi .and. pcc2.lt.plma)
+     &        sigm2= facta
+          sigm = szig*(sigm1+sigm2)/float(nphigam)
+          phase = 0.0
+          p3(1) = pdx - pk(2,ipl,jj)*cos(phi)
+          p3(2) = pdy - pk(2,ipl,jj)*sin(phi)
+          p3(3) = pdz - pk(1,ipl,jj)
+          call paulpro1(kk,phase,p3(1),p3(2),p3(3))
+          dsdp(8,ipl,jj) = dsdp(8,ipl,jj)+sigm
+          dsdp(3,ipl,jj) = dsdp(3,ipl,jj)+sigm*(1.-phase)
+          densdg(3,ipl,nde) = densdg(3,ipl,nde)+sigm*(1.-phase)
+     &         * sin(anggam(jj))*2*pi**2/float(nanglgam)
+          plab = plmingam + plstepga * float(ipl-1)
+          sigma2(3) = sigma2(3)+sigm*(1.-phase)
+     &         * sin(anggam(jj))*2*pi**2/float(nanglgam)*plab
+          sigma3(3) = sigma3(3)+sigm*(1.-phase)
+     &         * sin(anggam(jj))*2*pi**2/float(nanglgam)*plab
+ 3400     continue
+ 3500   continue
+      return
+*----------------------------------------------------------------------*
+*                                                                      *
+      entry pi0gam(jd,xmass,pdx,pdy,pdz,ww,ipert)
+*                                                                      *
+*----------------------------------------------------------------------*
+      if((jd .le. 1 ) .or. (jd .gt. 2))                     return
+***                                                                  ***
+      dm2   = xmass**2
+      ede   = sqrt(dm2+pdx**2+pdy**2+pdz**2)
+      gamm  = ede / xmass
+      betax = pdx / ede
+      betay = pdy / ede
+      betaz = pdz / ede
+      rapydel = 0.5 * alog((1.+betaz)/(1.-betaz))
+      q0      = 0.5 * xmass
+      qq2     = q0**2
+      qqabs   = q0
+      if(jd .eq. 1) gamph = 1.0
+      if(jd .eq. 2) gamph = 0.39
+      szig = 2.0*gamph
+c          write(*,'(''pi0gam: '',e12.3)') szig
+c***********************************************************************
+      nde  = 1
+c-----------------------------------------------------------------------
+      q0ga  = q0/gamm
+c***********************************************************************
+c       lattice distribution
+      jj = 0
+      ii = 0
+      do 5300 iqt=1,nqtg
+        do 5200 iy=1,nyg
+          jj = jj + 1
+          do 5100 iph=1,nfg
+            ii = ii + 1
+************************************************************************
+*                                                                      *
+*         to fulfill the energy conservation - q=q0 in the delta frame *
+*           we look for the appropriate rapidity at a given qt, y(qt)  *
+*           function. it may happen that the domain of qt, where a     *
+*           solution exist, is inside of the qt steps, so there will   *
+*           be no contribution. when the statistic is good enough, this*
+*           will not couse big problem, the error remain in 20 %.      *
+*                                                                      *
+*           when there is no solution, then xyz**2 < 1                 *
+*                                                                      *
+************************************************************************
+            qbtra = qq(1,ii) * betax + qq(2,ii) * betay
+            trams = qy(1,ii)
+            xyz   = cosh(rapydel) * (q0/gamm+qbtra)/trams
+            if(abs(xyz) .le. 1.0)                           goto 5100
+            rap1= rapydel - alog(xyz + sqrt(xyz**2 - 1.0))
+            rap2= rapydel + alog(xyz + sqrt(xyz**2 - 1.0))
+            dif1= abs(rap1-qy(2,ii))
+            dif2= abs(rap2-qy(2,ii))
+            if((dif1.gt.dy/2.).and.(dif2.gt.dy/2.))         goto 5100
+            if(dif1.le.dy/2.) rap = rap1
+            if(dif2.le.dy/2.) rap = rap2
+            qzpr = trams * sinh(rap)
+            q0pr = trams * cosh(rap)
+            facta = 4.*pi * qqabs * gamm  * dy * abs(qzpr- betaz*q0pr)
+
+            sigm = szig/facta
+            sig(3+jd,jj,nde) = sig(3+jd,jj,nde)+sigm
+            iqq(3+jd,jj,nde) = iqq(3+jd,jj,nde) + 1
+ 5100     continue
+ 5200   continue
+ 5300 continue
+c-----------------------------------------------------------------------
+      do 5500 ipl=1,nplgam
+      do 5500 jj=1,nanglgam
+        qlq0= pk(5,ipl,jj)/pk(3,ipl,jj)
+        do 5400 iph=1,nphigam
+          phi  = 2.0 * pi * float(iph-1)/float(nphigam)
+          qbt = sin(pk(4,ipl,jj))*cos(phi)*betax +
+     &        sin(pk(4,ipl,jj))*sin(phi)*betay+cos(pk(4,ipl,jj))*betaz
+          aa    = 1.0 - qbt**2
+          ddds  = q0ga
+          pcc1= (q0ga*qbt+ddds)/aa
+          pcc2= (q0ga*qbt-ddds)/aa
+          plmi= 0.001
+          if(ipl.gt.1) plmi= pk(5,ipl-1,jj)
+          plmi= pk(5,ipl,jj) - 0.5 * (pk(5,ipl,jj)-plmi)
+          plma= 1.e4
+          if(ipl.lt.nplgam) plma= pk(5,ipl+1,jj)
+          plma= pk(5,ipl,jj) + 0.5 * (plma-pk(5,ipl,jj))
+          sigm1= 0.0
+          sigm2= 0.0
+          facta=0.25/(pi*qqabs * gamm  * plstepga * abs(qlq0-qbt))
+          if(pcc1.gt.plmi .and. pcc1.lt.plma)
+     &        sigm1= facta
+          if(pcc2.gt.plmi .and. pcc2.lt.plma)
+     &        sigm2= facta
+          sigm = szig*(sigm1+sigm2)/float(nphigam)
+          dsdp(3+jd,ipl,jj) = dsdp(3+jd,ipl,jj)+sigm
+          plab = plmingam + plstepga * float(ipl-1)
+          sigma2(3+jd) = sigma2(3+jd)+sigm*(1.-phase)
+     &         * sin(anggam(jj))*2*pi**2/float(nanglgam)*plab
+          sigma3(3+jd) = sigma3(3+jd)+sigm*(1.-phase)
+     &         * sin(anggam(jj))*2*pi**2/float(nanglgam)*plab
+ 5400     continue
+ 5500   continue
+      return
+*----------------------------------------------------------------------*
+      entry gammatim(time0)
+*----------------------------------------------------------------------*
+      itim   = min(itim+1,100)
+      tim(itim) = time0
+      do 8900 ipl = 1,nplgam
+        do 8100 ij = 1,3
+          gamtim(ij,ipl,itim)=0.0
+          gamtim1(ij,ipl,itim)=0.0
+ 8100   continue
+        do ij = 1,3
+        do jj = 1,nanglgam
+          gamtim(ij,ipl,itim) = gamtim(ij,ipl,itim)
+     &      + dsdp(ij,ipl,jj) *sin(anggam(jj))*2*pi**2/float(nanglgam)
+          gamtim1(ij,ipl,itim) = gamtim1(ij,ipl,itim)
+     &      + dsdp1(ij,ipl,jj) *sin(anggam(jj))*2*pi**2/float(nanglgam)
+        enddo
+        if(itim.gt.1 .and. abs(tim(itim)-tim(itim-1)).gt.1.e-3)
+     &    gamtimd(ij,ipl,itim)=
+     &    (gamtim(ij,ipl,itim)-gamtim(ij,ipl,itim-1))
+     &   /(tim(itim)-tim(itim-1))
+        if(itim.gt.1 .and. abs(tim(itim)-tim(itim-1)).gt.1.e-3)
+     &    gamtimd1(ij,ipl,itim)=
+     &    (gamtim1(ij,ipl,itim)-gamtim1(ij,ipl,itim-1))
+     &   /(tim(itim)-tim(itim-1))
+        enddo
+ 8900 continue
+*
+      return
+*----------------------------------------------------------------------*
+      entry gammaout(scal)
+*----------------------------------------------------------------------*
+*  dsdp(i) gives the e*dsigma/dp**3  for channel i;
+*----------------------------------------------------------------------*
+*
+      ii = 0
+      jj = 0
+      do 6700 iqt= 1,nqtg
+        volm = dy * dqt * dphi * qy(1,ii+nfg)
+        do 6500 iy = 1,nyg
+          jj = jj + 1
+          ii = ii + nfg
+          do 6301 nde=1,maxde
+            do ij =1,5
+              sigma1(ij) = sigma1(ij) + sig(ij,jj,nde) * volm
+              sigma1(6)  = sigma1(6)  + sig(ij,jj,nde) * volm
+              sigma2(6)  = sigma2(6)  + sigma2(ij)
+              sigma3(6)  = sigma3(6)  + sigma3(ij)
+            enddo
+ 6301     continue
+ 6500     continue
+ 6700   continue
+
+      write(*,*) scal
+      write(isum,'(//79(''*'')//''c:      gamma production''/
+     &    4i8,f10.6/2f10.6)') massta,mstapr,masspr,msprpr,elab,b,yref
+*
+      write(isum,'(/'' Gamma total cross sections (mb)'')')
+      write(isum,'(10x,''n+n'',6x,''n+delta  deltadec   pi0dec'',
+     &             4x,''etadec'',4x,''all'')')
+      write(isum,'(''lattice'',e9.3,5(1x,e9.3))')
+     &                               (sigma1(ij)*scal,ij=1,6)
+      write(isum,'(''theta Schaefer '',e9.3,5(1x,e9.3))')
+     &                               (sigma2(ij)*scal,ij=1,6)
+      write(isum,'(''theta Gan      '',e9.3,5(1x,e9.3))')
+     &                               (sigma3(ij)*scal,ij=1,6)
+*
+      write(isum,'(/''c:gamma spectra (Schaefer)'')')
+*
+      write(isum,'(/''c: Photon diff. spectra for diff. angles'')')
+      do jj = 1,nanglgam
+        write(isum,'(''c: angle: '',f8.2)') anggam(jj)*180./pi
+        write(isum,'(''c: with pauli'')')
+        write(isum,'(''n: plab (gev/c)'')')
+        write(isum,'(''n: dsigma/dp_lab/domega (mb/gev/str)'')')
+        write(isum,'(
+     &      ''n:  plab    n+n        n+delta   deltadec'',
+     &      ''    pi0dec     etadec'')')
+        do ipl=1,nplgam
+          plabd = plmingam+plstepga*float(ipl-1)
+          write(isum,'(f8.3,6e11.3)')
+     &      plabd,(dsdp(ij,ipl,jj)*scal*plabd,ij=1,5)
+        enddo
+        write(isum,'(''c: without pauli'')')
+        write(isum,'(''n: plab (gev/c)'')')
+        write(isum,'(''n: dsigma/dp_lab/domega (mb/gev/str)'')')
+        write(isum,'(
+     &      ''n:  plab    n+n        n+delta   deltadec'')')
+        do ipl=1,nplgam
+          plabd = plmingam+plstepga*float(ipl-1)
+          write(isum,'(f8.3,6e11.3)')
+     &      plabd,(dsdp(ij,ipl,jj)*scal*plabd,ij=6,8)
+        enddo
+      enddo
+      write(isum,'(/''c: Photon energy spectra for diff. times'')')
+      do itme = 1,itim
+        write(isum,'(''c: time : '',f6.2)') tim(itme)
+        write(isum,'(''c: with pauli'')')
+        write(isum,'(''n: plab (gev/c)'')')
+        write(isum,'(''n: dsigma/dp_lab (mb/gev)'')')
+        write(isum,'(
+     &      ''n:  plab     n+n       n+delta   deltadec'')')
+        do ipl=1,nplgam
+          plabd = plmingam+plstepga*float(ipl-1)
+          write(isum,'(f8.3,6e11.3)') plabd,
+     &      (gamtim(ij,ipl,itme)*scal*plabd,ij=1,3)
+        enddo
+      enddo
+      write(isum,'(/''c: time evolution for diff. photon energies'')')
+      do ipl = 1,nplgam
+        plabd = plmingam+plstepga*float(ipl-1)
+        write(isum,'(''c: photon energy: '',f6.2)') plabd
+          write(isum,'(''c: with pauli'')')
+          write(isum,'(''n: time (fm/c)'')')
+          write(isum,'(''n: dsigma/dp_lab (mb/gev)'')')
+          write(isum,'(
+     &      ''n: time     n+n        n+delta   deltadec'')')
+          do itme=1,itim
+            write(isum,'(f8.3,6e11.3)') tim(itme),
+     &      (gamtim(ij,ipl,itme)*scal*plabd,ij=1,3)
+          enddo
+        enddo
+      write(isum,'(/''c: incerase of energy spectra for diff. times'')')
+      do itme = 2,itim
+        write(isum,'(''c: differential time evolution'')')
+        write(isum,'(''c: time : '',f6.2)') tim(itme)
+        write(isum,'(''c: with pauli'')')
+        write(isum,'(''n: plab (gev/c)'')')
+        write(isum,'(''n: dsigma/dp_lab (mb/gev)'')')
+          write(isum,'(
+     &      ''n:  plab    n+n        n+delta   deltadec'')')
+        do ipl=1,nplgam
+          plabd = plmingam+plstepga*float(ipl-1)
+          write(isum,'(f8.3,6e11.3)') plabd,
+     &      (gamtimd(ij,ipl,itme)*scal*plabd,ij=1,3)
+        enddo
+      enddo
+      write(isum,'(/''c:differential time evolution for photon ener'')')
+      do ipl = 1,nplgam
+        plabd = plmingam+plstepga*float(ipl-1)
+        write(isum,'(''c: differential time evolution'')')
+        write(isum,'(''c: photon energy: '',f6.2)') plabd
+        write(isum,'(''c: with pauli'')')
+        write(isum,'(''n: time (fm/c)'')')
+        write(isum,'(''n: dsigma/dp_lab (mb/gev)'')')
+        write(isum,'(
+     &      ''n: time     n+n        n+delta   deltadec'')')
+        do itme=2,itim
+          write(isum,'(f8.3,6e11.3)') tim(itme),
+     &      (gamtimd(ij,ipl,itme)*scal*plabd,ij=1,3)
+        enddo
+      enddo
+
+      write(isum,'(/''c:density dependence for diff.photon energies'')')
+      do ipl=1,nplgam
+        plabd = plmingam+plstepga*float(ipl-1)
+        write(isum,'(''c: density dependence'')')
+        write(isum,'(''c: energy'',f8.2)') plabd
+        write(isum,'(''n: density'')')
+        write(isum,'(''n: dsigma/dp_lab (mb/gev)'')')
+        write(isum,'(
+     &      ''n: density  n+n        n+delta   deltadec'')')
+        do jj=1,maxde
+          denst = float(jj-1)*densste
+          write(isum,'(f8.3,6e11.3)')
+     &      denst,(densdg(ij,ipl,jj)*scal*plabd,ij=1,3)
+        enddo
+      enddo
+
+      write(isum,'(/''c:gamma spectra (Gan)'')')
+*
+      write(isum,'(/''c: Photon diff. spectra for diff. angles'')')
+      do jj = 1,nanglgam
+        write(isum,'(''c: angle: '',f8.2)') anggam(jj)*180./pi
+        write(isum,'(''c: with pauli'')')
+        write(isum,'(''n: plab (gev/c)'')')
+        write(isum,'(''n: dsigma/dp_lab/domega (mb/gev/str)'')')
+        write(isum,'(
+     &      ''n:  plab    n+n        n+delta   deltadec'',
+     &      ''    pi0dec     etadec'')')
+        do ipl=1,nplgam
+          plabd = plmingam+plstepga*float(ipl-1)
+          write(isum,'(f8.3,6e11.3)')
+     &      plabd,(dsdp1(ij,ipl,jj)*scal*plabd,ij=1,5)
+        enddo
+        write(isum,'(''c: without pauli'')')
+        write(isum,'(''n: plab (gev/c)'')')
+        write(isum,'(''n: dsigma/dp_lab/domega (mb/gev/str)'')')
+        write(isum,'(
+     &      ''n:  plab    n+n        n+delta   deltadec'')')
+        do ipl=1,nplgam
+          plabd = plmingam+plstepga*float(ipl-1)
+          write(isum,'(f8.3,6e11.3)')
+     &      plabd,(dsdp1(ij,ipl,jj)*scal*plabd,ij=6,8)
+        enddo
+      enddo
+      write(isum,'(/''c: Photon energy spectra for diff. times'')')
+      do itme = 1,itim
+        write(isum,'(''c: time : '',f6.2)') tim(itme)
+        write(isum,'(''c: with pauli'')')
+        write(isum,'(''n: plab (gev/c)'')')
+        write(isum,'(''n: dsigma/dp_lab (mb/gev)'')')
+        write(isum,'(
+     &      ''n:  plab     n+n       n+delta   deltadec'')')
+        do ipl=1,nplgam
+          plabd = plmingam+plstepga*float(ipl-1)
+          write(isum,'(f8.3,6e11.3)') plabd,
+     &      (gamtim1(ij,ipl,itme)*scal*plabd,ij=1,3)
+        enddo
+      enddo
+      write(isum,'(/''c: time evolution for diff. photon energies'')')
+      do ipl = 1,nplgam
+        plabd = plmingam+plstepga*float(ipl-1)
+        write(isum,'(''c: photon energy: '',f6.2)') plabd
+          write(isum,'(''c: with pauli'')')
+          write(isum,'(''n: time (fm/c)'')')
+          write(isum,'(''n: dsigma/dp_lab (mb/gev)'')')
+          write(isum,'(
+     &      ''n: time     n+n        n+delta   deltadec'')')
+          do itme=1,itim
+            write(isum,'(f8.3,6e11.3)') tim(itme),
+     &      (gamtim1(ij,ipl,itme)*scal*plabd,ij=1,3)
+          enddo
+        enddo
+      write(isum,'(/''c: incerase of energy spectra for diff. times'')')
+      do itme = 2,itim
+        write(isum,'(''c: differential time evolution'')')
+        write(isum,'(''c: time : '',f6.2)') tim(itme)
+        write(isum,'(''c: with pauli'')')
+        write(isum,'(''n: plab (gev/c)'')')
+        write(isum,'(''n: dsigma/dp_lab (mb/gev)'')')
+          write(isum,'(
+     &      ''n:  plab    n+n        n+delta   deltadec'')')
+        do ipl=1,nplgam
+          plabd = plmingam+plstepga*float(ipl-1)
+          write(isum,'(f8.3,6e11.3)') plabd,
+     &      (gamtimd1(ij,ipl,itme)*scal*plabd,ij=1,3)
+        enddo
+      enddo
+      write(isum,'(/''c:differential time evolution for photon ener'')')
+      do ipl = 1,nplgam
+        plabd = plmingam+plstepga*float(ipl-1)
+        write(isum,'(''c: differential time evolution'')')
+        write(isum,'(''c: photon energy: '',f6.2)') plabd
+        write(isum,'(''c: with pauli'')')
+        write(isum,'(''n: time (fm/c)'')')
+        write(isum,'(''n: dsigma/dp_lab (mb/gev)'')')
+        write(isum,'(
+     &      ''n: time     n+n        n+delta   deltadec'')')
+        do itme=2,itim
+          write(isum,'(f8.3,6e11.3)') tim(itme),
+     &      (gamtimd1(ij,ipl,itme)*scal*plabd,ij=1,3)
+        enddo
+      enddo
+
+      write(isum,'(/''c:density dependence for diff.photon energies'')')
+      do ipl=1,nplgam
+        plabd = plmingam+plstepga*float(ipl-1)
+        write(isum,'(''c: density dependence'')')
+        write(isum,'(''c: energy'',f8.2)') plabd
+        write(isum,'(''n: density'')')
+        write(isum,'(''n: dsigma/dp_lab (mb/gev)'')')
+        write(isum,'(
+     &      ''n: density  n+n        n+delta   deltadec'')')
+        do jj=1,maxde
+          denst = float(jj-1)*densste
+          write(isum,'(f8.3,6e11.3)')
+     &      denst,(densdg1(ij,ipl,jj)*scal*plabd,ij=1,3)
+        enddo
+      enddo
+
+      write(isum,'(//''c:velocity dependence of pn brems(in the cm)'')')
+      do ipl=1,nplgam
+        plabd = plmingam+plstepga*float(ipl-1)
+        write(isum,'(''c:momentum'',f8.2)') plabd
+        write(isum,'(''x: velocity_z'')')
+        write(isum,'(''y: dsigma/dp_lab/d_v (mb/gev)'')')
+        write(isum,'(
+     &      ''n:             Schaefer      Gan'')')
+        do jj=1,maxvg
+          vgam = float(jj-maxvg/2)*delvg
+          write(isum,'(f12.3,2e11.3)') vgam,
+     &  dsdv(1,ipl,jj)*scal*plabd/delvg,dsdv1(1,ipl,jj)*scal*plabd/delvg
+        enddo
+      enddo
+
+      return
+*----------------------------------------------------------------------*
+      entry finalgam(event,scal)
+*----------------------------------------------------------------------*
+      write(mgampri,'(4i8)') nqtg,nyg,maxde
+      write(mgampri,'(''c:  qt     y     rho     n+n'',
+     &       ''      n+delta deltadec  pi0dec   etadec'')')
+      do 7000 jj = 1,ntoty
+        ii = nfg * jj
+      do 7000 nde= 1,maxde
+        denst= float(nde-1)*densste
+      write(mgampri,'(3f7.3,2x,5e9.3)')
+     &       qy(1,ii),qy(2,ii),denst,(sig(ij,jj,nde)*dphi/event,ij=1,5)
+ 7000 continue
+
+      write(mgampri,'(/''c:  p    theta    n+n'',
+     &       ''    n+delta deltadec  pi0dec   etadec'')')
+      do ipl=1,nplgam
+        plabd = plmingam+plstepga*float(ipl-1)
+        do jj = 1,nanglgam
+          write(mgampri,'(2f7.3,5e9.3)')
+     &    plabd,anggam(jj), (dsdp(ij,ipl,jj)*scal*plabd,ij=1,5)
+        enddo
+      enddo
+
+      return
+      end

@@ -1,0 +1,23 @@
+new files:
+----------   
+               com_pert: Declarations for perturbative particle
+	       creation
+
+	       JPsi_pert_create.f: Perturbative JPsi creation	
+
+new global variables:
+--------------------- 
+	       JPsi_scale_factor: cominput, JPsi_pert_create.f,
+	       readin.f, AuAu_123_b0vac3_sample.in
+	       - JPsi_scale_factor = n means that the creation
+	         routines are executed every nth time
+
+	       JPsi_mass: common
+	       - vacuum mass   
+
+new important varibles:
+-----------------------
+	       i_JPsi: com_pert
+	       - i_JPsi=1 perturbative calculations for JPsi are
+	       switched on 
+                       =0 off 

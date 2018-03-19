@@ -1,0 +1,40 @@
+
+      integer l, m, n
+      real*8    dr, dg, proz
+      integer lg, mg, ng
+
+      parameter(proz = 0.6)
+
+      parameter(dr = 0.5)
+      parameter(l = 2*maxx+1)
+      parameter(m = 2*maxx+1)
+      parameter(n = 2*maxz+1)
+
+      parameter(dg = 0.2)
+c      parameter(lg = nint(proz/dg)*l-2)
+c      parameter(mg = nint(proz/dg)*m-2)
+c      parameter(ng = nint(1.0/dg)*n-2)
+
+      parameter(lg = 1)
+      parameter(mg = 1)
+      parameter(ng = 1)
+
+
+       real*8   xval(1:lg), yval(1:mg), zval(1:ng), ressp(1:lg)
+       common /punkt/ xval, yval,zval
+       common /ergebn/ressp
+
+       real*8   ya(l,m,n)
+       real*8   y2az(l,m,n)
+       real*8   yaz(l,m)
+       real*8   y2ay(l,m)
+       common /funktio / ya, y2az, yaz, y2ay
+
+       real*8   x1a(l), x2a(m), x3a(n)
+      common/stuetz/ x1a, x2a, x3a
+
+      integer idim
+      parameter(idim = 4)
+
+      real*8    resg(0:idim,1:lg, 1:mg, 1:ng)
+      common/erg2/ resg

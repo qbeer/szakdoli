@@ -1,0 +1,36 @@
+      integer nres
+      parameter(nres = 24)
+
+**********************************************************************
+***    arrays for the cross-sections NN-NR ***************************
+**********************************************************************
+      integer nsmax, nmassmax, nsmaxlor
+      real*8    delsigs, sigs0, sigs0dd, delmassdi, delsiglor
+      real*8    dimimass0
+
+
+      parameter(nsmax    = 199 )
+      parameter(nmassmax = 199 )
+      parameter(nsmaxlor = 4000)
+      parameter(delsigs  = 0.01)
+      parameter(delmassdi= 0.01)
+      parameter(delsiglor= 0.001)
+      parameter(sigs0    = 2.014)
+      parameter(sigs0dd  = 2.15 )
+      parameter(dimimass0= 1.076)
+
+      real*8 dimixsec(0:nsmax)
+      real*8 nrmassmax(1:2,1:nres,0:nsmaxlor)
+      real*8 dmdimi(1:2,0:nsmax,0:nmassmax)
+*     contains the Dimitrev parametrisation 1: dsigma/dm, 2: sig(s)back
+      real*8 ddmassmax(1:2,0:nsmax)
+      real*8 matsstate(1:3,0:nsmax)
+
+      common /nnxnrsec/ dimixsec, nrmassmax, ddmassmax, dmdimi,
+     +                   matsstate
+
+      real*8    resprop1(1:nres,1:11)
+      integer resprop2(1:nres,3)
+      real*8    m2d16pi(1:nres,1:2)
+
+      common /resproperties / resprop1, resprop2, m2d16pi

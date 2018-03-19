@@ -1,0 +1,673 @@
+c continuous dilepton mass spectra
+
+************************************************************************
+      subroutine init_cont_epair
+*     initialize variables for continuous channels of dilepton prod.
+c-----------------------------------------------------------------------
+      implicit none
+      include 'com_cont_epair'
+      integer ich,ibin
+      do ich = 1,n_cont_channel
+        do ibin = 1,n_mass_bins
+          prob_cont_epair(ich,ibin) = 0.
+          prob_cont_epair_hades(ich,ibin) = 0.
+        end do
+      end do
+      return
+      end
+
+************************************************************************
+      function bin_num_cont(dilmass)
+c-----------------------------------------------------------------------
+      implicit none
+      include 'com_cont_epair'
+      real dilmass
+      integer bin_num_cont
+      real ddilmas
+      ddilmas = max_dilmas/n_mass_bins
+      bin_num_cont = int(dilmass/ddilmas) + 1
+      return
+      end
+
+************************************************************************
+      function dilmass_cont(bin_num)
+*     returns the mass corresponding to the center of the bin
+c-----------------------------------------------------------------------
+      implicit none
+      include 'com_cont_epair'
+      real dilmass_cont
+      integer bin_num
+      real ddilmas
+      ddilmas = max_dilmas/n_mass_bins
+      dilmass_cont = (bin_num-0.5)*ddilmas
+      return
+      end
+
+************************************************************************
+      function dilmass_cont_random(bin_num)
+*     returns a random mass inside the bin
+c-----------------------------------------------------------------------
+      implicit none
+      include 'cominput'
+      include 'com_cont_epair'
+      real dilmass_cont_random
+      integer bin_num
+      real ddilmas,rn
+      ddilmas = max_dilmas/n_mass_bins
+      dilmass_cont_random = (bin_num-rn(iseed))*ddilmas
+      return
+      end
+
+************************************************************************
+      subroutine bremslep(srt,em1,em2,ecm,sig)
+*         srt     - cms energy                                         *
+*         em1,em2 - masses of part. i1, i2                             *
+*         ecm     - energy of the emitting part. in 2 part. cms        *
+*         sig     - ~ 55 mb (used to decide collisions)                *
+*----------------------------------------------------------------------*
+      implicit none
+      include 'common'
+      include 'cominput'
+      include 'com_cont_epair'
+
+      real srt,em1,em2,ecm,sig
+      real ddilmas
+      real coefbr,em12,em22,emm2,ecm2,s,szig
+      integer ibin
+      real dima,dim2,q0max,qmax,sisig,sisige,prob
+      real dilmass_cont
+c      write(*,*) 'bremslep',srt,em1,em2,ecm,sig
+      ddilmas = max_dilmas/n_mass_bins
+      coefbr = 0.1666667 * alfa**2 / pi**3
+      em12  = em1**2
+      em22  = em2**2
+      emm2  = (em1+em2)**2
+      ecm2  = ecm**2
+      s     = srt**2
+      szig   = 0.5 * (s-emm2)/ecm2
+c      write(*,*) 'szig = ',szig
+      do ibin = 1,n_mass_bins
+        dima = dilmass_cont(ibin)
+        dim2 = dima**2
+        q0max= 0.5 * (s + dim2 - emm2) / srt
+c        write(*,*) 'dilmas:',dima,q0max
+        if(q0max .gt. dima) then
+          qmax = sqrt(amax1(0.0, q0max**2-dim2))
+          sisig = szig/dima *
+     &       amax1(0.,alog((qmax+q0max)/dima)-qmax/q0max)
+          sisige= 4.0 * pi * coefbr * sisig
+          prob = sisige/sig * ddilmas
+c          write(*,*) '  qmax:',qmax,sisig,sisige,prob
+          prob_cont_epair(ch_brems,ibin) =
+     &       prob_cont_epair(ch_brems,ibin)
+     &       + prob / real(num*isubs)
+        end if
+      end do
+      return
+      end
+
+
+
+************************************************************************
+      subroutine npbrems(srt_in,sig)
+c-----------------------------------------------------------------------
+      implicit none
+      include 'common'
+      include 'cominput'
+      include 'com_cont_epair'
+      real srt_in,sig,srt
+      real ddilmas,dilmass,sig_cugnon,dsdm,sigma,prob
+      integer ibin
+      real dilmass_cont
+
+c      write(*,*) 'In npbrems (srt,sig) - ',srt,sig
+      srt = max(srt_in,2.*rmass+0.0001)
+      ddilmas = max_dilmas/n_mass_bins
+      do ibin = 1,n_mass_bins
+        dilmass = dilmass_cont(ibin)
+
+        sig_cugnon = 35./(1. + (srt-2.*dilmass)) + 20.
+        dsdm = 4.*alfa**2/(3.*pi**2) * 1./dilmass *
+     &     (srt**2/(4.*rmass**2) - 1.) *
+     &     log((srt-2.*rmass)/dilmass) *
+     &     sig_cugnon
+        sigma = ddilmas * dsdm
+        prob = sigma/sig
+c        write(*,*) '->>',ibin,dilmass,sig_cugnon,dsdm,sigma,prob
+        if (prob.gt.1.) write(*,*) "prob>1 in npbrems ",sigma,sig,prob
+c        write(*,*) '--+++-->',prob_cont_epair(ch_brems,ibin)
+        prob_cont_epair(ch_brems,ibin) =
+     &     prob_cont_epair(ch_brems,ibin)
+     &     + prob / real(num*isubs)
+c        write(*,*) '--->',ch_brems,num,isubs,
+c     &     prob_cont_epair(ch_brems,ibin)
+      end do
+      return
+      end
+
+************************************************************************
+      subroutine baryon_dalitz(idres,charge,srt,dt0,gam)
+c-----------------------------------------------------------------------
+      implicit none
+      include 'common'
+      include 'cominput'
+      include 'com_cont_epair'
+      integer idres             ! id of resonance type
+      integer charge            ! charge of the resonance
+      real srt                  ! resonance mass = sqrt(s)
+      real dt0                  ! length of time step in rest frame of res.
+      real gam                  ! total gamma - needed to check
+                                !   that BR(gamma+N) is small
+                                !   (-> perturbative method is justified)
+      integer ibin
+      real dilmass
+      real ddilmas,gamma,prob
+      real dgdm_bary_dalitz,dilmass_cont
+
+      ddilmas = max_dilmas/n_mass_bins
+      do ibin = 1,n_mass_bins
+        dilmass = dilmass_cont(ibin)
+        if ((srt-dilmass-rmass).lt.0.001) go to 11
+        gamma = ddilmas * dgdm_bary_dalitz(idres,charge,srt,dilmass)
+c        prob = 1. - exp(-dt0 * gamma / hbc)
+        prob = dt0 * gamma / hbc
+c        write(*,*) 'BR in baryon_dalitz', idres,charge,srt,dt0,gam,
+c     &     gamma,gamma/gam,prob
+        prob_cont_epair(idres+bary_chan_offset,ibin) =
+     &     prob_cont_epair(idres+bary_chan_offset,ibin)
+     &     + prob / real(num*isubs)
+      end do
+ 11   continue
+      return
+      end
+
+************************************************************************
+      subroutine omega_dalitz(srt,px,py,pz,dt0)
+c-----------------------------------------------------------------------
+      implicit none
+      include 'common'
+      include 'cominput'
+      include 'commonthreef'
+      include 'com_cont_epair'
+      real srt,px,py,pz         ! omega mass = sqrt(s)
+      real dt0                  ! length of time step in rest frame of res.
+      integer ibin,nbin
+      real dilmass
+      real ddilmas,gamma,prob
+      real dgdm_omega_dalitz,dilmass_cont_random
+      real e_dil,p_dil,xx,yy,zz,rr,px_dil,py_dil,pz_dil
+      real e_omega,betax,betay,betaz,betaz_lab
+      real pt_dil,rap_dil,acc
+      real rn,getHadesPairAcceptance
+      integer bin_num_cont
+
+      write(*,*) 'START omega_dalitz',srt,px,py,pz
+      ddilmas = max_dilmas/n_mass_bins
+      do ibin = 1,n_mass_bins
+        dilmass = dilmass_cont_random(ibin)
+        if ((srt-dilmass-pmass).lt.0.001) go to 11
+        gamma = ddilmas * dgdm_omega_dalitz(srt,dilmass)
+c        prob = 1. - exp(-dt0 * gamma / hbc)
+        prob = dt0 * gamma / hbc
+        prob_cont_epair(ch_omega,ibin) =
+     &     prob_cont_epair(ch_omega,ibin)
+     &     + prob / real(num*isubs)
+c HADES acceptance:
+        if (ihades.eq.1) then
+c          dilepton energy (final state: pion + dilepton):
+          e_dil = (srt**2 - pmass**2 + dilmass**2) / (2.*srt)
+c          dilepton momentum:
+          p_dil = sqrt(e_dil**2 - dilmass**2)
+c         write(*,*) 'dilmas,e_dil,p_dil,dilmas(chk): ',
+c    &       dilmass,e_dil,p_dil,
+c    &       sqrt(e_dil**2 - p_dil**2)
+c          generate four-mom. for e+e- pair:
+ 13       continue
+          xx = rn(iseed) - 0.5
+          yy = rn(iseed) - 0.5
+          zz = rn(iseed) - 0.5
+          rr = sqrt(xx**2 + yy**2 + zz**2)
+          if( (rr.lt.0.0001) .or. (rr.gt.0.25) )  goto 13
+          px_dil = p_dil * xx/rr
+          py_dil = p_dil * yy/rr
+          pz_dil = p_dil * zz/rr
+c     write(*,*) '   dilmass,e_dil,px_dil,py_dil,pz_dil,dilmass(chk): ',
+c    &       dilmass,e_dil,px_dil,py_dil,pz_dil,
+c    &       sqrt(e_dil**2-px_dil**2-py_dil**2-pz_dil**2)
+c          transform to CM frame:
+          e_omega = sqrt(srt**2 + px**2 + py**2 + pz**2)
+          betax = px/e_omega
+          betay = py/e_omega
+          betaz = pz/e_omega
+c     write(*,*) '   betax,betay,betaz ',betax,betay,betaz
+          call lorentz(-betax,-betay,-betaz,px_dil,py_dil,pz_dil,e_dil)
+c     write(*,*) '   in CM. frame ',e_dil,px_dil,py_dil,pz_dil
+c          transform to lab frame:
+          betaz_lab = pzpr/sqrt(rmass**2 + pzpr**2)
+c     write(*,*) '   pzpr,betaz_lab ',pzpr,betaz_lab
+          call lorentz(0,0,-betaz_lab,px_dil,py_dil,pz_dil,e_dil)
+c     write(*,*) '   in LAB frame ',e_dil,px_dil,py_dil,pz_dil
+c          get the hades acceptance:
+          pt_dil = sqrt(px_dil**2 + py_dil**2)
+          rap_dil = 0.5 * log( (e_dil+pz_dil)/(e_dil-pz_dil) )
+          acc = getHadesPairAcceptance(dilmass,pt_dil,rap_dil,0)
+c     write(*,*) '   dilmass,pt_dil,rap_dil,acc',
+c    &       dilmass,pt_dil,rap_dil,acc
+c          smear according to detector resolution:
+          call smearHadesPair(dilmass,pt_dil,rap_dil,3) ! 3 -> high resolution
+c     write(*,*) '   after smear ',dilmass,pt_dil,rap_dil
+c          bin number for smeared mass:
+          nbin = bin_num_cont(dilmass)
+c         write(*,*) '   ibin,nbin ',ibin,nbin
+c          store result:
+          prob_cont_epair_hades(ch_omega,ibin) =
+     &       prob_cont_epair_hades(ch_omega,ibin)
+     &       + prob * acc / real(num*isubs)
+        end if
+      end do
+ 11   continue
+      return
+      end
+
+************************************************************************
+      subroutine omega_dalitz_final(srt,px,py,pz)
+c-----------------------------------------------------------------------
+      implicit none
+      include 'common'
+      include 'cominput'
+      include 'commonthreef'
+      include 'com_cont_epair'
+      real srt                  ! omega mass = sqrt(s)
+      real px,py,pz
+      integer ibin,nbin
+      real dilmass
+      real ddilmas,prob
+      real dbrdm_omega_dalitz,dilmass_cont_random
+      real xx,yy,zz,rr
+      real e_dil,p_dil,px_dil, py_dil, pz_dil
+      real pt_dil,rap_dil
+      real e_omega,betax,betay,betaz
+      real betaz_lab
+      real acc
+      real rn,getHadesPairAcceptance
+      integer bin_num_cont
+
+      write(*,*) 'START omega_dalitz_final',srt,px,py,pz
+      ddilmas = max_dilmas/n_mass_bins
+      do ibin = 1,n_mass_bins
+        dilmass = dilmass_cont_random(ibin)
+        if ((srt-dilmass-pmass).lt.0.001) go to 11
+        prob = ddilmas * dbrdm_omega_dalitz(srt,dilmass)
+      write(*,*) '   prob = ',prob
+        prob_cont_epair(ch_omega,ibin) =
+     &     prob_cont_epair(ch_omega,ibin)
+     &     + prob / real(num*isubs)
+c HADES acceptance:
+        if (ihades.eq.1) then
+c          dilepton energy (final state: pion + dilepton):
+          e_dil = (srt**2 - pmass**2 + dilmass**2) / (2.*srt)
+c          dilepton momentum:
+          p_dil = sqrt(e_dil**2 - dilmass**2)
+c          generate four-mom. for e+e- pair:
+ 13       continue
+          xx = rn(iseed) - 0.5
+          yy = rn(iseed) - 0.5
+          zz = rn(iseed) - 0.5
+          rr = sqrt(xx**2 + yy**2 + zz**2)
+          if( (rr.lt.0.0001) .or. (rr.gt.0.25) )  goto 13
+          px_dil = p_dil * xx/rr
+          py_dil = p_dil * yy/rr
+          pz_dil = p_dil * zz/rr
+      write(*,*) '   dilmass,e_dil,px_dil,py_dil,pz_dil: ',
+     &       dilmass,e_dil,px_dil,py_dil,pz_dil
+c          transform to CM frame:
+          e_omega = sqrt(srt**2 + px**2 + py**2 + pz**2)
+          betax = px/e_omega
+          betay = py/e_omega
+          betaz = pz/e_omega
+c     write(*,*) '   betax,betay,betaz ',betax,betay,betaz
+          call lorentz(-betax,-betay,-betaz,px_dil,py_dil,pz_dil,e_dil)
+c     write(*,*) '   in CM. frame ',e_dil,px_dil,py_dil,pz_dil
+c          transform to lab frame:
+          betaz_lab = pzpr/sqrt(rmass**2 + pzpr**2)
+c     write(*,*) '   pzpr,betaz_lab ',pzpr,betaz_lab
+          call lorentz(0,0,-betaz_lab,px_dil,py_dil,pz_dil,e_dil)
+c     write(*,*) '   in LAB frame ',e_dil,px_dil,py_dil,pz_dil
+c          get the hades acceptance:
+          pt_dil = sqrt(px**2 + py**2)
+          rap_dil = 0.5 * log( (e_dil+pz_dil)/(e_dil-pz_dil) )
+          acc = getHadesPairAcceptance(dilmass,pt_dil,rap_dil,0)
+c     write(*,*) '   dilmass,pt_dil,rap_dil,acc',
+c    &       dilmass,pt_dil,rap_dil,acc
+c          smear according to detector resolution:
+          call smearHadesPair(dilmass,pt_dil,rap_dil,3) ! 3 -> high resolution
+c     write(*,*) '   after smear ',dilmass,pt_dil,rap_dil
+c          bin number for smeared mass:
+          nbin = bin_num_cont(dilmass)
+c         write(*,*) '   ibin,nbin ',ibin,nbin
+c          store result:
+          prob_cont_epair_hades(ch_omega,ibin) =
+     &       prob_cont_epair_hades(ch_omega,ibin)
+     &       + prob * acc / real(num*isubs)
+        end if
+      end do
+      write(*,*) 'END omega_dalitz_final'
+ 11   continue
+      return
+      end
+
+************************************************************************
+      subroutine eta_dalitz(dt0)
+c-----------------------------------------------------------------------
+      implicit none
+      include 'common'
+      include 'cominput'
+      include 'com_cont_epair'
+      real dt0                  ! length of time step in rest frame of res.
+      integer ibin
+      real dilmass
+      real ddilmas,gamma,prob
+      real dgdm_eta_dalitz,dilmass_cont
+
+      ddilmas = max_dilmas/n_mass_bins
+      do ibin = 1,n_mass_bins
+        dilmass = dilmass_cont(ibin)
+        if ((emass-dilmass).lt.0.001) go to 11
+        gamma = ddilmas * dgdm_eta_dalitz(dilmass)
+c        prob = 1. - exp(-dt0 * gamma / hbc)
+        prob = dt0 * gamma / hbc
+        prob_cont_epair(ch_eta,ibin) =
+     &     prob_cont_epair(ch_eta,ibin)
+     &     + prob / real(num*isubs)
+      end do
+ 11   continue
+      return
+      end
+
+************************************************************************
+      subroutine eta_dalitz_final(srt,px,py,pz)
+c-----------------------------------------------------------------------
+      implicit none
+      include 'common'
+      include 'cominput'
+      include 'com_cont_epair'
+      real srt,px,py,pz
+      integer ibin
+      real dilmass
+      real ddilmas,prob
+      real dbrdm_eta_dalitz,dilmass_cont
+
+      ddilmas = max_dilmas/n_mass_bins
+      do ibin = 1,n_mass_bins
+        dilmass = dilmass_cont(ibin)
+        if ((emass-dilmass).lt.0.001) go to 11
+        prob = ddilmas * dbrdm_eta_dalitz(dilmass)
+        prob_cont_epair(ch_eta,ibin) =
+     &     prob_cont_epair(ch_eta,ibin)
+     &     + prob / real(num*isubs)
+      end do
+ 11      continue
+      return
+      end
+
+************************************************************************
+      function dgdm_bary_dalitz(idres,charge,srt,dilmass)
+c-----------------------------------------------------------------------
+      implicit none
+      include 'common'
+
+      integer idres,charge
+      real srt,dilmass,dgdm_bary_dalitz
+
+      real matrix_t,matrix_l
+      integer spin,parity
+      real lambda
+
+      real g_em(1:nres,0:1)
+      data ((g_em(idres,charge),charge=0,1),idres=1,nres)
+     &   /0.599, 0.599,         ! D1232
+     &   0.098, 0.139,          ! N1440
+     &   0.238, 0.238,          ! N1520
+     &   0.549, 0.634,          ! N1535
+     &   0.285, 0.315,          ! N1650
+     &   1.52,  0.678,          ! N1675
+     &   2.74,  0.971,          ! N1680
+     &   0.193, 0.126,          ! N1700
+     &   0.019, 0.030,          ! N1710
+     &   0.386, 0.193,          ! N1720
+     &   0.0,   0.0,            ! N2000
+     &   0.0,   0.0,            ! N2080
+     &   0.0,   0.0,            ! N2190
+     &   0.0,   0.0,            ! N2220
+     &   0.0,   0.0,            ! N2250
+     &   0.162, 0.162,          ! D1600
+     &   0.162, 0.162,          ! D1620
+     &   0.549, 0.549,          ! D1700
+     &   0.0,   0.0,            ! D1900
+     &   0.713, 0.713,          ! D1905
+     &   0.066, 0.066,          ! D1910
+     &   0.0,   0.0,            ! D1920
+     &   0.479, 0.479,          ! D1930
+     &   0.0,   0.0/            ! D1950
+
+      integer parity_res(1:nres)
+      data (parity_res(idres),idres=1,nres)
+     &   /+1,                   ! D1232
+     &   +1,                    ! N1440
+     &   -1,                    ! N1520
+     &   -1,                    ! N1535
+     &   -1,                    ! N1650
+     &   -1,                    ! N1675
+     &   +1,                    ! N1680
+     &   -1,                    ! N1700
+     &   +1,                    ! N1710
+     &   +1,                    ! N1720
+     &   +1,                    ! N2000
+     &   -1,                    ! N2080
+     &   -1,                    ! N2190
+     &   +1,                    ! N2220
+     &   -1,                    ! N2250
+     &   +1,                    ! D1600
+     &   -1,                    ! D1620
+     &   -1,                    ! D1700
+     &   -1,                    ! D1900
+     &   +1,                    ! D1905
+     &   +1,                    ! D1910
+     &   +1,                    ! D1920
+     &   -1,                    ! D1930
+     &   +1/                    ! D1950
+
+      if (charge.lt.0 .or. charge.gt.1) then
+        dgdm_bary_dalitz = 0.
+      else
+        spin = resprop2(idres,3) ! 2*spin!
+        parity = parity_res(idres)
+
+        matrix_t = 0.
+        matrix_l = 0.
+
+        if (spin.eq.1) then
+          if (parity.eq.+1) then
+            matrix_t = 1./(2.*rmass**4) * (srt**2-rmass**2)**2 *
+     &         ( (srt+rmass)**2 - dilmass**2 )
+            matrix_l = dilmass**2/(2.*rmass**4) * (srt+rmass)**2 *
+     &         ( (srt+rmass)**2 - dilmass**2 )
+          else
+            matrix_t = 1./(2.*rmass**4) * (srt**2-rmass**2)**2 *
+     &         ( (srt-rmass)**2 - dilmass**2 )
+            matrix_l = dilmass**2/(2.*rmass**4) * (srt-rmass)**2 *
+     &         ( (srt-rmass)**2 - dilmass**2 )
+          end if
+        else if (spin.eq.3) then
+          if (parity.eq.+1) then
+            matrix_t = 1./(12.*srt**2*rmass**2) *
+     &         ( (srt-rmass)**2 - dilmass**2 ) *
+     &         (3.*srt**4 + 6.*srt**3*rmass + 4.*srt**2*rmass**2
+     &         + 2.*srt*rmass**3 + rmass**4 - 2.*srt*rmass*dilmass**2
+     &         - 2.*rmass**2*dilmass**2 + dilmass**4)
+            matrix_l = dilmass**2/(3.*rmass**2) *
+     &         ( (srt-rmass)**2 - dilmass**2 )
+          else
+            matrix_t = 1./(12.*srt**2*rmass**2) *
+     &         ( (srt+rmass)**2 - dilmass**2 ) *
+     &         (3.*srt**4 - 6.*srt**3*rmass + 4.*srt**2*rmass**2
+     &         - 2.*srt*rmass**3 + rmass**4 + 2.*srt*rmass*dilmass**2
+     &         - 2.*rmass**2*dilmass**2 + dilmass**4)
+            matrix_l = dilmass**2/(3.*rmass**2) *
+     &         ( (srt+rmass)**2 - dilmass**2 )
+          end if
+        else if (spin.eq.5) then
+          if (parity.eq.+1) then
+            matrix_t = 1./(480.*srt**4*rmass**4) *
+     &         ( (srt-rmass)**2 - dilmass**2 ) *
+     &         ( (srt+rmass)**2 - dilmass**2 )**2 *
+     &         (2.*srt**4 - 4.*srt**3*rmass + 3.*srt**2*rmass**2
+     &         - 2.*srt*rmass**3 + rmass**4 + 2.*srt*rmass*dilmass**2
+     &         - 2.*rmass**2*dilmass**2 + dilmass**4)
+            matrix_l = dilmass**2/(120.*srt**2*rmass**4) *
+     &         ( (srt-rmass)**2 - dilmass**2 ) *
+     &         ( (srt+rmass)**2 - dilmass**2 )**2
+          else
+            matrix_t = 1./(480.*srt**4*rmass**4) *
+     &         ( (srt-rmass)**2 - dilmass**2 )**2 *
+     &         ( (srt+rmass)**2 - dilmass**2 ) *
+     &         (2.*srt**4 + 4.*srt**3*rmass + 3.*srt**2*rmass**2
+     &         + 2.*srt*rmass**3 + rmass**4 - 2.*srt*rmass*dilmass**2
+     &         - 2.*rmass**2*dilmass**2 + dilmass**4)
+            matrix_l = dilmass**2/(120.*srt**2*rmass**4) *
+     &         ( (srt-rmass)**2 - dilmass**2 )**2 *
+     &         ( (srt+rmass)**2 - dilmass**2 )
+          end if
+        end if
+
+        dgdm_bary_dalitz = alfa**2 * g_em(idres,charge)**2 *
+     &     sqrt(lambda(srt**2,rmass**2,dilmass**2)) /
+     &     (6.*pi*srt**3*dilmass) *
+     &     (2.*matrix_t + matrix_l)
+c        write(*,*) 'dgdm_bary_dalitz',idres,charge,parity,srt,dilmass,
+c     &     dgdm_bary_dalitz
+c        write(*,*) '  .....> ',alfa,g_em(idres,charge),
+c     &     sqrt(lambda(srt**2,rmass**2,dilmass**2)),
+c     &     1./(6.*pi*srt**3*dilmass),
+c     &     matrix_t,matrix_l
+      end if
+      return
+      end
+
+
+************************************************************************
+      function dgdm_omega_dalitz(m_omega,dilmass)
+c-----------------------------------------------------------------------
+      implicit none
+      include 'common'
+      real dgdm_omega_dalitz,m_omega,dilmass
+
+      real cutoff
+      parameter (cutoff=0.65)   ! GeV
+      real Gamma
+      parameter (Gamma=0.075)  ! GeV
+      real Gamma_phot
+      parameter (Gamma_phot=0.000757)
+      real formfac,lambda
+
+c      formfac = 1./( (1.-dilmass**2/cutoff**2)**2 + Gamma**2/cutoff**2 )
+      formfac = 1.
+      dgdm_omega_dalitz = 2.*alfa/(3.*pi) * Gamma_phot/dilmass *
+     &   ( lambda(m_omega**2,pmass**2,dilmass**2)
+     &   / (m_omega**2-pmass**2)**2 )**1.5 * formfac
+c      write(*,*) 'dgdm_omega_dalitz',m_omega,dilmass,dgdm_omega_dalitz
+      return
+      end
+
+************************************************************************
+      function dbrdm_omega_dalitz(m_omega,dilmass)
+c-----------------------------------------------------------------------
+      implicit none
+      include 'common'
+      real dbrdm_omega_dalitz,m_omega,dilmass
+
+      real cutoff
+      parameter (cutoff=0.65)   ! GeV
+      real Gamma
+      parameter (Gamma=0.075)  ! GeV
+      real br_phot
+      parameter (br_phot=0.0892)
+      real formfac,lambda
+
+c      formfac = 1./( (1.-dilmass**2/cutoff**2)**2 + Gamma**2/cutoff**2 )
+      formfac = 1.
+      dbrdm_omega_dalitz = 2.*alfa/(3.*pi) * br_phot/dilmass *
+     &   ( lambda(m_omega**2,pmass**2,dilmass**2)
+     &   / (m_omega**2-pmass**2)**2 )**1.5 * formfac
+c      write(*,*) 'dgdm_omega_dalitz',m_omega,dilmass,dgdm_omega_dalitz
+      return
+      end
+
+************************************************************************
+      function dgdm_eta_dalitz(dilmass)
+c-----------------------------------------------------------------------
+      implicit none
+      include 'common'
+      real dgdm_eta_dalitz,dilmass
+
+      real cutoff
+      parameter (cutoff=0.77)   ! GeV
+      real Gamma_phot
+      parameter (Gamma_phot=5.086e-7)
+      real formfac
+
+      formfac = 1./(1.-dilmass**2/cutoff**2)**2
+      dgdm_eta_dalitz = 4.*alfa/(3.*pi) * Gamma_phot/dilmass *
+     &   (1. - dilmass**2/emass**2)**3 * formfac
+c      write(*,*) 'dgdm_eta_dalitz',dilmass,formfac,dgdm_eta_dalitz
+      return
+      end
+
+************************************************************************
+      function dbrdm_eta_dalitz(dilmass)
+c-----------------------------------------------------------------------
+      implicit none
+      include 'common'
+      real dbrdm_eta_dalitz,dilmass
+
+      real cutoff
+      parameter (cutoff=0.77)   ! GeV
+      real br_phot
+      parameter (br_phot=0.3943)
+      real formfac
+
+      formfac = 1./(1.-dilmass**2/cutoff**2)**2
+      dbrdm_eta_dalitz = 4.*alfa/(3.*pi) * br_phot/dilmass *
+     &   (1. - dilmass**2/emass**2)**3 * formfac
+c      write(*,*) 'dbrdm_eta_dalitz',dilmass,formfac,dbrdm_eta_dalitz
+      return
+      end
+
+************************************************************************
+      real function lambda(a,b,c)
+c-----------------------------------------------------------------------
+      implicit none
+      real a,b,c
+      lambda = a**2 + b**2 + c**2 - 2.*(a*b + b*c + c*a)
+      return
+      end
+
+************************************************************************
+      subroutine test_acc
+c     test the hades acceptance filter
+      implicit none
+      real dilmass,pt_dil,rap_dil,pz_dil,e_dil,acc
+      real getHadesPairAcceptance
+
+      do dilmass = 0.2, 1.2, 0.2
+        do pz_dil = -0.8,0.8,0.2
+          do pt_dil = -0.8,0.8,0.2
+            e_dil = sqrt(dilmass**2 + pz_dil**2 + pt_dil**2)
+            rap_dil = 0.5 * log( (e_dil+pz_dil)/(e_dil-pz_dil) )
+            acc = getHadesPairAcceptance(dilmass,pt_dil,rap_dil,0)
+            write(*,*) '->',dilmass,pt_dil,rap_dil,acc
+          end do
+        end do
+      end do
+      return
+      end

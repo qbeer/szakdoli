@@ -1,0 +1,224 @@
+************************************************************************
+*                                                                      *
+      subroutine denden(minnum,maxnum,num,radta,io,tim, ipot,ipou,rpot,
+     &                  tt0,tt3)
+*                                                                      *
+*       purpose:     calculation of density distribution and momentum  *
+*                    distribution of testparticles                     *
+*                                                                      *
+*       variables (all input)                                          *
+*         minnum  -  first testparticle to be considered for density   *
+*         maxnum  -  last testparticle to be considered for density    *
+*         num     -  number of testparticles per nucleon               *
+*         radta   -  radius of target                                  *
+*         io      -  output unit                                       *
+*         tim     -  time                                              *
+*         ipot    -  0->t0,t3, 1-> yukawa, 2-> gbdmom  (integer,input) *
+*         jpot    -  0->nocoulomb, 1-> with coulomb    (integer,input) *
+*         rpot                - power of den.dep.pot.     (real,input) *
+*         tt0                 - coefficient of t0 term    (real,input) *
+*         tt3                 - coefficient of t3 term    (real,input) *
+*                                                                      *
+************************************************************************
+      implicit none
+      include"common"
+*
+*
+      real*8 dendns(4,0:300), dentes(2,0:300), denmom(2,0:300)
+      real*8 denpot(4,0:300)
+      integer imax,jmax,i,ix,iy,iz,ii,imxx,minnum,maxnum,num,io,ipot
+      integer ipou
+      real*8 facp, volum, rmax, rmin, rdif, pmin, pdif, pmax,radta
+      real*8 depotp,depotn,rrp,rrt,rrn,rabs,pabs,tt0,tt3,rpot,tim
+*-----------------------------------------------------------------------
+*
+      imax=(nint(radta)+4)**2
+      imxx=(nint(radta)+4)**2
+      jmax=25
+      fact=1.0/float(num)
+      facp=14.0
+*
+      do 100 i=0,imxx
+      dendns(1,i)=0.0
+      dendns(2,i)=0.0
+      dendns(3,i)=0.0
+      dendns(4,i)=0.0
+      denpot(1,i)=0.0
+      denpot(2,i)=0.0
+      denpot(3,i)=0.0
+      denpot(4,i)=0.0
+      dentes(1,i)=0.0
+      dentes(2,i)=0.0
+  100 continue
+      do 101 i=0,jmax
+      denmom(1,i)=0.0
+      denmom(2,i)=0.0
+  101 continue
+*
+*----- density distribution from smeared-out density ------
+      do 200 ix=-maxx,maxx
+      do 201 iy=-maxx,maxx
+      do 202 iz=-maxz,maxz
+      ii=ix*ix+iy*iy+iz*iz
+      if(ii.gt.imax) goto 202
+      dendns(1,ii)=dendns(1,ii)+1.0
+      dendns(2,ii)=dendns(2,ii)+rhob_4(4,ix,iy,iz)
+      dendns(3,ii)=dendns(3,ii)+1.0
+      dendns(4,ii)=dendns(4,ii)+rhob_4(5,ix,iy,iz)
+  202 continue
+  201 continue
+  200 continue
+*
+      do 203 i=0,imax
+      if(dendns(1,i).gt.0.0) then
+      dendns(2,i)=dendns(2,i)/dendns(1,i)
+      end if
+      if(dendns(3,i).gt.0.0) then
+      dendns(4,i)=dendns(4,i)/dendns(3,i)
+      end if
+  203 continue
+*
+*----- density distribution from test-particle density ------
+      do 300 i=minnum,maxnum
+      if(id(1,i).le.0) goto 300
+      ii=nint(r(1,i)**2+r(2,i)**2+r(3,i)**2)
+      if(ii.gt.imax) goto 300
+      if(id(2,i).eq.1) then
+      dentes(1,ii)=dentes(1,ii)+fact
+      else
+      dentes(2,ii)=dentes(2,ii)+fact
+      end if
+  300 continue
+      do 301 i=0,imax
+      if(i.eq.0) then
+      volum=4.0*pi/3.0*0.3535533
+      else
+      rmin=sqrt(float(i)-0.5)
+      rmax=sqrt(float(i)+0.5)
+      rdif=rmax-rmin
+      volum=4.0*pi*(rmin**2*rdif+rmin*rdif**2+rdif**3/3.0)
+      end if
+      dentes(1,i)=dentes(1,i)/volum
+      dentes(2,i)=dentes(2,i)/volum
+  301 continue
+*
+*----- momentum distribution from testparticle ------
+      do 400 i=minnum,maxnum
+      if(id(1,i).le.0) goto 400
+      ii=nint((p(1,i)**2+p(2,i)**2+p(3,i)**2)*facp**2)
+      if(ii.gt.jmax) goto 400
+      if(id(2,i).eq.1) then
+      denmom(1,ii)=denmom(1,ii)+fact
+      else
+      denmom(2,ii)=denmom(2,ii)+fact
+      end if
+  400 continue
+      do 401 i=0,jmax
+      if(i.eq.0) then
+      volum=4.0*pi/3.0*(0.7071/facp)**3/hbc**3
+      else
+      pmin=sqrt(float(i)-0.5)/facp
+      pmax=sqrt(float(i)+0.5)/facp
+      pdif=pmax-pmin
+      volum=4.0*pi*(pmin**2*pdif+pmin*pdif**2+pdif**3/3.0)/hbc**3
+      end if
+      denmom(1,i)=denmom(1,i)/volum
+      denmom(2,i)=denmom(2,i)/volum
+  401 continue
+*
+*----- potential depth from smeared-out density ------
+      do 210 ix=-maxx,maxx
+      do 211 iy=-maxx,maxx
+      do 212 iz=-maxz,maxz
+      ii=ix*ix+iy*iy+iz*iz
+      if(ii.gt.imxx) goto 212
+*
+      depotp=0.0
+      depotn=0.0
+           rrt=rhb(ix,iy,iz)
+           rrp=rhob_4(4,ix,iy,iz)
+           rrn=rhob_4(5,ix,iy,iz)
+      if(rrt.ne.0.0) then
+           depotn=3./4.*tt0*rrt+3./8.*tt3*rrt**(rpot+1.)*(rpot+2.)
+           depotp=depotn
+      end if
+      if(ipot.eq.1) then
+           depotp=depotp+yup(ix,iy,iz)
+           depotn=depotn+yup(ix,iy,iz)
+      end if
+      if(ipou.eq.1) then
+           depotp=depotp+cop(ix,iy,iz)
+      end if
+*
+      denpot(1,ii)=denpot(1,ii)+1.0
+      denpot(2,ii)=denpot(2,ii)+depotp
+      denpot(3,ii)=denpot(3,ii)+1.0
+      denpot(4,ii)=denpot(4,ii)+depotn
+  212 continue
+  211 continue
+  210 continue
+*
+      do 213 i=0,imxx
+      if(denpot(1,i).gt.0.0) then
+      denpot(2,i)=denpot(2,i)/denpot(1,i)*1000.
+      end if
+      if(denpot(3,i).gt.0.0) then
+      denpot(4,i)=denpot(4,i)/denpot(3,i)*1000.
+      end if
+  213 continue
+*
+*------  out put to io -------
+      write(io,'(/''c:######## time ='',f5.1,'' fm/c  #######'')') tim
+      write(io,'(/''c:plot of density distribution'',
+     &           '' from dens ''
+     &          /''n: r(fm)''
+     &          /''n: rh (r)''
+     &          /''n: x  y(proton),drs0  y(neutron),pgs0  y(total),'',
+     &           ''ls0'')')
+      do 500 i=0,imax
+      if((dendns(1,i).gt.0.0).and.(dendns(3,i).gt.0.0)) then
+      rabs=sqrt(float(i))
+      write(io,'(4e13.5)') rabs,dendns(2,i),dendns(4,i),
+     &                     dendns(2,i)+dendns(4,i)
+      end if
+  500 continue
+      write(io,'(/''c:plot of density distribution'',
+     &           '' from test particle''
+     &          /''n: r(fm)''
+     &          /''n: rh (r)''
+     & /''n: x  y(proton),hr0  y(neutron),hg0  y(total),h0'')')
+      do 501 i=0,imax
+      if(i.eq.0) then
+      rabs=0.0
+      else
+      rabs=sqrt((float(i)+float(i-1))/2.0)
+      end if
+      write(io,'(4e13.5)') rabs,dentes(1,i),dentes(2,i),
+     &                     dentes(1,i)+dentes(2,i)
+  501 continue
+      write(io,'(/''c:plot of momentum distribution'',
+     &           '' from test particle''
+     &          /''n: p(1/fm)''
+     &          /''n: rh (p)''
+     &          /''n: x  y(proton),hr0 y(neutron),hg0 y(total),h0'')')
+      do 502 i=0,jmax
+      if(i.eq.0) then
+      pabs=0.0
+      else
+      pabs=sqrt((float(i)+float(i-1))/2.0)/facp/hbc
+      end if
+      write(io,'(4e13.5)') pabs,denmom(1,i),denmom(2,i),
+     &                     denmom(1,i)+denmom(2,i)
+  502 continue
+      write(io,'(/''c:plot of potential depth'',
+     &          /''n: r(fm)''
+     &          /''n: potential (mev)''
+     &          /''n: x  y(proton),lr0 y(neutron),dg0'')')
+      do 510 i=0,imxx
+      if((denpot(1,i).gt.0.0).and.(denpot(3,i).gt.0.0)) then
+      rabs=sqrt(float(i))
+      write(io,'(3e13.5)') rabs,denpot(2,i),denpot(4,i)
+      end if
+  510 continue
+      return
+      end

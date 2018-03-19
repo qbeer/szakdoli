@@ -1,0 +1,314 @@
+
+************************************************************************
+*                                                                      *
+      subroutine sumbain(ibaspe,jpar,bik,bit,bim,jfram,mang,anba,
+     &                   cang,wref,ydel,jcoll)
+*                                                                      *
+*         variables:                                                   *
+*            ibaspe   - 0-> isospin average for spectra; 1-> only prot.*
+*            iparti   - 0-> both; 1-> all; -1-> only participants;     *
+*            bink     - kinetic energy bin  (gev)                      *
+*            binr     - rapidity bin                                   *
+*            bint     - bin in trans.mom/pmass                         *
+*            binm     - bin in momentum  (gev)                         *
+*            iframe   - 0 -> spectra at angles of cms; 1 -> of lab.;   *
+*            nangle   - number of angles for spectra (max.:5);         *
+*            angle    - angles for spectra in degrees (max.:5);        *
+*            dangle   - bin for angles;                                *
+*            yref     - rapidity of cms in the lab.;                   *
+*                                                                      *
+************************************************************************
+      implicit none
+      integer maxbin,maxpr,maxpt,ibaspe,jpar,jfram,mang,jcoll,icoll
+      integer isosp,iparti,iframe,nangle,i,j,k,nr,nt,ntotal,nprot
+      integer nbink,nbinr,nbint,nbinm,ifit,num,isubs,ikin,imin,imax
+      integer ja
+      real*8 bik,bit,bim,cang,wref,ydel,bink,bint,binm,dangle,yref,binr
+      real*8 tim,rat,px,py,pz,enerc,b0,elab
+      real*8 etot,ekin,pio,rap,ptr,teta
+      real*8 potn,potd,pote,scalpro,tmin,tmax,val,aaa,ymax,batrmi
+      real*8 potnd, batrma,e0
+      parameter     (maxbin =   50)
+      parameter     (maxpr  =    5,  maxpt =    20)
+      include"common"
+
+*----------------------------------------------------------------------*
+*----------------------------------------------------------------------*
+      save batr,rapba,rapptba,specba,spe1ba,pxba
+      save isosp,bink,binr,bint,binm,iframe,nangle,dangle,yref
+      save angle,iparti,icoll
+*----------------------------------------------------------------------*
+      real*8         batr(11,maxbin),ebak(maxbin)
+      real*8         rapptba(10,-maxpr:maxpr,0:maxpt)
+      real*8         rapba(10,-maxpr:maxpr)
+      real*8         pxba(10,-maxpr:maxpr)
+      real*8         specba(10,5,maxbin)
+      real*8         spe1ba(10,5,maxbin)
+      real*8         angle(5),anba(5)
+      real*8         timpisp(10)
+*----------------------------------------------------------------------*
+      icoll  = jcoll
+      isosp  = ibaspe
+      iparti = jpar
+      bink   = bik
+      bint   = bit
+      binm   = bim
+      iframe = jfram
+      nangle = mang
+      dangle = pi * cang / 180.0
+      yref   = wref
+      binr   = ydel/8.0
+      do 100  j = 1,nangle
+        angle(j) = pi * anba(j) / 180.0
+ 100  continue
+      do 600  j = 1,10
+        timpisp(j) = 0.0
+        do 300  i = 1,maxbin
+          batr(j,i) = 0.0
+          do 200  k = 1,5
+            specba(j,k,i) = 0.0
+            spe1ba(j,k,i) = 0.0
+ 200      continue
+ 300    continue
+        do 500  nr = - maxpr , maxpr
+          rapba(j,nr) = 0.0
+          pxba(j,nr)  = 0.0
+          do 400  nt = 0 , maxpt
+            rapptba(j,nr,nt) = 0
+ 400      continue
+ 500    continue
+ 600  continue
+      return
+************************************************************************
+*                                                                      *
+      entry sumbary(tim ,ntotal,nprot)
+*                                                                      *
+************************************************************************
+      timpisp(itip) = tim
+      write(*,*)'in subary'
+      rat  = float(nprot)/float(ntotal)
+      if(isosp .eq. 1) rat = 1.0
+
+
+      if(binr.eq.0) binr = 1.0e-03
+
+      do 1200 i = 1,maxpar
+        if(id(1,i).eq.0) goto 1200
+
+        px = p(1,i)
+        py = p(2,i)
+        pz = p(3,i)
+        etot = sqrt(e(i)**2+px**2+py**2+pz**2)
+
+        if((id(2,i).ne.1) .and. (isosp.eq.1))             goto 1200
+
+        ekin = etot - e(i)
+        pio  = sqrt(px**2+py**2+pz**2)
+        rap  = 0.5 * log( (etot+pz)/(etot-pz) )
+        ptr  = sqrt(px**2+py**2)
+        if(abs(ptr).le.1.0e-06) then
+          ptr = 1.0e-04
+          write(*,*)'warning sumbary'
+        end if
+        if(abs(pio).le.1.0e-07) then
+          ptr = 1.0e-04
+          write(*,*)'warning sumbary'
+        end if
+        nbink= nint( ekin / bink ) + 1
+        nbinr= nint( rap/binr )
+        nbint= nint(  ptr/rmass/bint )
+        if(pio .eq. 0.0) pio=0.00001
+        if(ptr .eq. 0.0) ptr=0.00001
+        if((nbink.le.maxbin) .and. (ptr/pio.ge.cos(dangle)))
+     &    batr(itip,nbink)=batr(itip,nbink) + rat/pio
+        if(abs(nbinr).le.maxpr) rapba(itip,nbinr)=rapba(itip,nbinr)+rat
+        if(abs(nbinr).le.maxpr) pxba(itip,nbinr)=pxba(itip,nbinr)+rat*px
+        if((nbint.le.maxpt) .and. (abs(nbinr).le.maxpr) )
+     &    rapptba(itip,nbinr,nbint)=rapptba(itip,nbinr,nbint)+rat/ptr
+        if(nangle .eq. 0)                              goto 1200
+        if(iframe .gt. 0) then
+          pz = sqrt(e(i)**2+px**2+py**2) * sinh(yref+rap)
+          etot = sqrt(e(i)**2+px**2+py**2+pz**2)
+          pio  = sqrt(px**2+py**2+pz**2)
+        end if
+        nbinm= nint(pio/binm) + 1
+        if(nbinm .gt. maxbin)            goto 1200
+        teta = asin(ptr/pio)
+        do 1100 j =1,nangle
+           if(abs(teta-angle(j)).le.dangle)
+     &       specba(itip,j,nbinm)=specba(itip,j,nbinm) + rat*etot/pio**2
+           if((abs(teta-angle(j)).le.dangle).and.(iabs(id(6,i)).ne.1))
+     &       spe1ba(itip,j,nbinm)=spe1ba(itip,j,nbinm) + rat*etot/pio**2
+ 1100   continue
+ 1200 continue
+      batr(itip,1)=batr(itip,1) * 2.0
+      do 1300 nr = - maxpr , maxpr
+        rapptba(itip,nr,0) = rapptba(itip,nr,0) * 2.0
+ 1300 continue
+      do 1400 j = 1, nangle
+        specba(itip,j,1)=specba(itip,j,1) * 2.0
+        spe1ba(itip,j,1)=spe1ba(itip,j,1) * 2.0
+ 1400 continue
+      return
+************************************************************************
+*                                                                      *
+      entry sumbarq(tim ,enerc)
+*                                                                      *
+************************************************************************
+      timetot(itet) = tim
+      potn = 0.0
+      potd = 0.0
+      enerc= 0.0
+      do 3200 i = 1,maxpar
+        if(id(1,i).eq.0) goto 3200
+        px = p(1,i)
+        py = p(2,i)
+        pz = p(3,i)
+        etot = sqrt(e(i)**2+px**2+py**2+pz**2)
+        ptotba(1,itet) = ptotba(1,itet) + p(1,i)
+        ptotba(2,itet) = ptotba(2,itet) + p(2,i)
+        ptotba(3,itet) = ptotba(3,itet) + p(3,i)
+        etotba(1,itet) = etotba(1,itet) + etot
+        if(icoll.ne.-1) call epot(r(1,i),r(2,i),r(3,i),potn,potd,potnd)
+        pote = potn
+        if(id(2,i).eq.2) pote = potd
+        etotba(2,itet) = etotba(2,itet) + pote
+        etotba(3,itet) = etotba(3,itet) + pote + etot
+        if(r(1,i)**2+r(2,i)**2+r(3,i)**2 .le. 4.0) enerc=enerc+pote+etot
+ 3200 continue
+      return
+************************************************************************
+*                                                                      *
+      entry sumbaout(scalpro,num,isubs,ikin,tmin,tmax,ifit)
+*                                                                      *
+*         variables:                                                   *
+*            isum     - output unit                                    *
+*            scalpro  - 2*b*db /number of test-part.                   *
+*            num      - number of test-part.                           *
+*            ikin     - number of points in the spectra to print out;  *
+*            tmin     - minimal kin. energy for exp. fit               *
+*            tmax     - maximal kin. energy for exp. fit               *
+*                                                                      *
+************************************************************************
+      do 2100 i=1,ikin
+        ebak(i)     = float(i-1) * bink
+ 2100 continue
+      imin    = nint( tmin / bink) + 1
+      imax    = nint( tmax / bink) + 1
+      if(ifit.gt.0) call fitexplms(batr,ebak,ikin,itip,e0,b0,imin,imax)
+      fact = 4.0 * pi * dangle * bink
+      val  = 180.0 / pi
+      write(isum,'(/''c:kinetic energy spectrum of baryons'')')
+      if(isosp.eq.0) write(isum,'(''c: all baryons'')')
+      if(isosp.eq.1) write(isum,'(''c: protons'')')
+      write(isum,'(''c: transv. baryons in cms, dfi(degree)='',f5.2)')
+     &                           val * dangle
+      write(isum,'(''n: kinetic energy of baryons (gev)'')')
+      write(isum,'(''n: e * dszigma/dp**3'')')
+      write(isum,'(''c: fitted slope (mev) '',f8.2)') e0
+      write(isum,'(''c: time(fm/c)'',f7.2)')
+     &     timpisp(itip)
+      write(isum,'(
+     &''n:   x       n,lst0   n(fit),dt0'')')
+      do 2200 i=1,ikin
+        write(isum,'(g11.2,11e10.3)') bink*float(i-1),
+     &  scalpro*batr(itip,i)/fact,scalpro*batr(11,i)/fact
+ 2200 continue
+*
+      if(itip .gt. 1) then
+      write(isum,'(''c: time(fm/c)'',9(f7.2,3x))')
+     &    (timpisp(itip-i),i=1,itip-1)
+      write(isum,'(
+     &''n:   x       n         n         n    '',
+     &''     n         n         n         n         n         n'')')
+      do 2201 i=1,ikin
+        write(isum,'(g11.2,11e10.3)') bink*float(i-1),
+     &  (scalpro*batr(itip-j,i)/fact,j=1,itip-1)
+ 2201 continue
+      end if
+*
+      write(isum,'(/''c:plot of rapidity distribution of baryons'')')
+      write(isum,'(''c: rapidity of target in cms:'',f6.3)') yref
+      write(isum,'(''n: rapidity'')')
+      write(isum,'(''n: yield'')')
+      write(isum,'(''c: time(fm/c)'',10(f7.2,3x))')
+     &    (timpisp(itip+1-i),i=1,itip)
+      write(isum,'(
+     &''n:   x      n,lst0       n         n         n         n    '',
+     &''     n         n         n         n         n'')')
+      do 2300 i=-maxpr,maxpr
+      write(isum,'(g12.2,10e10.3)')
+     &  binr*float(i),(rapba(itip+1-j,i)/float(isubs*num)/binr,j=1,itip)
+2300  continue
+*
+      write(isum,'(/''c:plot of average px of baryons'')')
+      write(isum,'(''c: rapidity of target in cms:'',f6.3)') yref
+      write(isum,'(''n: rapidity'')')
+      write(isum,'(''n: average px'')')
+      write(isum,'(
+     &''n:   x      n,lst0'')')
+      do 2301 i=-maxpr,maxpr
+      aaa = rapba(itip,i)
+      if(aaa .lt. 0.1) aaa = 1.0
+      write(isum,'(g12.2,e10.3)')
+     &  binr*float(i),pxba(itip,i)/aaa
+2301  continue
+*
+      fact = 2.0 * pi * binr * bint
+      ymax  = float(maxpr) * binr
+      batrmi= 0.0
+      batrma= float(maxpt) * bint
+      write(isum,2050) yref,batrmi,batrma,bint,-ymax,ymax,binr
+2050  format(/'n:',1h','momentum distribution of baryons',1h'/
+     &'c:rapidity of target in cms',f6.3/
+     &'n:rapidity '/
+     &'n:transverse momenta(gev)'/
+     &'n2: x = ',f5.2,' to ',f5.2,' by ',f5.2,
+     &  '; y = ',f5.2,' to ',f5.2,' by ',f5.2,';')
+      write(isum,2150)
+     &  ((scalpro*rapptba(itip,i,j)/fact,i=-maxpr,maxpr),j=0,maxpt)
+2150  format(21(11(e10.3,',')/))
+*
+      if(nangle .gt. 0) then
+        write(isum,'(/''c:inv. cross-sect. of baryons at eb= '',f5.1,
+     &              '' gev'')') elab
+        if(isosp.eq.0) write(isum,'(''c: all baryons'')')
+        if(isosp.eq.1) write(isum,'(''c: protons'')')
+      if(iframe.eq.0) write(isum,'(''c: in cms, dfi='',f4.1)')dangle*val
+      if(iframe.eq.1) write(isum,'(''c: in lab, dfi='',f4.1)')dangle*val
+        write(isum,'(''n: momentum of baryons (gev)'')')
+        write(isum,'(''n: e * dszigma/dp**3'')')
+        do 2500 ja=1,nangle
+          fact = 4.0 * pi * sin(angle(ja)) * dangle * binm
+          if(iparti .ge. 0) then
+          write(isum,'(/''c: all particles'')')
+          write(isum,'(''c: angle(degree)='',f6.2)') val * angle(ja)
+          write(isum,'(''c: time(fm/c)'',10(f7.2,3x))')
+     &          (timpisp(itip+1-i),i=1,itip)
+          write(isum,'(
+     &''n:   x       n,lst0       n         n         n         n   '',
+     &''      n         n         n         n         n'')')
+          do 2400 i=1,ikin
+          write(isum,'(g12.2,10e10.3)')
+     & binm*float(i-1),(scalpro*specba(itip+1-j,ja,i)/fact,j=1,itip)
+ 2400     continue
+        end if
+          if(iparti .le. 0) then
+          write(isum,'(/''c: only participants'')')
+          write(isum,'(''c: angle(degree)='',f6.2)') val * angle(ja)
+          write(isum,'(''c: time(fm/c)'',10(f7.2,3x))')
+     &          (timpisp(itip+1-i),i=1,itip)
+          write(isum,'(
+     &''n:   x       n,lst0       n         n         n         n   '',
+     &''      n         n         n         n         n'')')
+          do 2401 i=1,ikin
+          write(isum,'(g12.2,10e10.3)')
+     & binm*float(i-1),(scalpro*spe1ba(itip+1-j,ja,i)/fact,j=1,itip)
+ 2401     continue
+        end if
+ 2500   continue
+      end if
+*
+      return
+      end
+

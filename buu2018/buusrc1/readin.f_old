@@ -1,0 +1,382 @@
+
+      subroutine readin
+*----------------------------------------------------------------------*
+*                                                                      *
+*    this routine reads the input from the main control file           *
+*                                                                      *
+*     a l l variables are stored in the common block :                 *
+*           cominp                                                     *
+*                                                                      *
+*----------------------------------------------------------------------*
+      implicit none
+      character*80 totoutp, barout, pioout, cpiout, cpiout1, delout,
+     #  dilout, mesout, mestimout, omeout, kaoout, ppiout, gamout, fsout
+     # ,spfout
+      include"common"
+      include"cominput"
+      include"com_kminu"
+      include"com_cont_epair"
+c      integer ikaom
+      integer icbro1,ivecmatt1
+      real rhomshift1,rhowbroad1,omemshift1,omewbroad1
+      NAMELIST /adatok/
+     # totoutp, barout, pioout, cpiout, cpiout1, delout,
+     # dilout, mesout, mestimout, omeout, kaoout,
+     # ppiout, gamout, denout, fsout, spfout,
+     # MASSTA, MSTAPR, MASSPR, MSPRPR, MPION, ELAB,
+     # IELAB, B, IDICR, RDIST, ISEED, DT, NTMAX, ICOLL, ISUBS, NUM,
+     # NUMPAUL, IPAULI, INSYS, icbro, ireslife,
+     # IAVOID, ISO, IRES, IETARES, IRESCOL,
+     # masdis,iresmode,n1535wid,idec2pi,itwopi,mescol,
+     # IANGC, IWIDTH, GGAM, DELPI, DISPI, A1, B1, IDNFAC, DNFAC, IDBL,
+     # NDIST, ETACROS, IETANQ, pnperpp, DLIFE, IPAULRES,
+     # ipronew,imomdep,ithree,IPOT,IDELPOT,IPOU,nsymm,RPOT,icomp, isurf,
+     # RLAM, EMSS, SMU, INitit, MMX, MMZ, NUMD, NCOB, NITC, NITY,
+     # IDIPI, IABSO, IEMPI, IPIAB, IPICO, ISUMM,
+     # nbound, nucinit, boxx, boxz, tempmat, initpdis, NTCELL, CELL,
+     # NTHER,DELR, DELP, NPARTCEL, NFREQ, NFREP,
+     # TIMINSP, IKINSP, IFIT, NFRBA, IBASPE, IPARTI, TMINBA, TMAXBA,
+     # BINKBA, BINTBA, BINMBA, DANGLEB, IFRAMEB, NANGLEB, ANBA,
+     # NFRPI, IPISPE, TMINPI, TMAXPI, BINKPI, BINTPI, BINMPI,
+     # DANGLEP, IFRAMEP, NANGLEP, ANPI, NFRPIRA,
+     # idilepton, ivmesdil,  IBREMS, IpiNbrems,Iresdalitz, Imesdalitz, 
+     # IFILT,IDILTRA,NDLMASlow,NDLMAS,DLMASL,DDLMASlow,DDLMAShigh,
+     # NY,NQT,NF,QTMAXI, YMAXSCAL, YMINSCAL, NBREMS,npiNbrems,
+     # IDELTAD, NDALITZ, IRAND, IDAL, NDILTIM, TIMINDI,
+     # IDILDELM, IFORMRO, DENSSTE, DIMASMI, IPERTPI, NDMAS, ISZOG, MQT,
+     # MY, MF, QTMAXP, NPERTPI, IDILPER, NDILPER, NDelMAS, ISZOGD,
+     # ikaon, ikaonpot, ikaoncr, pidelka,
+     # PKAONNUM, NQTK, NYK, nfk, YMAXSK,YMINSK,
+     # qtmaxk, NPL, PLSTEP, ANGKAON, NPHIKAON, timkao,
+     + i_phi, iphi_pot, max_phi, iphi_cr, pphi_num, iphi_col,
+     + iphi_dec, i_epair, i_kminu, i_kminu_pot, i_kminu_cr,
+     + i_kminu_coll, i_ksi, i_ksi_pot,
+     # IOMEGA, IMESON, NMESMA, DMESMA, XMESMI, XMESM2, NMESM2,
+     # DMESM2, NCALMES, SIGPIOM, GAMMESMA,
+     & ivecmatt,rhomshift,rhowbroad,omemshift,omewbroad,
+     & igamma, igamsys, pgamma,
+     # pgammad, nplgam, plstepga, plmingam, nphigam, nanglgam,
+     # anglegam,nqtg, nyg, nfg, qtmaxg, yminsg, ymaxsg, ngamtim,timinga,
+     # ifserat ,ipipot, ireapl, isplipi, iorder,ideltapot,
+     # INUCLPRI, NNUCLPRI, IPIONPRI, icpipri, NPIONPRI, ideltpri,
+     # IDILPRI,IMESPRI, IMESTIMPRI, IOMEPRI, ikaopri, igampri, IPpiPRI,
+     # ITHERMO, IDENSPR, icelpri,ncont,iret,ihades,TIMECPU
+*=======================================================================
+
+      common/com_matter/ icbro1,ivecmatt1,rhomshift1,rhowbroad1,
+     &                 omemshift1,omewbroad1
+
+      include"resdata1"
+
+      MASSTA=40
+      MSTAPR=20
+      MASSPR=40
+      MSPRPR=20
+      MPION=0
+      ELAB=1.0
+      IELAB=0
+      B=0.0
+      IDICR=1
+      RDIST=4.0
+c      ISEED=11
+      ISEED=61
+      DT=0.5
+      NTMAX=080
+      ICOLL=0
+      ISUBS=1
+      NUM=1000
+      NUMPAUL=25
+      IPAULI=1
+      INSYS=1
+      icbro=1
+      ireslife=1
+      IAVOID=1
+      ISO=1
+      IRES=1
+      IETARES=1
+      IRESCOL=2
+      masdis=0
+      iresmode=3
+      n1535wid=0
+      idec2pi=1
+      itwopi=0
+      mescol=1
+      IANGC=2
+      IWIDTH=1
+      GGAM=1.0
+      A1=1.0
+      B1=0.0
+      IDNFAC=0
+      DNFAC=1.0
+      IDBL=2
+      NDIST=0
+      ETACROS=1.
+      IETANQ=3
+      pnperpp=4.0
+      DLIFE=1.
+      IPAULRES=0
+      Ipronew=0
+      Imomdep=0
+      ithree = 0
+      IPOT=0
+      IDELPOT=0
+      IPOU=0
+      nsymm=1
+      RPOT=0.666666
+      icomp=1
+      isurf=1
+      RLAM=1.5
+      EMSS=0.7
+      SMU=2.175
+      INitit=10
+      MMX=0
+      MMZ=0
+      NUMD=3
+      NCOB=10
+      NITC=1
+      NITY=1
+      IDIPI=2
+      IABSO=1
+      IEMPI=1
+      IPIAB=1
+      IPICO=0
+      ISUMM=0
+      nbound=0
+      nucinit=0
+      boxx=2.0
+      boxz=3.0
+      tempmat=0.1
+      initpdis=0
+      NTCELL=10
+      CELL=60.
+      NTHER=10
+      DELR=0.5
+      DELP=0.050
+      NPARTCEL=10
+      NFREQ=2
+      NFREP=1000
+      TIMINSP=10.
+      IKINSP=21
+      IFIT=1
+      NFRBA=10
+      IBASPE=0
+      IPARTI=1
+      TMINBA=0.2
+      TMAXBA=0.7
+      BINKBA=0.10
+      BINTBA=0.1
+      BINMBA=0.10
+      DANGLEB=05.0
+      IFRAMEB=1
+      NANGLEB=1
+      ANBA(1)=41.0
+      ANBA(2)=40.0
+      ANBA(3)=60.0
+      ANBA(4)=80.0
+      ANBA(5)=90.0
+      NFRPI=10
+      IPISPE=1
+      TMINPI=0.1
+      TMAXPI=0.6
+      BINKPI=0.05
+      BINTPI=0.25
+      BINMPI=0.05
+      DANGLEP=10.0
+      IFRAMEP=1
+      NANGLEP=1
+      ANPI(1)=41.0
+      ANPI(2)=40.0
+      ANPI(3)=60.0
+      ANPI(4)=80.0
+      ANPI(5)=90.0
+      NFRPIRA=1000
+      idilepton=1
+      IPIANN=1
+      imesdil=1
+      IBREMS=1
+      IDELDIL=1
+      IPI0D=0
+      ietad=1
+      IFILT=0
+      IDILTRA=0
+      DLMASL1=0.100
+      DDLMAS1=0.020
+      NDLMAS1=21
+      DDLMAS2=0.005
+      NDLMAS=150
+      NY=10
+      NQT=10
+      NF=4
+      QTMAXI=1.0
+      YMAXSCAL=3.0
+      YMINSCAL=3.0
+      DELPI=4.0
+      DISPI=1.0
+      NBREMS=100
+      npiNbrems=10
+      IDELTAD=2
+      NDALITZ=0800
+      IRAND=2
+      IDAL=2
+      NDILTIM=20
+      TIMINDI=10.
+      IDILDELM=0
+      IFORMRO=0
+      DENSSTE=0.20
+      DIMASMI=0.52
+      IPERTPI=0
+      NDMAS=5
+      ISZOG=5
+      MQT=20
+      MY=10
+      MF=4
+      QTMAXP=0.80
+      NPERTPI=800
+      IDILPER=0
+      NDILPER=40
+      NDELMAS=5
+      ISZOGD=5
+      ikaon=0
+      ikaonpot=1
+      ikaoncr=3
+      pidelka=0.25
+      PKAONNUM=200.
+      NQTK=25
+      NYK=20
+      nfk=4
+      YMAXSK=2.2
+      YMINSK=2.2
+      qtmaxk=1.0
+      NPL=20
+      PLSTEP=0.05
+      ANGKAON=0.715
+      NPHIKAON=4
+      timkao=1.0
+      i_phi = 0
+      iphi_pot = 0
+      max_phi = 10000
+      iphi_cr = 1         !      Chung-Ko
+      pphi_num = 1.
+      iphi_col = 0
+      iphi_dec = 0
+      i_epair  = 0
+      IOMEGA=1
+      IMESON=1
+      NMESMA=20
+      DMESMA=0.02
+      XMESMI=0.61
+      XMESM2=0.77
+      NMESM2=4
+      DMESM2=0.005
+      NCALMES=010
+      SIGPIOM=0.005
+      GAMMESMA=4.0
+      ivecmatt=0
+      rhomshift=0.1
+      rhowbroad=1.0
+      omemshift=0.05
+      omewbroad=1.0
+      igamma=0
+      igamsys=1
+      pgamma=1.0
+      pgammad=1.0
+      nplgam=20
+      plstepga=0.01
+      plmingam=0.01
+      nphigam=4
+      nanglgam=1
+      anglegam(1)=0.5
+      anglegam(2)=0.1
+      anglegam(3)=0.1
+      anglegam(4)=0.1
+      anglegam(5)=0.1
+      anglegam(6)=165.0
+      nqtg=20
+      nyg=20
+      nfg=4
+      qtmaxg=0.2
+      yminsg=1.2
+      ymaxsg=1.2
+      ngamtim=20
+      timinga=10.
+      ifserat=0
+      ipipot=0
+      ireapl=0
+      isplipi = 0
+      iorder = 1
+      ideltapot=0
+      INUCLPRI=0
+      NNUCLPRI=2000
+      IPIONPRI=0
+      IcpiPRI=0
+      NPIONPRI=2000
+      ideltpri=1
+      IDILPRI=0
+      IMESPRI=0
+      IMESTIMPRI=1
+      IOMEPRI=0
+      ikaopri=0
+      igampri=0
+      ITHERMO=0
+      IDENSPR=0
+      IppiPRI=0
+      ICELPRI=0
+      ncont = 0
+      iret = 0
+      ihades = 1
+      TIMECPU=09485.
+      rmesdec = 2.0
+      ibertsch = 0
+*********************** tests for cross sections ********************
+*           default = 0 for all of them !!!!!!!!!!!!!!*************
+      isnndd  = 0
+      isddnn  = 0
+      isnrnrp = 0
+      isstatep= 0
+      isstatea = 0
+      isdeltall = 0
+      isdeltaonly = 0
+      inotwopi = 0
+******************** end of test variables ************************
+
+      write(*,*) 'vor einlesen'
+c      open(22,file='filename.dat',status='old',iostat=i)
+c      read(22,fnames)
+c      write(6,fnames)
+c      close(22)
+      read(5,adatok)
+      ikaondi = ikaon                   !  hw
+      write(*,*) 'beolvasas utan'
+      call inputwri(0)
+      open(isum,file=totoutp,status='new',iostat=i)
+      if(i.ne.0) open(isum,file=totoutp,status='old',iostat=i)
+      call inputwri(1)
+      if(inuclpri.eq.1)
+     &      open(mnucpri,file=barout,status='unknown')
+      if(ipionpri.eq.1)
+     &      open(mpiopri,file=pioout,status='unknown')
+      if(idilpri.eq.1)
+     &      open(mdilpri,file=dilout,status='unknown')
+      if(ikaopri.eq.1)
+     &      open(mkaopri,file=kaoout,status='unknown')
+      if(iomepri.eq.1)
+     &      open(momepri,file=omeout,status='unknown')
+      if(imespri.eq.1)
+     &      open(mmespri,file=mesout,status='unknown')
+      if(imestimpri.eq.1)
+     &      open(mmestimpri,file=mestimout,status='unknown')
+*      if(ithermo.eq.1)
+*     &      open(mterpri,file=terout,status='unknown')
+      if(ippipri.eq.1)
+     &      open(mppipri,file=ppiout,status='unknown')
+      if(icpipri.eq.1 )
+     &      open(mcpipri,file=cpiout,status='unknown')
+      if(icpipri.eq.1 )
+     &      open(mcpipri1,file=cpiout1,status='unknown')
+      if(ifserat.ge.1 )
+     &      open(mfserat,file=fsout,status='unknown')
+      open(mspfpri,file=spfout,status='unknown')
+*--------------------------------------------------------------------
+
+      return
+      end

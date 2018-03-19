@@ -1,0 +1,252 @@
+************************************************************************
+*                                                                      *
+      subroutine el_pos_pair_out(wref,wmin,wmax,isu,n_pair)
+*                                                                      *
+*       variables:                                                     *
+*         yref    - -1 * target rapidity in the frame                  *
+*         nyk     - number of rapidities               (integer,input) *
+*         nqtk    - number of transverse momenta       (integer,input) *
+*         nfk     - number of angles                   (integer,input) *
+*         isu     - loop number of runs                                *
+*                                                                      *
+*----------------------------------------------------------------------
+      implicit none
+      include 'common'
+      include 'cominput'
+      include 'com_kminu'
+      include 'com_cont_epair'
+*----------------------------------------------------------------------*
+      real  wref,wmin,wmax
+      integer isu, n_pair
+      real m_elec,chlab,shlab, p0,px,py,pz,p0lab, pzlab, p_dil
+      real p_vec(0:3), bet_vec(0:3), p_aux(0:3), p_el(0:3),
+     1     p_pos(0:3)
+      real aa, xx,yy,zz,rr, ptra,pp,theta,phi, acc_p,acc_e
+      real e0lab, prob, prob1
+      integer npai, ik, ich, n_pt, ninv, pid, mode, modes, ninvmas
+      real minmas,maxmas
+      parameter (minmas=0., maxmas=1.,ninvmas = 80)
+      real  invmas, e_smear,br_omega, ptra2, xtrav, dinvmas
+      real  rn, getHadesAcceptance
+      external rn, getHadesAcceptance, bin_num
+      integer  bin_num
+      external getHadesPairAcceptance
+      real getHadesPairAcceptance
+      real  rap, check_pair, check_sing
+cc-----------------------------------------------------------e_pair
+      write(*,*)  '  START el_pos_pair_out ',
+     1               wref,wmin,wmax,isu,n_pair, max_epair
+c     write(45,*)  '  START el_pos_pair_out ',
+c    1               wref,wmin,wmax,isu,n_pair, max_epair
+      chlab = cosh(wref)
+      shlab = sinh(wref)
+      m_elec =  .000511
+c
+      IF (isu .eq. 1)   then
+          do ninv=0,ninvmas
+            fsig_HAFT(ninv) = 0.
+          end do
+      ENDIF
+c
+      do  2000  ik = 1, max_epair
+        if(nx_epair(0,ik) .ne. 1) goto 2000
+        ich = nx_epair(2,ik)
+c       write(45,*)  ' ik ',ik,ich,  max_epair, n_pair
+        if (ich .ne. 2)   goto 2000
+        prob = p_epair(4,ik) / real(num*isubs*n_pair)
+        invmas = p_epair(0,ik)
+        px   = p_epair(1,ik)
+        py   = p_epair(2,ik)
+        pz   = p_epair(3,ik)
+        p0 = sqrt(invmas**2 + px**2 + py**2 + pz**2)
+
+        pzlab =  p0 * shlab + pz * chlab
+        e0lab  =  p0 * chlab + pz * shlab
+
+
+        p_vec(0) = e0lab
+        p_vec(1) = px
+        p_vec(2) = py
+        p_vec(3) = pzlab
+
+
+        bet_vec(0) = p_vec(0) / invmas
+        bet_vec(1) = p_vec(1) / invmas
+        bet_vec(2) = p_vec(2) / invmas
+        bet_vec(3) = p_vec(3) / invmas
+c       write(45,*) ' p_vec ', ik, chlab, shlab,
+c    1         pz, p0, invmas, p_vec, bet_vec, invmas
+
+        p_dil = .5 * sqrt(invmas**2 -4*m_elec**2)
+
+
+        do 200 npai = 1, n_pair
+   13       continue
+          xx = rn(iseed) - 0.5
+          yy = rn(iseed) - 0.5
+          zz = rn(iseed) - 0.5
+          rr = sqrt(xx**2 + yy**2 + zz**2)
+          if( (rr.lt.0.0001) .or. (rr.gt.0.25) )  goto 13
+
+        p_aux(0) = sqrt(m_elec**2 + p_dil**2)
+        p_aux(1) = p_dil * xx/rr
+        p_aux(2) = p_dil * yy/rr
+        p_aux(3) = p_dil * zz/rr
+        call lorentz_hw(bet_vec, p_aux,  p_el)
+c       write(45,*)  'p_el1', ik, npai, p_el
+
+        pid = 3     ! electrons
+        mode = 1
+        p0  = p_el(0)
+        ptra = sqrt(p_el(1)**2 + p_el(2)**2)
+        pp = sqrt(ptra**2 + p_el(3)**2)
+        aa  = p_el(3) / pp
+        theta = 180. / pi * acos(aa)
+        phi = 180./pi * acos(p_el(1)/ptra)
+        if (p_el(2) .lt. 0) phi = 360. - phi
+        acc_e = 1.0
+        if(ihades .eq. 1) then
+          acc_e = getHadesAcceptance(pid,pp,theta,phi,mode)
+          modes = 1
+          call smearHades4Momentum(p_el,modes,pid)
+        end if
+c
+        p_aux(0) =  p_aux(0)    !  positrons
+        p_aux(1) = -p_aux(1)
+        p_aux(2) = -p_aux(2)
+        p_aux(3) = -p_aux(3)
+        call lorentz_hw(bet_vec, p_aux,  p_pos)
+        pid = 2   ! positrons
+        mode = 1
+        p0  = p_pos(0)
+        ptra = sqrt(p_pos(1)**2 + p_pos(2)**2)
+        pp = sqrt(ptra**2 + p_pos(3)**2)
+        aa  = p_pos(3) / pp
+        theta = 180. / pi * acos(aa)
+        phi = 180./pi * acos(p_pos(1)/ptra)
+        if (p_pos(2) .lt. 0) phi = 360. - phi
+        acc_p = 1.0
+        if(ihades .eq. 1) then
+          acc_p = getHadesAcceptance(pid,pp,theta,phi,mode)
+          modes = 1
+          call smearHades4Momentum(p_pos,modes,pid)
+        end if
+c
+        aa = p_el(0)*p_pos(0) - p_el(1)*p_pos(1) -
+     1       p_el(2)*p_pos(2) - p_el(3)*p_pos(3) + m_elec**2
+        e_smear = sqrt(2.*aa)
+        prob1 = prob * acc_e *acc_p
+c       write(45,*)  'bet_vec', bet_vec, p_dil
+c       write(45,*)  'p_aux', p_aux, pp,theta,phi
+c       write(45,*)  'p_el', p_el,  acc_e ,acc_p
+c       write(45,*)  'p_pos', p_pos, e_smear
+        ninv  = bin_num(e_smear,ninvmas,minmas,maxmas,dinvmas)
+        if (ninv .gt. 0  .and.  ninv .le. ninvmas)
+     1  fsig_HAFT(ninv) = fsig_HAFT(ninv) + prob1/dinvmas
+  200 continue
+ 2000 continue
+c-------- dielecrons from final omegas
+      br_omega = 7.14e-5
+      do 3000 ik=1,maxppar
+        if (ipi(1,ik).ne.5) goto 3000
+        ich = 2
+        prob = br_omega / real(num*isubs*n_pair)
+        invmas = epi(ik)   !  shoudn't they be on mass shell ???
+        px   = ppi(1,ik)
+        py   = ppi(2,ik)
+        pz   = ppi(3,ik)
+        ptra2 = px**2 + py**2
+        ptra  = sqrt(ptra2)
+        xtrav = sqrt(invmas**2+ptra2)
+        p0    = sqrt(xtrav**2 + pz**2)
+        pzlab =  p0 * shlab + pz * chlab
+        e0lab  =  p0 * chlab + pz * shlab
+c       plab  =  sqrt(pzlab**2 + ptra2)
+        rap   =  pzlab / e0lab
+        rap   =  0.5 * log((1.+rap)/(1.-rap))
+c
+        p_vec(0) = e0lab
+        p_vec(1) = px
+        p_vec(2) = py
+        p_vec(3) = pzlab
+c       check_pair =  getHadesPairAcceptance(invmas,ptra,rap,0)
+
+        bet_vec(0) = p_vec(0) / invmas
+        bet_vec(1) = p_vec(1) / invmas
+        bet_vec(2) = p_vec(2) / invmas
+        bet_vec(3) = p_vec(3) / invmas
+
+        p_dil = .5 * sqrt(invmas**2 -4*m_elec**2)
+        check_sing = .0
+        do 300 npai = 1, n_pair
+   15       continue
+          xx = rn(iseed) - 0.5
+          yy = rn(iseed) - 0.5
+          zz = rn(iseed) - 0.5
+          rr = sqrt(xx**2 + yy**2 + zz**2)
+          if( (rr.lt.0.0001) .or. (rr.gt.0.25) )  goto 15
+
+        p_aux(0) = sqrt(m_elec**2 + p_dil**2)
+        p_aux(1) = p_dil * xx/rr
+        p_aux(2) = p_dil * yy/rr
+        p_aux(3) = p_dil * zz/rr
+        call lorentz_hw(bet_vec, p_aux,  p_el)
+
+        pid = 3     ! electrons
+        mode = 1
+        p0  = p_el(0)
+        ptra = sqrt(p_el(1)**2 + p_el(2)**2)
+        pp = sqrt(ptra**2 + p_el(3)**2)
+        aa  = p_el(3) / pp
+        theta = 180. / pi * acos(aa)
+        phi = 180./pi * acos(p_el(1)/ptra)
+        if (p_el(2) .lt. 0) phi = 360. - phi
+        acc_e = 1.0
+        if(ihades .eq. 1) then
+          acc_e = getHadesAcceptance(pid,pp,theta,phi,mode)
+          modes = 1
+          call smearHades4Momentum(p_el,modes,pid)
+        end if
+c
+        p_aux(0) =  p_aux(0)    !  positrons
+        p_aux(1) = -p_aux(1)
+        p_aux(2) = -p_aux(2)
+        p_aux(3) = -p_aux(3)
+        call lorentz_hw(bet_vec, p_aux,  p_pos)
+        pid = 2                                    ! positrons
+        mode = 1
+        p0  = p_pos(0)
+        ptra = sqrt(p_pos(1)**2 + p_pos(2)**2)
+        pp = sqrt(ptra**2 + p_pos(3)**2)
+        aa  = p_pos(3) / pp
+        theta = 180. / pi * acos(aa)
+        phi = 180./pi * acos(p_pos(1)/ptra)
+        if (p_pos(2) .lt. 0) phi = 360. - phi
+        acc_p = 1.0
+        if(ihades .eq. 1) then
+          acc_p = getHadesAcceptance(pid,pp,theta,phi,mode)
+          modes = 1
+          call smearHades4Momentum(p_pos,modes,pid)
+        end if
+c
+        aa = p_el(0)*p_pos(0) - p_el(1)*p_pos(1) -
+     1       p_el(2)*p_pos(2) - p_el(3)*p_pos(3) + m_elec**2
+        e_smear = sqrt(2.*aa)
+        prob1 = prob * acc_e *acc_p
+c       write(45,*)  'final bet_vec', bet_vec, p_dil
+c       write(45,*)  'p_aux', p_aux, pp,theta,phi
+c       write(45,*)  'p_el', p_el,  acc_e ,acc_p
+c       write(45,*)  'p_pos', p_pos, e_smear
+        ninv  = bin_num(e_smear,ninvmas,minmas,maxmas,dinvmas)
+        if (ninv .gt. 0  .and.  ninv .le. ninvmas)
+     1  fsig_HAFT(ninv) = fsig_HAFT(ninv) + prob1/dinvmas
+        check_sing = check_sing + acc_e *acc_p / real (n_pair)
+  300 continue
+c     write(45,*)  ' comparison pair- single', check_pair,check_sing
+ 3000 continue
+
+c     if (isu .lt. isubs)   return
+c
+      return
+      end
+

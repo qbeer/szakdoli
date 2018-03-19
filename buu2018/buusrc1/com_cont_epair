@@ -1,0 +1,102 @@
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      real*8 mom_cut_omeg1, mom_cut_omeg2
+      real*8 dens_cut1, dens_cut2
+
+      parameter (dens_cut1=0.05,dens_cut2=0.16)
+      parameter (mom_cut_omeg1=0.25,mom_cut_omeg2=0.5)
+      integer n_cont_channel
+      parameter (n_cont_channel=40)  ! no. of channels for continuous dil spec.
+
+      integer bary_chan_offset,ch_pi,ch_eta,ch_ome,ch_brems
+      integer ch_ome_dir,ch_rho_dir,ch_rho_piN,ch_ome_piN,ch_rhome_piN
+      integer ch_rho_piN_prop,ch_ome_piN_prop,ch_rhome_piN_prop,ch_piN
+      integer ch_piN_prop
+      parameter (bary_chan_offset=15) ! channel num = idres + bary_chan_offset
+      parameter (ch_pi=1, ch_eta=2, ch_ome=3, ch_brems=4)
+      parameter (ch_rho_dir=5, ch_ome_dir=6)
+      parameter (ch_piN=7,ch_rho_piN=8,ch_ome_piN=9,ch_rhome_piN=10)
+      parameter (ch_rho_piN_prop=12,ch_ome_piN_prop=13)
+      parameter (ch_rhome_piN_prop=14, ch_piN_prop=11 )
+      integer n_mass_bins
+      parameter (n_mass_bins=200) ! no. of dil. mass bins
+
+      integer ifilt,idiltra,ndlmaslow,ndlmas,ny,nqt,nf,nbrems,npiNbrems,
+     &        ideltad,ndalitz, irand, idal, ndiltim, IDILDELM, iformro,
+     &        ihades
+      real*8    dlmasl, ddlmaslow, ddlmashigh, qtmaxi, 
+     &        ymaxscal, yminscal,timindi, densste, dimasmi,ymin,ymax
+      common/dilinp/ dlmasl, ddlmaslow, ddlmashigh, qtmaxi,
+     &        ymaxscal, yminscal,timindi, densste, dimasmi,
+     &        ifilt,idiltra,ndlmaslow,ndlmas,ny,nqt,nf,nbrems,npiNbrems,
+     &        ideltad,ndalitz, irand, idal, ndiltim, IDILDELM, iformro,
+     &        ihades
+
+*----------------------------------------------------------------------*
+      integer maxq,maxy,maxde
+      parameter     (maxq =80000)
+      parameter     (maxy =20000)
+      parameter     (maxde=20)
+
+      integer iqq(n_cont_channel,maxy,maxde),iproba
+      real*8 qq(4,maxq),qy(0:3,maxq),sig(n_cont_channel,maxy,maxde)
+      real*8 dqt,dy
+      real*8 prob_cont_epair(1:n_cont_channel,1:n_mass_bins) ! store probabilities
+      real*8 prob_cont_epair_hades(1:n_cont_channel,1:n_mass_bins) ! store hades
+      real*8 prob_cont_epair_dls(1:n_cont_channel,1:n_mass_bins) ! store dls
+      real*8 prob_cut_epair(1:n_cont_channel,1:n_mass_bins) ! store cut
+
+      common /epair_cont/ prob_cont_epair,prob_cont_epair_hades,
+     1                prob_cut_epair,prob_cont_epair_dls,
+     &                qq,qy,sig,dqt,dy,ymin,ymax,iqq,iproba
+*----------------------------------------------------------------------*
+      integer JP_maxq,JP_maxy
+      parameter     (JP_maxq =100000)
+      parameter     (JP_maxy =25000)
+      integer JP_channel,JP_mass_bins
+      parameter (JP_channel=3,JP_mass_bins=250) ! no. of channels for JP dil sp.
+      real*8 JP_qq(4,JP_maxq),JP_qy(0:3,JP_maxq)
+      real*8 JP_sig(JP_channel,JP_maxy,maxde)
+      real*8 JP_dqt,JP_dy,JP_ymin,JP_ymax
+      real*8 JP_prob_epair(1:JP_channel,1:JP_mass_bins) ! store probabilities
+
+      common /JP_epair/ JP_prob_epair,JP_qq,JP_qy,JP_sig,JP_dqt,JP_dy,
+     &    JP_ymin,JP_ymax
+
+      integer  JP_dlmas,JP_y,JP_qt,JP_f
+      real*8   JP_dlmasl,JP_ddlmas,JP_qtmaxi,JP_ymaxscal,JP_yminscal
+      common/JP_inp_dil/JP_dlmasl,JP_ddlmas,JP_qtmaxi,
+     &       JP_ymaxscal,JP_yminscal,JP_dlmas,JP_y,JP_qt,JP_f
+*----------------------------------------------------------------------*
+      integer IR_maxq,IR_maxy
+      parameter     (IR_maxq =40000)
+      parameter     (IR_maxy =10000)
+      integer nDYmax,nDYsrtmax,nDYsrt
+      PARAMETER (nDYmax=200, nDYsrtmax=200)
+      integer ch_DY,ch_OC
+      parameter (ch_DY=1, ch_OC=2)
+      integer IR_channel,IR_mass_bins
+      parameter (IR_channel=2,IR_mass_bins=80) ! no. of channels for IR dil sp.
+      real*8 IR_qq(4,IR_maxq),IR_qy(0:3,IR_maxq)
+      real*8 IR_sig(IR_channel,IR_maxy,maxde)
+      real*8 IR_dqt,IR_dy,IR_ymin,IR_ymax
+      real*8 IR_prob_epair(1:IR_channel,1:IR_mass_bins) ! store probabilities
+      real*8 DY_InvMcross(3,nDYsrtmax,1:IR_mass_bins) ! store DY at dilmass
+
+      common /IR_epair/ IR_prob_epair,IR_qq,IR_qy,IR_sig,IR_dqt,IR_dy,
+     &    IR_ymin,IR_ymax,DY_InvMcross,nDYsrt
+
+      integer  IR_dlmas,IR_y,IR_qt,IR_f
+      real*8   IR_dlmasl,IR_ddlmas,IR_qtmaxi,IR_ymaxscal,IR_yminscal
+      common/IR_inp_dil/IR_dlmasl,IR_ddlmas,IR_qtmaxi,
+     &       IR_ymaxscal,IR_yminscal,IR_dlmas,IR_y,IR_qt,IR_f
+*----------------------------------------------------------------------*
+c
+      common /sigHAFT/ fsig_HAFT(0:n_mass_bins)
+      real*8   fsig_HAFT
+c
+      common /mes_life/ m_birth(2), m2_birth(2),
+     1  m_final(2), m2_final(2), t_birth(2), t_final(2)
+      real*8 m_birth,m2_birth, m_final,m2_final, t_birth,t_final
+      common /mes_life_int/ n_birth(2), n_final(2)
+      integer n_birth, n_final
+

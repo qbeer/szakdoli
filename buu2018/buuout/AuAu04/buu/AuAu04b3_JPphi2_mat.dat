@@ -1,0 +1,306 @@
+ MASSTA=         197
+ MSTAPR=          79
+ MASSPR=         197
+ MSPRPR=          79
+ MPION=           0
+ ELAB=   1.0000000000000000     
+ B=   3.0000000000000000     
+ RDIST=   2.9000000953674316     
+ ISEED=       -1247
+ DT=  0.50000000000000000     
+ NTMAX=         100
+ ICOLL=           0
+ ISUBS=           2
+ NUM=          80
+ NUMPAUL=           2
+ IPAULI=           1
+ INSYS=           1
+ icbro=           0
+ ireslife=           0
+ IAVOID=           1
+ IRESCOL=           2
+ masdis=           1
+ iresmode=           3
+ idec2pi=           1
+ mescol=           1
+ IWIDTH=           1
+ DLIFE=   1.0000000000000000     
+ IPOU=           1
+ icomp=           1
+ IDIPI=           2
+ IABSO=           1
+ IEMPI=           1
+ IPIAB=           1
+ IPICO=           2
+ nbound=           0
+ boxx=   2.0000000000000000     
+ boxz=   3.0000000000000000     
+ NTCELL=          10
+ CELL=   60.000000000000000     
+ NTHER=          10
+ DELR=  0.50000000000000000     
+ DELP=   5.0000000000000003E-002
+ NPARTCEL=          10
+ NFREQ=          90
+ TIMINSP=   10.000000000000000     
+ IKINSP=          21
+ IFIT=           1
+ NFRBA=          10
+ IBASPE=           0
+ IPARTI=           1
+ TMINBA=  0.20000000000000001     
+ TMAXBA=  0.69999999999999996     
+ BINKBA=  0.10000000000000001     
+ BINTBA=  0.10000000000000001     
+ BINMBA=  0.10000000000000001     
+ DANGLEB=   12.000000000000000     
+ IFRAMEB=           1
+ NANGLEB=           1
+ ANBA(1)=   41.000000000000000     
+ ANBA(2)=   40.000000000000000     
+ ANBA(3)=   60.000000000000000     
+ ANBA(4)=   80.000000000000000     
+ ANBA(5)=   90.000000000000000     
+ NFRPI=          10
+ IPISPE=           1
+ TMINPI=  0.10000000000000001     
+ TMAXPI=  0.59999999999999998     
+ BINKPI=   5.0000000000000003E-002
+ BINTPI=  0.25000000000000000     
+ BINMPI=   5.0000000000000003E-002
+ DANGLEP=   10.000000000000000     
+ IFRAMEP=           1
+ NANGLEP=           1
+ ANPI(1)=   20.000000000000000     
+ ANPI(2)=   40.000000000000000     
+ ANPI(3)=   60.000000000000000     
+ ANPI(4)=   80.000000000000000     
+ ANPI(5)=   90.000000000000000     
+ NFRPIRA=        1000
+ idilepton=           0
+ ivmesdil=           1
+ IBREMS=           1
+ IpiNBREMS=           0
+ Iresdalitz=           1
+ Imesdalitz=           1
+ IFILT=           0
+ IDILTRA=           0
+ NDLMASlow=          26
+ NDLMAS=         150
+ DLMASl=  0.10000000000000001     
+ DDLMASlow=   2.0000000000000000E-002
+ DDLMAShigh=   4.0000000000000001E-003
+ NY=          10
+ NQT=          10
+ NF=           4
+ QTMAXI=   1.0000000000000000     
+ YMAXSCAL=   1.2000000000000000     
+ YMINSCAL=   1.2000000000000000     
+ DELPI=   3.0000000000000000     
+ DISPI=   2.5000000000000000     
+ NBREMS=         100
+ NpiNBREMS=          10
+ IDELTAD=           2
+ NDALITZ=           1
+ IRAND=           2
+ IDAL=           2
+ NDILTIM=          20
+ TIMINDI=   10.000000000000000     
+ IDILDELM=           0
+ IFORMRO=           0
+ DENSSTE=  0.20000000000000001     
+ DIMASMI=  0.52000000000000002     
+ IPERTPI=           0
+ NDMAS=           5
+ ISZOG=           5
+ MQT=          20
+ MY=          10
+ MF=           4
+ QTMAXP=  0.80000000000000004     
+ NPERTPI=         800
+ IDILPER=           0
+ NDILPER=          40
+ NDELMAS=           5
+ ISZOGD=           5
+ IKAON=           0
+ ikaonpot           0
+ ikaoncr=           4
+ pidelka=  0.25000000000000000     
+ PKAONNUM=   1.0000000000000000     
+ NQTK=          12
+ NYK=           6
+ nfk=           4
+ YMAXSK=   1.2000000000000000     
+ YMINSK=   1.2000000000000000     
+ qtmaxk=   1.2000000000000000     
+ NPL=          20
+ PLSTEP=   5.0000000000000003E-002
+ ANGKAON=   40.000000000000000     
+ NPHIKAON=           4
+ timkao=   1.0000000000000000     
+ i_phi =           1
+ iphi_pot =           0
+ iphi_cr =           1
+ pphi_num =   1.0000000000000000     
+ iphi_col =           1
+ iphi_dec =           1
+ i_epair  =           0
+ i_kminu =           1
+ i_kminu_pot =           0
+ i_kminu_cr =           0
+ i_kminu_coll =           0
+ i_ksi =           0
+ i_ksi_pot =           0
+ IOMEGA=           0
+ IMESON=           1
+ NMESMA=          33
+ DMESMA=   2.5000000000000001E-002
+ XMESMI=  0.27000000000000002     
+ XMESM2=  0.77000000000000002     
+ NMESM2=           5
+ DMESM2=   5.0000000000000001E-003
+ NCALMES=          10
+ SIGPIOM=   5.0000000000000001E-003
+ GAMMESMA=   4.0000000000000000     
+ ivecmatt=           0
+ rhomshift= -0.14000000000000001     
+ rhowbroad=   1.0000000000000000     
+ omemshift=  -5.0000000000000003E-002
+ omewbroad=   1.0000000000000000     
+ igamma=           0
+ igamsys=           1
+ pgamma=   1.0000000000000000     
+ pgammad=   1.0000000000000000     
+ nplgam=          20
+ plstepga=   1.0000000000000000E-002
+ plmingam=   1.0000000000000000E-002
+ nphigam=           4
+ nanglgam=           1
+ anglegam(1)=   15.000000000000000     
+ anglegam(2)=   45.000000000000000     
+ anglegam(3)=   75.000000000000000     
+ anglegam(4)=   105.00000000000000     
+ anglegam(5)=   135.00000000000000     
+ anglegam(6)=   165.00000000000000     
+ nqtg=          20
+ nyg=          20
+ nfg=           4
+ qtmaxg=  0.20000000000000001     
+ yminsg=   1.2000000000000000     
+ ymaxsg=   1.2000000000000000     
+ ngamtim=          20
+ timinga=   10.000000000000000     
+ ifserat=           0
+ ipipot=           0
+ ireapl=           0
+ isplipi=           0
+ iorder=           1
+ ideltapot=           0
+ INUCLPRI=           1
+ NNUCLPRI=        2000
+ IPIONPRI=           0
+ IcpiPRI=           0
+ NPIONPRI=        2000
+ ideltpri=           0
+ IDILPRI=           1
+ IMESPRI=           1
+ IMESTIMPRI=           0
+ IOMEPRI=           0
+ IKAOPRI=           0
+ igampri=           0
+ IPpiPRI=           0
+ ITHERMO=           0
+ IDENSPR=           0
+ ICELPRI=           0
+ ncont=           0
+ ihades=           0
+ TIMECPU=   600000.00000000000     
+ *************** test variables def. = 0
+ isnndd    =           0
+ isddnn    =           0
+ isnrnrp   =           0
+ isstatep  =           0
+ isstatea  =           0
+ isdeltaall =           0
+ isdeltaonly =           0
+ inotwopi   =           0
+
+c:                 bbbbbbbb     uuu    uuu   uuu    uuu
+c:                 bbbbbbbbb    uuu    uuu   uuu    uuu
+c:                 bbb    bbb   uuu    uuu   uuu    uuu
+c:                 bbb    bbb   uuu    uuu   uuu    uuu
+c:                 bbbbbbbb     uuu    uuu   uuu    uuu
+c:                 bbbbbbbb     uuu    uuu   uuu    uuu
+c:                 bbb    bbb   uuu    uuu   uuu    uuu
+c:                 bbb    bbb   uuu    uuu   uuu    uuu
+c:                 bbbbbbbbb     uuuuuuuu     uuuuuuuu
+c:                 bbbbbbbb       uuuuuu       uuuuuu
+
+
+c:*******************************************************************
+c:*                                                                 *
+c:*          reaction:                                              *
+c:*                                                                 *
+c:*              mass 197( 79,118) ==> mass 197( 79,118)            *
+c:*                                                                 *
+c:*               beam energy =     0.000 gev/nucleon               *
+c:*               impact parameter =  1.00 fm                    *
+c:*                                                                 *
+c:*******************************************************************
+
+
+c:                 input-echo for buu-program:
+c:                 ===========================
+c:                 mass of target:         197
+c:                         proton:          79
+c:                         neutron:        118
+c:                 mass of projectile:     197
+c:                         proton:          79
+c:                         neutron:        118
+
+c:                 time step    "fm/c":   3.00
+c:                 number of t-steps:      100
+c:                 subsequent runs.:         2
+c:                 testparticle/nucl.:      80
+c:                 iseed:                -1247
+
+c:                 power of den.dep.int.=
+c:               =======================================
+c:                 full buu-theory used!
+c:                 unimportant n-n collisions avoided.
+c:                 moniz width for for delta mass
+c:                 direct pions
+c:                 pions are absorbed (normal run)
+c:                 pions are emitted (normal run)
+c:                 1/k**2 pion absorption
+c:                 deltalife = deltalife * 0.500
+c:                 pauli testparticle in delta decay 
+c:               =======================================
+
+c:                                           ======= kinematical parameters ========
+
+c:                                           1) lab-frame:      target   projectile
+c:                                              etotal "gev"         NaN        NaN
+c:                                              pz "gev/c"           NaN        NaN
+c:                                              beta                 NaN        NaN
+c:                                              gamma                NaN        NaN
+c:                                              rapidity          0.0000     0.0000
+c:                                           2) c.m.-frame:  
+c:                                              etotal "gev"         NaN        NaN
+c:                                              pz "gev/c"           NaN        NaN
+c:                                              beta                 NaN        NaN
+c:                                              gamma                NaN     1.0000
+c:                                              rapidity          0.0000     0.0000
+c:                                           3) correction of coulomb
+c:                                              px "gev/c"           NaN        NaN
+
+c:                                           ==== calculation done in cm-frame =====
+c:                                                impact parameter b =   1.000 fm
+c:                                                initial distance   = ******* fm
+
+c:                                           ==== initialization for subroutine pauli =============
+c:                                                num of part incl. in pauli / total   =     2
+c:                                                num of part per phase-space-cell     =   13.33333
+c:                                                length of cell in coord-space (fm)   =    3.00000
+c:                                                radius of cell in momen-space (1/fm) =    0.45043
+

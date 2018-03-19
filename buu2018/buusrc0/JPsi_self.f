@@ -1,0 +1,84 @@
+************************************************************************
+      subroutine self_JPsi(ii,vrel,dens,rself,iself,sgamma)
+      implicit none
+
+      include "com_pert"
+      include "common"
+      include "cominput"
+
+      real*8 vrel,dens,rself,iself, coll_bro,cross
+      real*8 exmass, fgamma,sgamma
+      integer ii,jj
+
+      cross = 0.418   ! in fm^2 absorption cross section of JPsi on nucleon
+      vrel = min(abs(vrel),0.95)
+      exmass = JPsi_prop(1,1) - 2.0
+      if(exmass .le. .01) then
+        fgamma = .0
+      else
+        fgamma = 1.0
+      endif
+
+      coll_bro  =  .0
+      rself = .0
+      iself = -JPsi_prop(ii,1)*JPsi_prop(ii,2)
+      sgamma = JPsi_prop(ii,2)
+      if(iJPsimat.eq.1 .and. vrel.le.0.95) then
+        rself = dens/rho0 * 2. *JPsi_prop(ii,1)*JPsi_massshift(ii) ! JPsi_mshift shift
+        coll_bro = dens/rho0 * JPsi_widthshift(ii) ! JPsi_wshift shift
+        if(icbro.eq.1) coll_bro=dens*abs(vrel)/sqrt(1-vrel**2)*cross*hbc
+        jj = nint(coll_bro*2000.)
+        jj = min(jj,200)
+        collbro_JPsi(ii,jj) = collbro_JPsi(ii,jj) + 1.0
+        iself = -JPsi_prop(ii,1)*(JPsi_prop(ii,2)*fgamma+coll_bro)
+        sgamma = JPsi_prop(ii,2)*fgamma + coll_bro
+      end if
+      return
+      end
+************************************************************************
+      function JPsiMass(ii,srt,mass,rselfener,iselfener,iseed)
+c     it is not sure that the used prob. distribution has 1 as maximum
+c         it is not sure that pmax2 is smaller than prmax2      
+      implicit none
+      include"com_pert"
+      real*8 srt,mass,rselfener,iselfener,JPsiMass,JPsim0
+      real*8 s,prmax2,pmax2,rn,JPsiMass0,Jmassmin,Jmassmax
+      integer ii,iseed,iter
+c      write(*,*) 'JPsiMass1 ',srt,mass,
+c     &    rselfener,iselfener
+      JPsim0= JPsi_prop(ii,1)+rselfener/(2.0*JPsi_prop(ii,1))
+      if(-iselfener/JPsi_prop(ii,1).lt.0.001.and.srt.gt.mass+JPsim0+.01)
+     &     then
+        JPsiMass=JPsim0
+        if(abs(JPsiMass-JPsi_prop(ii,1)).gt.0.3)
+     &       write(*,*) 'JPsiMass 1', JPsiMass, JPsi_prop(ii,1),
+     &       ii,srt,mass,rselfener,iselfener,iseed
+        return
+      end if
+      s = srt**2
+      Jmassmin= min(srt-mass,JPsim0 + 2.*iselfener/JPsi_prop(ii,1))
+      Jmassmax= min(srt-mass,JPsim0 - 2.*iselfener/JPsi_prop(ii,1))
+      if(srt.gt.mass+JPsim0+0.01) then
+        prmax2=(s-(JPsim0+mass)**2)*
+     &                     (s-(JPsim0-mass)**2)/s
+      else
+        JPsiMass0= Jmassmin + 0.5 * (Jmassmax-Jmassmin)
+        prmax2=(s-(JPsiMass0+mass)**2)*
+     &                     (s-(JPsiMass0-mass)**2)/s
+      end if
+      iter = 0
+ 20   JPsiMass = Jmassmin + rn(iseed) * (Jmassmax-Jmassmin)
+      iter=iter+1
+      pmax2 = (s-(JPsiMass+mass)**2)*(s-(JPsiMass-mass)**2)/s
+      if(rn(iseed).gt. sqrt(pmax2/prmax2)* iselfener**2
+     &     /((JPsiMass**2-JPsim0**2)**2+iselfener**2).and.
+     &    iter.lt.200)            goto 20
+c      write(*,*) 'JPsiMass2 ',JPsiMass,srt,
+c     &    rselfener,iselfener,sqrt(pmax2/prmax2),iselfener**2
+c     &     /((JPsiMass**2-JPsim0**2)**2+iselfener**2)
+      if(abs(JPsiMass-JPsi_prop(ii,1)).gt.0.3)  write(*,*)
+     & 'JPsi_self: abs(Mass-Massr)>0.5',ii,JPsiMass,JPsi_prop(ii,1),
+     &   JPsim0,srt,iselfener,rselfener
+c     &     ,iselfener**2/((JPsiMass**2-JPsim0**2)**2+iselfener**2)
+      return
+      end
