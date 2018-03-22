@@ -12,17 +12,19 @@
 #include <list>
 #include <chrono> // to measure time
 #include <math.h>
+#include <iomanip>
 
 /*
  * @Author: Olar Alex
  * @From: GeeksForGeeks
  */
 
-constexpr double PI = 3.14159
+constexpr double PI = 3.14159;
 
- auto SQR(auto x){
+template<typename T>
+T SQR(T x){
      return x*x;
- }
+}
 
  struct Cluster{
 
@@ -35,13 +37,13 @@ constexpr double PI = 3.14159
              double velocity,
              double energy,
              double polarAngle){
-         this.com = com;
-         this.momentum = momentum;
-         this.charge = charge;
-         this.numberOfNucleons = numberOfNucleons;
-         this.velocity = velocity;
-         this.energy = energy;
-         this.polarAngle = polarAngle;
+         this->com = com;
+         this->momentum = momentum;
+         this->charge = charge;
+         this->numberOfNucleons = numberOfNucleons;
+         this->velocity = velocity;
+         this->energy = energy;
+         this->polarAngle = polarAngle;
      }
 
      std::array<double, 3> com;
@@ -157,7 +159,7 @@ std::istream& operator>>(std::istream& is, DataPoints& points);
 
 double distance( const std::array<double, dim>& a, const std::array<double, dim>& b);
 
-std::vector<Cluster> getClusters(const DataPoints& data, std::vector<std::vector<int>> routes)
+std::vector<Cluster> getClusters(const DataPoints& data, std::vector<std::vector<int>> routes);
 
 int main(int argc, char* argv[]){
 
@@ -211,6 +213,15 @@ int main(int argc, char* argv[]){
     //g->printBFS();
 
     std::vector<Cluster> clusters = getClusters(data, g->getRoutes());
+
+    std::cout << std::right << std::setfill(' ') <<  std::setw(8) << "p_x" << "\t" << std::setw(8) << "p_y" << "\t" 
+        << std::setw(8) << "p_z" << "\t" << std::setw(8) << "v" <<  "\t" << std::setw(8) << 
+        "E" << "\t" << "A" << "\t" << "Z"  << "\t" << "polar angle" <<"\n\n";
+    std::for_each(clusters.begin(), clusters.end(), [](Cluster& cluster){
+        std::cout << std::left << std::setfill(' ') <<  std::setw(8) << cluster.momentum[0] << "\t" << std::setw(8) << cluster.momentum[1] << "\t" 
+        << std::setw(8) << cluster.momentum[2] << "\t" << std::setw(8) << cluster.velocity <<  "\t" << std::setw(8) << 
+        cluster.energy << "\t" << cluster.numberOfNucleons << "\t" << cluster.charge << "\t" << cluster.polarAngle << std::endl;
+    });
 
     return 0;
 
@@ -272,7 +283,7 @@ std::vector<Cluster> getClusters(const DataPoints& data, std::vector<std::vector
         std::vector<Cluster> clusters; 
 
         // cluster
-        for(auto route : routes){
+        for(const auto& route : routes){
             
             int numberOfProtons = std::count_if( route.begin(), route.end(), [&](const int& routeId){
                 return data.charge[routeId] == 1;});
@@ -290,11 +301,13 @@ std::vector<Cluster> getClusters(const DataPoints& data, std::vector<std::vector
                 }
             }
 
-            com /= (double)numberOfNucleons;
+            for( double& elm : com ){
+                elm /= (double)numberOfNucleons;
+            }
 
             double momentumLength = std::sqrt(momentum[0]*momentum[0]+momentum[1]*momentum[1]+momentum[2]*momentum[2]);
 
-            double clusterMass = numberOfProtons * 0.938 + (numberOfNucleons - numberOfProtons)* 0.939
+            double clusterMass = numberOfProtons * 0.938 + (numberOfNucleons - numberOfProtons)* 0.939;
 
             double clusterEnergy = std::sqrt(
                 SQR(momentumLength) + 
@@ -307,11 +320,13 @@ std::vector<Cluster> getClusters(const DataPoints& data, std::vector<std::vector
 
             double polarAngle = std::atan(momentum[1]/momentum[0]) * 180/PI;
 
-            Cluster elem = new Cluster( com, momentum,  numberOfProtons, numberOfNucleons, clusterVelocity,
+            Cluster elem( com, momentum,  numberOfProtons, numberOfNucleons, clusterVelocity,
                             clusterEnergy, polarAngle);
 
             clusters.push_back(elem);
 
         }
+
+        return clusters;
 
 };
