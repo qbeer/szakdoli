@@ -163,61 +163,71 @@ std::vector<Cluster> getClusters(const DataPoints& data, std::vector<std::vector
 
 int main(int argc, char* argv[]){
 
-    std::ifstream fin(argv[1]);
-    infinity = atof(argv[2]);
+    std::vector<Cluster> allClusters;
+    infinity = atof(argv[1]);
+    std::string directory = std::string(argv[2]);
 
-    DataPoints data;
-    fin >> data;
+    for(int filename=0; filename < atoi(argv[3]); filename++){
 
-    int numberOfVertices = data.mass.size();
+        std::ifstream fin( directory + "/" + std::to_string(filename) );
 
-    Graph* g = new Graph(numberOfVertices);
+        DataPoints data;
+        fin >> data;
 
-    int P,Q;
-    double distanceBetweenVertices;
+        int numberOfVertices = data.mass.size();
 
-    auto t0 = std::chrono::high_resolution_clock::now();
-    
-    for( unsigned int i = 0; i < numberOfVertices; i++ ){
-    
-        P = i;
-    
-        for( unsigned int j = 0; j < i; j++ ){
-    
-            Q = j;
+        Graph* g = new Graph(numberOfVertices);
 
-            distanceBetweenVertices = distance( data.posAndMom[i],data.posAndMom[j] );
+        int P,Q;
+        double distanceBetweenVertices;
+
+        auto t0 = std::chrono::high_resolution_clock::now();
     
-            if(distanceBetweenVertices < infinity){
+        for( unsigned int i = 0; i < numberOfVertices; i++ ){
     
-                g->addEdge(P,Q);
+            P = i;
     
+            for( unsigned int j = 0; j < i; j++ ){
+    
+                Q = j;
+
+                distanceBetweenVertices = distance( data.posAndMom[i],data.posAndMom[j] );
+    
+                if(distanceBetweenVertices < infinity){
+    
+                    g->addEdge(P,Q);
+    
+                }
             }
         }
+
+        auto t1 = std::chrono::high_resolution_clock::now();
+
+        //   std::cout << "Graph construction took: " << 
+        //  std::chrono::duration_cast< std::chrono::microseconds >(t1-t0).count() << " microseconds\n";
+
+        auto t2 = std::chrono::high_resolution_clock::now();
+
+        g->BFS();
+
+        auto t3 = std::chrono::high_resolution_clock::now();
+
+        //std::cout << "Clustering took: " <<
+        //  std::chrono::duration_cast< std::chrono::microseconds >(t3-t2).count() << " microseconds\n";
+
+        //g->printBFS();
+
+        std::vector<Cluster> clusters = getClusters(data, g->getRoutes());
+
+        allClusters.insert(allClusters.end(), clusters.begin(), clusters.end());
+
     }
-
-    auto t1 = std::chrono::high_resolution_clock::now();
-
- //   std::cout << "Graph construction took: " << 
-  //  std::chrono::duration_cast< std::chrono::microseconds >(t1-t0).count() << " microseconds\n";
-
-    auto t2 = std::chrono::high_resolution_clock::now();
-
-    g->BFS();
-
-    auto t3 = std::chrono::high_resolution_clock::now();
-
-//std::cout << "Clustering took: " <<
-  //  std::chrono::duration_cast< std::chrono::microseconds >(t3-t2).count() << " microseconds\n";
-
-    //g->printBFS();
-
-    std::vector<Cluster> clusters = getClusters(data, g->getRoutes());
 
     std::cout << std::right << std::setfill(' ') <<  std::setw(8) << "p_x" << "\t" << std::setw(8) << "p_y" << "\t" 
         << std::setw(8) << "p_z" << "\t" << std::setw(8) << "v" <<  "\t" << std::setw(8) << 
         "E" << "\t" << "A" << "\t" << "Z"  << "\t" << "polar angle" <<"\n\n";
-    std::for_each(clusters.begin(), clusters.end(), [](Cluster& cluster){
+    
+    std::for_each(allClusters.begin(), allClusters.end(), [](Cluster& cluster){
         std::cout << std::left << std::setfill(' ') <<  std::setw(8) << cluster.momentum[0] << "\t" << std::setw(8) << cluster.momentum[1] << "\t" 
         << std::setw(8) << cluster.momentum[2] << "\t" << std::setw(8) << cluster.velocity <<  "\t" << std::setw(8) << 
         cluster.energy << "\t" << cluster.numberOfNucleons << "\t" << cluster.charge << "\t" << cluster.polarAngle << std::endl;
