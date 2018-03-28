@@ -279,8 +279,8 @@ double distance( const std::array<double, dim>& a, const std::array<double, dim>
         
     for(unsigned int i = 0; i < dim/2; i++){
         
-        distPos += (a[i] - b[i])*(a[i] - b[i]);
-        distMom += scalingFactor*(a[dim/2+i] - b[dim/2+i])*(a[dim/2+i] - b[dim/2+i]);    
+        distPos += scalingFactor*(a[i] - b[i])*(a[i] - b[i]);
+        distMom += (a[dim/2+i] - b[dim/2+i])*(a[dim/2+i] - b[dim/2+i]);    
          
     }
         
