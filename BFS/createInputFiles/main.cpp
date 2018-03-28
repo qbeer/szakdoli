@@ -61,7 +61,7 @@ std::istream& operator>>(std::istream& is, DataPoints& points){
 
             std::cout << row << "\n";
 
-            std::ofstream fout( std::to_string(inner + cntr*inner) );
+            std::ofstream fout( std::to_string(inner + cntr*parallerRuns) );
 
             for(int data = 0; data < row; data++){
     
