@@ -16,6 +16,8 @@
 \usepackage{amsmath,amssymb}
 \usepackage{float}
 \usepackage{indentfirst}
+\usepackage{algorithm}
+\usepackage{algorithmic}
 
 \renewcommand\thesection{\Roman{section}}
 \renewcommand\thesubsection{\thesection.\arabic{subsection}}
@@ -128,6 +130,70 @@ ahol N a részecskék száma, míg $f(\vec{r}, \vec{p}, t)$ a fázistérben vett
 	\vec{p}^{co}_{i} = \vec{p}_{i} - \frac{\Delta t}{2} \Big(\frac{\partial H}{\partial \vec{r}_{i}} + \frac{\partial H^{pr}}{\partial \vec{r}_{i}^{pr}} \Big) \quad \quad \vec{r}^{co}_{i} = \vec{r}_{i} + \frac{\Delta t}{2} \Big( \frac{\partial H}{\partial \vec{p}_{i}} + \frac{\partial H^{pr}}{\partial \vec{p}_{i}^{pr}} \Big)
 \end{gather}
 
-\par Az átlagtér potenciál szabadon választható az éppen megfelelő elméleti megfontolások alapján. 
+\par Az átlagtér potenciál szabadon választható az éppen megfelelő elméleti megfontolások alapján.
+
+\section{ Koaleszcencia}
+
+\par Az én feladatom a kimeneten szolgáltatott, térbeli és impulzustérbeli részecskeeloszlások alapján az volt, hogy egy olyan eljárást dolgozzak ki, amivel vizsgálható lesz a detektorválasz. Lévén, hogy nukleonokra koncentráltam, a kimenetek közül is egyenlőre ezeket vizsgáltam. A koaleszcencia modell lényege, hogy a nukleonok ha elegendően közel kerülnek egymáshoz impulzustérben, akkor bizonyos valószínűséggel összetapadnak és a detektorban már csak egy beütés észlelhető így, több összetapadt, töltéssel rendelkező részecske esetén.
+
+\par A mechanizmust amely a nehézionütközések után kialakuló közepes méretű magokat leírja többen is megpróbáltak leírni. A koaleszcencia modell részletes leírása deuteron esetén megtalálható $J. I. Kapusta$ \footnote{Kapusta - Mechanism for deuteron production in relativistic nuclear collisions} cikkében. A szakirodalom a közepes magokkal foglalkozik (Z $\leq$ 15), ezeket az angol rövidítés alapján $IMF$-nek \footnote{intermediate fragments} nevezem majd. 
+
+\par $Kapusta$ arról ír, hogy bármikor, amikor egy neutron és proton kellően közel kerül egymáshoz, azaz impulzusok egy $p_{0}$ gömbön belül van, valamint a megfelelő spinállapotban vannak, akkor összetepadnak. A spin- és izospinállapotokat figyelmen kívül hagyva, én is a minimális távolság alapján implementáltam a koaleszcenciát. A modell térben és impulzustérben is tud, külön-külön, a kettő együttesét a mérési adatokra megfelelően választott súlyfaktorokkal lehet implementálni.
+
+\subsection{ Szélességi bejárás - Breadth First Traversal (BFS)}
+
+\par A szélességi bejárás egy jól ismert gráf algoritmus az informatikában. Az algoritmus lényege, hogy egy gráfban adott tulajdonságú pontot keresve kiválogassa azt, biztosítva, hogy minden csúcsot leellenőrzött. Én nem egészen erre használom, mivel nekem klaszterezésre van szükségem, tehát nem adott tulajdonság alapján kell kiválogatnom csúcsokat, hanem egy nem összefüggő gráfot kellett darabjaira szétszednem.
+\par Így az algoritmust kicsit módosítanom kellett. Hasznos tulajdonságai közé tartozik, hogy gyors, és biztosítja, hogy minden elemén egy gráfnak végigmegy. Így tehát addig kell ismételgetnem az algoritmust egy nem összefüggő gárfon míg annak vannak csúcsai összefüggő részgráfokban. 
+\par Az algoritmus kiválaszt egy kezdőcsúcsot, majd a csúcsokat látogatottság szerint besorolja. Ezután egy szomszédsági lista szerint végigjárja az adott csúcs szomszédait. Lényegében ez a klaszterek megkeresésének módja. Hiszen miután kifogy a szomszédsági lista, kiválasztható random egy újabb csúcs, amin elindulva szintén megtalálhatóak annak szomszédai. 
+\par A pszeudó-kódot mellékelem, hiszen az alapimplementáció C++, majd Fortran nyelveken valósul(t) meg.
+
+\hfill
+
+\pagebreak
+
+\begin{center}
+\begin{algorithm}
+\caption{BFS klaszerező függvény}
+\begin{algorithmic}
+\STATE visitedVertices = vector($bool$)[FALSE]
+\STATE startingVertex = 0
+\WHILE{ allVerticesVisited(visitedVertices) }
+	\STATE cluster = vector()
+	\STATE visitedVertices[startingVertex] = TRUE
+	\STATE queuedVertices = Queue()
+	\STATE queuedVertices.Queue(startingVertex)
+	\WHILE{ queueIsNotEmpty(queuedVertices) }
+		\STATE currentVertex = queuedVertices.Front()
+		\FORALL{ element of adjecencyList[currentVertex] }
+			\IF{ isNotVisited(element) }
+				\STATE visitedVertices[element] = TRUE
+				\STATE queuedVertices.Queue(element)
+			\ENDIF
+		\ENDFOR
+	\STATE saveCluster(cluster)
+	\STATE startingVertex = findFirstNotVisited(visitedVertices)
+	\ENDWHILE
+\ENDWHILE
+\end{algorithmic}
+\end{algorithm}
+\end{center}
+
+\subsection{ Implementáció}
+
+\par Mint ahogy az előző pontban említettem az algoritmushoz egy gráf szükséges. A szimuláció kimenetén a nehézion-ütközésekből nyert nukleonon hely- és impulzuseloszlását kapom meg. Mivel egy ütközés parallel $N$-szer lefut, egymás után pedig ez $M$-szer ismétlődik meg, így egy szimuláció során $N\cdot M$ kiértékelhető adatsort kapok, amikből már kellően nagy $N, M$ esetén már jó statisztikát lehet készíteni. Az eloszlások alapján térben és impulzustérben is szükségem van egy $r_{0}$ és egy $p_{0}$ klaszterező méretre. A bemeneti adataim $~fm~$ és $~GeV/c$~ nagyságrendűek. Egy klaszterdefiniálásánál kihasználom a négyesimpulzusmegmaradást, 
+
+\begin{equation*}
+	E = \sum_{i} E_{i} \quad \quad \vec{p} = \sum_{i} \vec{p}_{i}
+\end{equation*} 
+
+\par ahol az összegzés a klaszterekben lévő részecskékre megy. Itt nem veszem figyelembe, hogy kötési energia szabadul fel, csak egy közelítést szeretnék adni a majdani sebességre
+
+\begin{equation*}
+	p = \frac{v}{c} E \quad \quad E = \sqrt{M^{2} + p^{2}}
+\end{equation*}
+
+\par A $M$ tömeg tisztán a klaszterben lévő nukleonok tömege, ahol a proton tömegét $0.938 ~Gev/c$-nek, míg a neutron tömegét közelítőleg $0.939 ~Gev/c$-nek vettem. Az impulzus a fentebbi képlet alapján adott volt. Az irodalomban több helyen is elhanyagolják teljes mértékben a térbeli koaleszcenciát lévén, hogy relativisztikus részecskékről van szó, és az impulzustérbeli szomszédság. 
+
+\par A programom beolvassa az $K$ számú adatfájlt, melyekből klasztereket csinál a $BFS$ algoritmus segítségével, valamint elvégzi a szükséges számításokat és ezek után egy fájlban a kidobja a klaszterméretet, energiát, sebességet, impulzuseloszlást és a kirepülő részecske polárszögét.
 
 \end{document}

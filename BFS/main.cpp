@@ -159,7 +159,7 @@ std::istream& operator>>(std::istream& is, DataPoints& points);
 
 double distance( const std::array<double, dim>& a, const std::array<double, dim>& b);
 
-std::vector<Cluster> getClusters(const DataPoints& data, std::vector<std::vector<int>> routes);
+std::vector<Cluster> getClusters(const DataPoints& data, const std::vector<std::vector<int>>& routes);
 
 int main(int argc, char* argv[]){
 
@@ -223,13 +223,13 @@ int main(int argc, char* argv[]){
 
     }
 
-    std::cout << std::right << std::setfill(' ') <<  std::setw(8) << "p_x" << "\t" << std::setw(8) << "p_y" << "\t" 
-        << std::setw(8) << "p_z" << "\t" << std::setw(8) << "v" <<  "\t" << std::setw(8) << 
+    std::cout << std::right <<  std::setw(10) << "p_x" << "\t" << std::setw(10) << "p_y" << "\t" 
+        << std::setw(10) << "p_z" << "\t" << std::setw(8) << "v" <<  "\t" << std::setw(8) << 
         "E" << "\t" << "A" << "\t" << "Z"  << "\t" << "polar angle" <<"\n\n";
     
     std::for_each(allClusters.begin(), allClusters.end(), [](Cluster& cluster){
-        std::cout << std::left << std::setfill(' ') <<  std::setw(8) << cluster.momentum[0] << "\t" << std::setw(8) << cluster.momentum[1] << "\t" 
-        << std::setw(8) << cluster.momentum[2] << "\t" << std::setw(8) << cluster.velocity <<  "\t" << std::setw(8) << 
+        std::cout << std::right <<  std::setw(10) << cluster.momentum[0] << "\t" << std::setw(10) << cluster.momentum[1] << "\t" 
+        << std::setw(10) << cluster.momentum[2] << "\t" << std::setw(8) << cluster.velocity <<  "\t" << std::setw(8) << 
         cluster.energy << "\t" << cluster.numberOfNucleons << "\t" << cluster.charge << "\t" << cluster.polarAngle << std::endl;
     });
 
@@ -288,7 +288,7 @@ double distance( const std::array<double, dim>& a, const std::array<double, dim>
         
 }
 
-std::vector<Cluster> getClusters(const DataPoints& data, std::vector<std::vector<int>> routes){
+std::vector<Cluster> getClusters(const DataPoints& data, const std::vector<std::vector<int>>& routes){
 
         std::vector<Cluster> clusters; 
 
@@ -303,11 +303,14 @@ std::vector<Cluster> getClusters(const DataPoints& data, std::vector<std::vector
             std::array<double, 3> com;
             std::array<double, 3> momentum;
 
+            com.fill(0);
+            momentum.fill(0);
+
             // cluster element
-            for(int routeId : route){
+            for(const int& id : route){
                 for(int i = 0; i < 3; i++){
-                    com[i] += data.posAndMom[routeId][i];
-                    momentum[i] += data.posAndMom[routeId][i+3];
+                    com[i] += data.posAndMom[id][i];
+                    momentum[i] += data.posAndMom[id][i+3];
                 }
             }
 
@@ -324,11 +327,9 @@ std::vector<Cluster> getClusters(const DataPoints& data, std::vector<std::vector
                 SQR(clusterMass)
             );
 
-            double clusterVelocity = std::sqrt(
-                SQR(momentumLength) / (SQR(momentumLength) + SQR(clusterMass))
-            );
+            double clusterVelocity = momentumLength / clusterEnergy;
 
-            double polarAngle = std::atan(momentum[1]/momentum[0]) * 180/PI;
+            double polarAngle = std::atan( std::sqrt(SQR(momentum[1])+SQR(momentum[0])) / momentum[3]) * 180/PI;
 
             Cluster elem( com, momentum,  numberOfProtons, numberOfNucleons, clusterVelocity,
                             clusterEnergy, polarAngle);
