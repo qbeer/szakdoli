@@ -1,6 +1,6 @@
  &adatok
  totoutp='buuout/ppbar/buu/pbarAu10b02c_JPsi_mat.dat',
- barout='buuout/Alex_time50fmc_centralAuAu_20_50_400AMeV.dat',
+ barout='buuout/Alex_time60fmc_centralAuAu_10_15_400AMeV.dat',
  pioout='buuout/ppbar/pio/pbarAu10b02c_JPsi_mat.dat',
  cpiout='buuout/ppbar/cpi/pbarAu10b02c_JPsi_mat.dat',
  cpiout1='buuout/ppbar/cpi/pbarAu10b02c_JPsi_mat.dat1',
@@ -23,12 +23,12 @@
  mpion=0,                        ! 0 no pion beam, +-1 pi+- beam
  elab=0.4,                      ! E/A (in GeV)
  b=0.0,                          ! impact parameter (in fm)
- dt=0.2,                         ! timestep (in fm/c)
- ntmax=250,                       ! number of timestep
- isubs=20,                        ! number of subsequent runs
- num=50,                          ! number of paralel runs
+ dt=0.3,                         ! timestep (in fm/c)
+ ntmax=200,                       ! number of timestep
+ isubs=10,                        ! number of subsequent runs
+ num=15,                          ! number of paralel runs
  numpaul=5,                      ! every numpaulth baryon selected for pauli
- iseed=-5247,   ! ccccccccc     ! random number
+ iseed=-3933,   ! ccccccccc     ! random number
  icoll=0,                        ! 0-> buu; 1-> Vlasov; -1-> cascade;
  insys=1,                        ! 1-> c.m. system 0 -> lab-system
  ipauli=1,                       ! 1-> Pauli is taken into account, 0-> no
@@ -59,7 +59,6 @@
  npartcel=10,
  nfreq=90,
  timinsp=10.,
- ikinsp=21,
  ifit=1,
  nfrba=10,
  ibaspe=0,

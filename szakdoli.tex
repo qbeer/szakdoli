@@ -194,6 +194,36 @@ ahol N a részecskék száma, míg $f(\vec{r}, \vec{p}, t)$ a fázistérben vett
 
 \par A $M$ tömeg tisztán a klaszterben lévő nukleonok tömege, ahol a proton tömegét $0.938 ~Gev/c$-nek, míg a neutron tömegét közelítőleg $0.939 ~Gev/c$-nek vettem. Az impulzus a fentebbi képlet alapján adott volt. Az irodalomban több helyen is elhanyagolják teljes mértékben a térbeli koaleszcenciát lévén, hogy relativisztikus részecskékről van szó, és az impulzustérbeli szomszédság. 
 
-\par A programom beolvassa az $K$ számú adatfájlt, melyekből klasztereket csinál a $BFS$ algoritmus segítségével, valamint elvégzi a szükséges számításokat és ezek után egy fájlban a kidobja a klaszterméretet, energiát, sebességet, impulzuseloszlást és a kirepülő részecske polárszögét.
+\par A programom beolvassa az $K$ számú adatfájlt, melyekből klasztereket csinál a $BFS$ algoritmus segítségével, valamint elvégzi a szükséges számításokat és ezek után egy fájlban a kidobja a klaszterméretet, energiát, sebességet, impulzuseloszlást és a kirepülő részecske polárszögét
+
+\begin{equation*}
+\varphi = \arccos\Big(\frac{p_{x}}{\sqrt{p_{x}^{2} + p_{y}^{2}}}\Big)
+\end{equation*}
+
+\section{ Mérési adatok}
+
+\par A centrális arany-arany ütközéseket többek között a GSI-ben, Darmstadtban is vizsgáltak a FOPI kollaboráció keretében. A név egy $4\pi$ ('four pi') térszögű detektorra utal. Azaz ebben az elrendezésben a fragmentáció nagyon jól vizsgálható, hiszen minden irányben detektálni lehet a nehézion ütközések utána részecskéket. A FOPI-nál vizsgált nehézion nyalábot egy, a detektorban található céltárgyra bocsátották. Az általam használt szimulációban én be tudtam állítani, hogy az ütközésem centrális legyen, azonban a detektálás során ezeket az eseményket szűrni kellett, hiszen átlagosan $1\%$-át képviselték az összes ütközésnek.
+
+\par Erre találták ki az $ERAT$ nevezetű mennyiséget. Ezt a következőképpen definiálták
+
+\begin{equation*}
+ERAT = \frac{E_{t}}{E_{l}} = \frac{\sum_{i} p_{t,i}^{2}/(m_{i} + E_{i})}{\sum_{i} p_{l,i}^{2}(m_{i} + E_{i})}
+\end{equation*}
+
+\par ahol $l,t$ indexek longitudinális és transzverzális energiákra és impulzusokra vonatkoznak. Az ütközés $z$-irányú, az összegzés a létrejött magokra megy. Az elv az, hogy feltétlezik, hogy transzverz energia túlnyomó többségében nukleon-nukleon kölcsönhatásból származik, és akkor maximális ha az ütközésben résztvevő magok a lehető legjobban átfednek, azaz ha centrális az ütközés.
+
+\par Egy kizárólag termikus modell egy $T$ hőmérsékletű tágulás során tömegszám függvényében konstans energiát jósolnak, azonban, ha feltételezzük, hogy ütközés után egy izotróp robbanás megy végbe (az ősrobbanás analogonjára), akkor 
+
+\begin{equation*}
+<E_{kin}> = a + b\cdot A_{f}
+\end{equation*}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.45\textwidth]{./60fmcAuAu250AMeV007mom.png}
+\caption{60 fm/c szimulációs idő, a vízszintes tengelyen a klaszterezett magok tömegszáma, míg a függőleges tengelyen a számolt mozgási energiájuk}
+\end{figure}
+
+\par Az előbbi ábrán látható, hogy csak [0;15] tömegszám intervallumban ábrázoltam a klaszterezett magokat, hiszen a FOPI mérés alapján ezek, az úgynevezett közepes magok (IMF) összehasonlíthatóak az én eredményeimmel is. 
 
 \end{document}

@@ -6,12 +6,12 @@
  ELAB=  0.40000000000000002     
  B=   0.0000000000000000     
  RDIST=   2.9000000953674316     
- ISEED=       -5247
- DT=  0.20000000000000001     
- NTMAX=         250
+ ISEED=       -4221
+ DT=  0.29999999999999999     
+ NTMAX=         200
  ICOLL=           0
  ISUBS=          20
- NUM=          50
+ NUM=          10
  NUMPAUL=           5
  IPAULI=           1
  INSYS=           1
@@ -258,11 +258,11 @@ c:                 mass of projectile:     197
 c:                         proton:          79
 c:                         neutron:        118
 
-c:                 time step    "fm/c":   0.20
-c:                 number of t-steps:      250
+c:                 time step    "fm/c":   0.30
+c:                 number of t-steps:      200
 c:                 subsequent runs.:        20
-c:                 testparticle/nucl.:      50
-c:                 iseed:                -5247
+c:                 testparticle/nucl.:      10
+c:                 iseed:                -4221
 
 c:                 power of den.dep.int.=
 c:               =======================================
@@ -299,7 +299,7 @@ c:                                                initial distance   =  16.139 f
 
 c:                                           ==== initialization for subroutine pauli =============
 c:                                                num of part incl. in pauli / total   =     5
-c:                                                num of part per phase-space-cell     =    8.33333
+c:                                                num of part per phase-space-cell     =    1.66667
 c:                                                length of cell in coord-space (fm)   =    3.00000
 c:                                                radius of cell in momen-space (1/fm) =    0.45043
 

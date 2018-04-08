@@ -45,10 +45,10 @@ std::istream& operator>>(std::istream& is, DataPoints& points){
         
     std::string line;
 
-    for(int cntr = 0; cntr < subsequentRuns; cntr++){
+    std::getline(is, line);
+    std::getline(is, line);
 
-        std::getline(is, line);
-        std::getline(is, line);
+    for(int cntr = 0; cntr < subsequentRuns; cntr++){
     
         for(int inner = 0; inner < parallerRuns; inner++){
 
