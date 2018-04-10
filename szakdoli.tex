@@ -307,14 +307,6 @@ ERAT = \frac{E_{t}}{E_{l}} = \frac{\sum_{i} p_{t,i}^{2}/(m_{i} + E_{i})}{\sum_{i
 
 \par ahol $l,t$ indexek longitudinális és transzverzális energiákra és impulzusokra vonatkoznak. Az ütközés $z$-irányú, az összegzés a létrejött magokra megy. Az elv az, hogy feltétlezik, hogy transzverz energia túlnyomó többségében nukleon-nukleon kölcsönhatásból származik, és akkor maximális ha az ütközésben résztvevő magok a lehető legjobban átfednek, azaz ha centrális az ütközés. Ezt a mennyiséget nekem nem volt célszerű használnom, hiszen a generált eseményeim mind centrálisak voltak. Azonban jó indikátora lehet általános ütközéseknél.
 
-\begin{figure}[!htb]
-\centering
-\includegraphics[width=0.65\textwidth]{./60fmcAuAu250AMeV007mom.png}
-\caption{60 fm/c szimulációs idő, a vízszintes tengelyen a klaszterezett magok tömegszáma, míg a függőleges tengelyen a számolt mozgási energiájuk}
-\end{figure}
-
-\par Az előbbi ábrán látható, hogy csak [0;15] tömegszám intervallumban ábrázoltam a klaszterezett magokat, hiszen a FOPI mérés alapján ezek, az úgynevezett közepes magok (IMF) összehasonlíthatóak az én eredményeimmel is. A FOPI mérés adatait \footnote{cikk - forrás} alapján tudtam összehasonlítani a sajátommal.
-
 \vspace{5mm}
 
 \par Egy kizárólag termikus modell egy $T$ hőmérsékletű tágulás során tömegszám függvényében konstans energiát jósolnak, azonban, ha feltételezzük, hogy ütközés után egy izotróp robbanás megy végbe (az ősrobbanás analogonjára), akkor 
@@ -327,25 +319,59 @@ ERAT = \frac{E_{t}}{E_{l}} = \frac{\sum_{i} p_{t,i}^{2}/(m_{i} + E_{i})}{\sum_{i
 
 \vspace{5mm}
 
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.75\textwidth]{./60fmcAuAu250AMeV007mom.png}
+\caption{60 fm/c szimulációs idő, a vízszintes tengelyen a klaszterezett magok tömegszáma, míg a függőleges tengelyen a számolt mozgási energiájuk}
+\end{figure}
+
+\par Az alábbi ábrán látható, hogy csak [0;15] tömegszám intervallumban ábrázoltam a klaszterezett magokat, hiszen a FOPI mérés alapján ezek, az úgynevezett közepes magok (IMF) összehasonlíthatóak az én eredményeimmel is. A FOPI mérés adatait \footnote{cikk - forrás} alapján tudtam összehasonlítani a sajátommal.
+
+\vspace{5mm}
+
 \par A készített ábráim és adataim az ő mérési és szimulációs eredményeiket akarja reprodukálni, hogy később ezt be lehessen építeni a hazai kódba. Így a detektor válasz nagyban jósolható lesz bizonyos atommagok ütközése esetén.
 
 \vspace{5mm}
 
+\par A FOPI-nál $150, 250$ és $400 A MeV$-en végeztek méréseket és modellezték azokat. Az eredményeik között multiplicitáseloszlást vizsgáltak, nagyon kis renszámú magok energiáit ($ Z = 1,2$), a kirepülő fragmentumok szögeloszlását, energiaeloszlását, valamint különböző polárszögeknél tömegszám szerinti eloszlásokat is, hogy ezekből jóslást tudjanak adni az ütközés dinamikájára. Ezen kívül vizsgáltak még a kirepülő klaszterek kémiai összetételét is. 
+
 \section{ Eredmények}
 
-\par Először is fontos vizsgálni, hogy milyen klaszterező méretet érdemes venni, amelyet általánosan használni lehet a különböző energiákon. Mivel a klaszterezést impulzus térben végeztem, $p_{0}$-t $(10 - 200) ~MeV/c$ közé becsültem. Lényegesen e felett a klaszterezés nem működik, hiszen minden részecske elég közel van egymáshoz ahhoz, hogy összetapadjanak. 
+\subsection{Klaszterező paraméter}
 
-\begin{figure}[!htb]
-\centering
-\includegraphics[width=0.6\textwidth]{./klaszterszamparameter.png}
-\caption{250 A MeV-en, 2000 Au Au ütközésből készített klasztereken, különböző $p_{0}$ paraméterrel futtatott koaleszcencia}
-\end{figure}
-
-\par Jól látható, hogy az érdekes tartomány, ahol kirtelen elkezd leesni a klaszterek száma $0.04 - 0.08 ~GeV/c$ környékén keresendő. Fontos megjegyezni, hogy egy részecske, akkor tekinthető a klaszter elemének, ha valamely eleméhez $p_{0}$-nál közelebb van. Ez a BFS klaszterezésből egyértelműen következik. 
+\par Először is fontos vizsgálni, hogy milyen klaszterező méretet érdemes venni, amelyet általánosan használni lehet a különböző energiákon. Mivel a klaszterezést impulzus térben végeztem, $p_{0}$ értékét $(10 - 200) ~MeV/c$ közé becsültem. Lényegesen e felett a klaszterezés nem működik, hiszen minden részecske elég közel van egymáshoz ahhoz, hogy összetapadjanak. 
 
 \vspace{5mm}
 
-\par Kis $p_{0}$ paraméternél a klaszterek nagyon magas száma azért van, mert az algoritmusban nem szűröm ki az 1 nukleont tartalmazó 'klasztereket', hiszen később használom majd azokat az adatokat.
+\par Az alábbi ábrán jól látható, hogy az érdekes tartomány, ahol kirtelen elkezd leesni a klaszterek száma $(0.03 - 0.09) ~GeV/c$ környékén keresendő. Fontos megjegyezni, hogy egy részecske, akkor tekinthető a klaszter elemének, ha valamely eleméhez $p_{0}$-nál közelebb van. Ez a BFS klaszterezésből egyértelműen következik. 
+
+\vspace{5mm}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.75\textwidth]{./klaszterszamparameter.png}
+\caption{250 A MeV-en, 2000 Au Au ütközésből készített klasztereken, különböző $p_{0}$ paraméterrel futtatott koaleszcencia}
+\end{figure}
+
+\vspace{5mm}
+
+\par Kis $p_{0}$ paraméternél a klaszterek nagyon magas száma azért van, mert az algoritmusban nem szűröm ki az 1 nukleont tartalmazó 'klasztereket', hiszen később használom majd azokat az adatokat. Nagy $p_{0}$ esetén viszont látható, hogy néhány ezer klaszter van csak, ami természetes, hiszen néhány ezer magot ütköztetünk kezdetben.
+
+\vspace{10mm}
+
+\subsection{Közepes fragmentumok}
+
+\par A FOPI által vizsgált $Z \in [0;15]$ az én statisztikáimban nem túl jó, hiszen én sokkal kisebb (1000-2000) körüli esemányszámmal dolgozom, míg náluk volt másodikpercenként $10^{5}$ nehézion ütközés, melynek $1\%$-át centrálisnak becsülték, azaz másodikpercenként kaptam annyi adatot, mint amennyit én használtam. Azonban az én ütközéseim a szimuláció miatt biztosan centrálisak, ők viszont csak az $ERAT$ paraméterrel tudták a legbiztosabban besorolni az ütközéseket.
+
+\vspace{5mm}
+
+\par A lenti ábrán jól látható, hogy ugyan azon az Au-Au ütközésen, különböző $p_{0}$ mellett futtatott klaszterezések során nincs $Z = 5$-nél nagyobb rendszámú mag, amely minden futtatás után biztosan jelen van. Látszik az is, hogy a klaszterek száma egyre jobban szór $Z$ növekedtével, azaz lényegében látszik, hogy a nagyobb magok kialakulása centrális ütközésekben egyre valószínűtlenebb.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.75\textwidth]{./p0valtozik_klaszterek.png}
+\caption{250 A MeV-en, 2000 Au Au ütközésből készített klasztereken, $p_{0} = (30 - 90) ~MeV/c$ paraméterrel futtatott koaleszcencia}
+\end{figure}
 
 \vspace{5mm}
 
