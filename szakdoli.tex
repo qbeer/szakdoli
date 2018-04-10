@@ -84,6 +84,10 @@
 
 \vspace{5mm}
 
+\par 
+
+\vspace{5mm}
+
 \section{Transzport egyenletek}
 
 \par A nehézion ütközések dinmaikáját transzport egyenletek segítségével lehet vizsgálni. Ennek két fő irányzata van, az egyik a Boltzmann-modellre épülő hidrodinamikai megközelítés, ami szerint 
@@ -210,15 +214,15 @@ ahol N a részecskék száma, míg $f(\vec{r}, \vec{p}, t)$ a fázistérben vett
 
 \par A szélességi bejárás egy jól ismert gráf algoritmus az informatikában. Az algoritmus lényege, hogy egy gráfban adott tulajdonságú pontot keresve kiválogassa azt, biztosítva, hogy minden csúcsot leellenőrzött. Én nem egészen erre használom, mivel nekem klaszterezésre van szükségem, tehát nem adott tulajdonság alapján kell kiválogatnom csúcsokat, hanem egy nem összefüggő gráfot kellett darabjaira szétszednem.
 
-\vspace{5mm}
+\vspace{2mm}
 
 \par Így az algoritmust kicsit módosítanom kellett. Hasznos tulajdonságai közé tartozik, hogy gyors, és biztosítja, hogy minden elemén egy gráfnak végigmegy. Így tehát addig kell ismételgetnem az algoritmust egy nem összefüggő gárfon míg annak vannak csúcsai összefüggő részgráfokban. 
 
-\vspace{5mm}
+\vspace{2mm}
 
 \par Az algoritmus kiválaszt egy kezdőcsúcsot, majd a csúcsokat látogatottság szerint besorolja. Ezután egy szomszédsági lista szerint végigjárja az adott csúcs szomszédait. Lényegében ez a klaszterek megkeresésének módja. Hiszen miután kifogy a szomszédsági lista, kiválasztható random egy újabb csúcs, amin elindulva szintén megtalálhatóak annak szomszédai. 
 
-\vspace{5mm}
+\vspace{2mm}
 
 \par A pszeudó-kódot mellékelem, hiszen az alapimplementáció C++, majd Fortran nyelveken valósul(t) meg.
 
@@ -333,7 +337,7 @@ ERAT = \frac{E_{t}}{E_{l}} = \frac{\sum_{i} p_{t,i}^{2}/(m_{i} + E_{i})}{\sum_{i
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=0.65\textwidth]{./klaszterszamparameter.png}
+\includegraphics[width=0.6\textwidth]{./klaszterszamparameter.png}
 \caption{250 A MeV-en, 2000 Au Au ütközésből készített klasztereken, különböző $p_{0}$ paraméterrel futtatott koaleszcencia}
 \end{figure}
 
