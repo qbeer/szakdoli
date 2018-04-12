@@ -141,7 +141,7 @@ public:
 };
 
 double infinity = 10000.; // handled as infinity in prim's algorithm
-constexpr int dim = 3;
+constexpr int dim = 6;
 constexpr double scalingFactor = 0.0000000000000; // for distance calculations
 
 
@@ -277,12 +277,14 @@ double distance( const std::array<double, dim>& a, const std::array<double, dim>
     double distPos = 0.0;
     double distMom = 0.0;
         
-    for(unsigned int i = 0; i < dim; i++){
+    for(unsigned int i = 0; i < dim/2; i++){
         
-        distMom += (a[i] - b[i])*(a[i] - b[i]);
-        //distMom += (a[dim/2+i] - b[dim/2+i])*(a[dim/2+i] - b[dim/2+i]);    
+        distPos += scalingFactor*(a[i] - b[i])*(a[i] - b[i]);
+        distMom += (a[dim/2+i] - b[dim/2+i])*(a[dim/2+i] - b[dim/2+i]);    
          
     }
+
+    distPos = 0;
         
     return std::sqrt(distPos+distMom);
         
@@ -300,25 +302,23 @@ std::vector<Cluster> getClusters(const DataPoints& data, const std::vector<std::
 
             int numberOfNucleons = route.size();
 
-            //std::array<double, 3> com;
+            std::array<double, 3> com;
             std::array<double, 3> momentum;
 
-            //com.fill(0);
+            com.fill(0);
             momentum.fill(0);
 
             // cluster element
             for(const int& id : route){
                 for(int i = 0; i < 3; i++){
-                    //com[i] += data.posAndMom[id][i];
-                    momentum[i] += data.posAndMom[id][i];
+                    com[i] += data.posAndMom[id][i];
+                    momentum[i] += data.posAndMom[id][i + dim/2];
                 }
             }
 
-            /*
             for( double& elm : com ){
                 elm /= (double)numberOfNucleons;
             }
-            */
 
             double momentumLength = std::sqrt(momentum[0]*momentum[0]+momentum[1]*momentum[1]+momentum[2]*momentum[2]);
 
