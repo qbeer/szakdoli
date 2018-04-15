@@ -309,7 +309,7 @@ ERAT = \frac{E_{t}}{E_{l}} = \frac{\sum_{i} p_{t,i}^{2}/(m_{i} + E_{i})}{\sum_{i
 
 \vspace{5mm}
 
-\par Egy kizárólag termikus modell egy $T$ hőmérsékletű tágulás során tömegszám függvényében konstans energiát jósolnak, azonban, ha feltételezzük, hogy ütközés után egy izotróp robbanás megy végbe (az ősrobbanás analogonjára), akkor 
+\par Egy kizárólag termikus modell egy $T$ hőmérsékletű tágulás során tömegszám függvényében konstans energiát jósolnak ($\frac{3}{2}k_{B}T$), azonban, ha feltételezzük, hogy ütközés után egy izotróp robbanás megy végbe (az ősrobbanás analogonjára), akkor az egyes kirepülő nukleonoknak, egyenként van $\frac{3}{2}k_{B}T$ mozgási energiája, míg ha összetapadnak, akkor ez az energia a tömegszámmal kell arányos legyen
 
 \vspace{5mm}
 
@@ -319,10 +319,22 @@ ERAT = \frac{E_{t}}{E_{l}} = \frac{\sum_{i} p_{t,i}^{2}/(m_{i} + E_{i})}{\sum_{i
 
 \vspace{5mm}
 
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+E [A MeV] & b & a & $\Delta$b & $\Delta$a \\
+\hline
+250 & 0.056 & 0.179 & 0.004 & 0.060 \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{5mm}
+
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=0.75\textwidth]{./60fmcAuAu250AMeV007mom.png}
-\caption{60 fm/c szimulációs idő, a vízszintes tengelyen a klaszterezett magok tömegszáma, míg a függőleges tengelyen a számolt mozgási energiájuk}
+\caption{60 fm/c szimulációs idő, a vízszintes tengelyen a klaszterezett magok tömegszáma, míg a függőleges tengelyen a számolt mozgási energiájuk, $p_{0} = 70 ~MeV/c$ klaszterező paraméteren}
 \end{figure}
 
 \par Az alábbi ábrán látható, hogy csak [0;15] tömegszám intervallumban ábrázoltam a klaszterezett magokat, hiszen a FOPI mérés alapján ezek, az úgynevezett közepes magok (IMF) összehasonlíthatóak az én eredményeimmel is. A FOPI mérés adatait \footnote{cikk - forrás} alapján tudtam összehasonlítani a sajátommal.
@@ -337,7 +349,11 @@ ERAT = \frac{E_{t}}{E_{l}} = \frac{\sum_{i} p_{t,i}^{2}/(m_{i} + E_{i})}{\sum_{i
 
 \section{ Eredmények}
 
+\vspace{5mm}
+
 \subsection{Klaszterező paraméter}
+
+\vspace{5mm}
 
 \par Először is fontos vizsgálni, hogy milyen klaszterező méretet érdemes venni, amelyet általánosan használni lehet a különböző energiákon. Mivel a klaszterezést impulzus térben végeztem, $p_{0}$ értékét $(10 - 200) ~MeV/c$ közé becsültem. Lényegesen e felett a klaszterezés nem működik, hiszen minden részecske elég közel van egymáshoz ahhoz, hogy összetapadjanak. 
 
@@ -357,22 +373,113 @@ ERAT = \frac{E_{t}}{E_{l}} = \frac{\sum_{i} p_{t,i}^{2}/(m_{i} + E_{i})}{\sum_{i
 
 \par Kis $p_{0}$ paraméternél a klaszterek nagyon magas száma azért van, mert az algoritmusban nem szűröm ki az 1 nukleont tartalmazó 'klasztereket', hiszen később használom majd azokat az adatokat. Nagy $p_{0}$ esetén viszont látható, hogy néhány ezer klaszter van csak, ami természetes, hiszen néhány ezer magot ütköztetünk kezdetben.
 
-\vspace{10mm}
+\vspace{5mm}
+
+\par A legjobb $p_{0}$ paraméter kiválasztásához a fentebbi adatsort lederiválva, azaz véve a diszkrét differencia értékeket a különböző klaszterező paraméterekre, azt a klaszterező paramétert választottam, ahol a 'legmeredekebb' az előző pontsorozat. Így itt most a derivált minimumát keressük. Az alábbi ábrán jól látható, hogy ez $p_{0} = 0.06 ~GeV/c$-nél van. A továbbiakban, hacsak külön ki nem emelem, akkor ezt fogom használni minden esetben.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.85\textwidth]{./legjobb_p0.png}
+\caption{250 A MeV-en, 2000 Au Au ütközésből készített klasztereken, különböző $p_{0}$ paraméterrel futtatott koaleszcencia, jól látható, hogy a minimum $0.06 ~GeV/c$-nél van}
+\end{figure}
+
+\pagebreak
 
 \subsection{Közepes fragmentumok}
+
+\vspace{5mm}
 
 \par A FOPI által vizsgált $Z \in [0;15]$ az én statisztikáimban nem túl jó, hiszen én sokkal kisebb (1000-2000) körüli esemányszámmal dolgozom, míg náluk volt másodikpercenként $10^{5}$ nehézion ütközés, melynek $1\%$-át centrálisnak becsülték, azaz másodikpercenként kaptam annyi adatot, mint amennyit én használtam. Azonban az én ütközéseim a szimuláció miatt biztosan centrálisak, ők viszont csak az $ERAT$ paraméterrel tudták a legbiztosabban besorolni az ütközéseket.
 
 \vspace{5mm}
+
+\subsubsection{ Különböző $p_{0}$ paraméterek}
 
 \par A lenti ábrán jól látható, hogy ugyan azon az Au-Au ütközésen, különböző $p_{0}$ mellett futtatott klaszterezések során nincs $Z = 5$-nél nagyobb rendszámú mag, amely minden futtatás után biztosan jelen van. Látszik az is, hogy a klaszterek száma egyre jobban szór $Z$ növekedtével, azaz lényegében látszik, hogy a nagyobb magok kialakulása centrális ütközésekben egyre valószínűtlenebb.
 
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=0.75\textwidth]{./p0valtozik_klaszterek.png}
-\caption{250 A MeV-en, 2000 Au Au ütközésből készített klasztereken, $p_{0} = (30 - 90) ~MeV/c$ paraméterrel futtatott koaleszcencia}
+\caption{250 A MeV-en, 2000 Au-Au ütközésből készített klasztereken, $p_{0} = (30 - 90) ~MeV/c$ paraméterrel futtatott koaleszcencia}
 \end{figure}
 
 \vspace{5mm}
+
+\subsubsection{ Különböző események, azonos $p_{0}$}
+
+\par Ugyanolyan energiájú, centrális, azonos klaszterező paraméterű $Au-Au$ magok ütközése esetén viszont már sokkal megnyugtatóbb eredményt kaptam. Hiszen az előbb a klaszterező paramétertől való függés igen jelentős volt, azonban most, a klaszterek számának szórása és eloszlása nem változik jelentős mértékben különböző eseményekre. 
+
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.75\textwidth]{./p0allando_kulonbozoRandom.png}
+\caption{400 A MeV-en, 5*200 Au Au ütközésből készített klasztereken, $p_{0} = 60 ~MeV/c$ paraméterrel futtatott koaleszcencia, látható egy (csillag) ütközésre vett klaszterek eloszlása és 5 esemény összeátlagolva (négyzet)}
+\end{figure}
+
+\subsection{ FOPI mérések reprodukálása}
+
+\subsubsection{ Koaleszcencia különböző energiákon}
+
+\par Először ábárzoltam a multiplicitásokat, azonos klaszterező paraméter mellett, ez természtesen az előbb meghatározott $p_{0} = 60 ~Mev/C$, különböző ütközési energiákon. A legkisebb magokat kivéve $Z = 0, 1, 2, 3$ az adatsorból, a rendszám-multiplicitás párokra egy exponenciális függvényt illesztettem
+
+\begin{equation*}
+M = N\cdot e^{-\lambda\cdot Z}
+\end{equation*}
+
+\vspace{5mm}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+E [A MeV] & N & $\lambda$ & $\Delta$N & $\Delta\lambda$ \\
+\hline
+250 & 10807 & 0.55 & 1604 & 0.027 \\
+\hline
+400 & 17127 & 0.976 & 2823 & 0.032 \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{3mm}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.85\textwidth]{./p006_250_400_fit.png}
+\caption{150, 250 és 400 A MeV-en vett klaszterezésekre illesztett exponenciális függvények az adatosorokon, a $\lambda$ paraméter fel van tüntetve az illesztett függvényeken, $t_{\text{szimuláció}} = 60 ~fm/c$}
+\end{figure}
+
+\vspace{5mm}
+
+\par Az illesztés csak $Z = 12$-ig megy, mivel ekkor tudtam a legszebb illsztést produkálni. A kisebb magok között és a nagyobb magok között is, nálam lehetnek számottevően neutrontöbbletes magok, melyeket én nem zárok ki a koaleszcencia során. Ez okozhatja, hogy az illesztés csak viszonylag kis tartományra müködik jól.
+
+\vspace{5mm}
+
+\subsubsection{ Kis rendszámú magok }
+
+\vspace{5mm}
+
+\par A kis rendszámú magok, ezek között túlnyomó többségben, $^{4}He, ^{2}H, ^{3}He, ^{1}H$, jól jellemzik a folyamatot. A koaleszcencia-modell is lényegében kis rendszámú magokra van kimondva és elméletileg indokolva, csak ezt a felvetést próbáljuk minél szélesebben alkalmazni. 
+
+\vspace{5mm}
+
+\par A következő ábrák adott ütközésen belül keletkezett összes $Z = 1, 2$ magok eloszlását mutatja. Az ábrákon jelöltem adott energián az átlagos számát a részecskéknek és azok szórását is. Csak $\varphi \in [60^{\circ};90^{\circ}]$ polárszög közötti részecskéket vettem figyelembe, hogy összevethető legyen a munkám a $[cikk]$-ben szereplő adatokkal és ábrákkal.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.57\textwidth]{./konnyu_magok_250AMeV.png}
+\caption{250 A MeV-en vett könnyű magok eloszlása, $\varphi \in [60^{\circ};90^{\circ}]$}
+\end{figure}
+
+\vspace{5mm}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.57\textwidth]{./konnyu_magok_400AMeV.png}
+\caption{400 A MeV-en vett könnyű magok eloszlása, $\varphi \in [60^{\circ};90^{\circ}]$}
+\end{figure}
+
+\vspace{5mm}
+
+\par Az ábrákon látható függvény a korábbi, mozgási energiára illesztett egyenes, amit ide áthoztam, hogy szemléltesse, hogy milyen mértékben térnek el a legkönnyebb magok mozgási energiája.
 
 \end{document}

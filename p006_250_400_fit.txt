@@ -1,0 +1,11 @@
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+N & $\lambda$ & $\Delta$N & $\Delta\lambda$ \\
+\hline
+10807.2 & 0.544891 & 1603.72 & 0.0272514 \\
+\hline
+17126.9 & 0.975717 & 2822.89 & 0.0317929 \\
+\hline
+\end{tabular}
+\end{center}
