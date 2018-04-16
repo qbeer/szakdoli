@@ -315,6 +315,7 @@ ERAT = \frac{E_{t}}{E_{l}} = \frac{\sum_{i} p_{t,i}^{2}/(m_{i} + E_{i})}{\sum_{i
 
 \begin{equation}
 <E_{kin}> = a + b\cdot A_{f}
+\label{blast-model}
 \end{equation}
 
 \vspace{5mm}
@@ -322,7 +323,7 @@ ERAT = \frac{E_{t}}{E_{l}} = \frac{\sum_{i} p_{t,i}^{2}/(m_{i} + E_{i})}{\sum_{i
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|}
 \hline
-E [A MeV] & b & a & $\Delta$b & $\Delta$a \\
+E [A MeV] & b [GeV/c] & a [GeV/c] & $\Delta$b [GeV/c] & $\Delta$a [Gev/c] \\
 \hline
 250 & 0.056 & 0.179 & 0.004 & 0.060 \\
 \hline
@@ -433,6 +434,8 @@ M = N\cdot e^{-\lambda\cdot Z}
 \hline
 E [A MeV] & N & $\lambda$ & $\Delta$N & $\Delta\lambda$ \\
 \hline
+150 & 5131 & 0.357 & 1885 & 0.068 \\
+\hline
 250 & 10807 & 0.55 & 1604 & 0.027 \\
 \hline
 400 & 17127 & 0.976 & 2823 & 0.032 \\
@@ -466,6 +469,12 @@ E [A MeV] & N & $\lambda$ & $\Delta$N & $\Delta\lambda$ \\
 
 \begin{figure}[!htb]
 \centering
+\includegraphics[width=0.57\textwidth]{./konnyu_magok_150AMeV.png}
+\caption{150 A MeV-en vett könnyű magok eloszlása, $\varphi \in [60^{\circ};90^{\circ}]$}
+\end{figure}
+
+\begin{figure}[!htb]
+\centering
 \includegraphics[width=0.57\textwidth]{./konnyu_magok_250AMeV.png}
 \caption{250 A MeV-en vett könnyű magok eloszlása, $\varphi \in [60^{\circ};90^{\circ}]$}
 \end{figure}
@@ -482,4 +491,58 @@ E [A MeV] & N & $\lambda$ & $\Delta$N & $\Delta\lambda$ \\
 
 \par Az ábrákon látható függvény a korábbi, mozgási energiára illesztett egyenes, amit ide áthoztam, hogy szemléltesse, hogy milyen mértékben térnek el a legkönnyebb magok mozgási energiája.
 
+\subsubsection{ Izotróp robbanás}
+
+\vspace{5mm}
+
+\par Ahogy már a Mérési adatok című fejezetben már beszéltem róla, egy izotróp robbanásként kezelhető az ütközés utáni folyamat, ahol minden nukleonra $\frac{3}{2}k_{B}T$ energia jut, így a koaleszcencia után egyértelműen a tömegszámmal arányos kinetikus energiát vártam. Ezt szemlélteti a három ábrám, különböző energiákon. Az illesztési paramétereket utána prezentálom, a (\ref{blast-model})-as egyenlet alapján.
+
+\vspace{5mm}
+
+\begin{figure}[!htb]
+\centering
+\begin{minipage}{.49\textwidth}
+\centering
+    \includegraphics[width=\textwidth, height=\textwidth]{./150AMeV006mom2000adat.png}
+    \caption{150 A MeV, $p_{0} = 60 ~MeV/c$}
+\end{minipage}
+\begin{minipage}{.49\textwidth}
+\centering
+    \includegraphics[width=\textwidth, height=\textwidth]{./250AMeV006mom2000adat.png}
+    \caption{150 A MeV, $p_{0} = 60 ~MeV/c$}
+\end{minipage}
+\begin{minipage}[c]{.8\textwidth}
+\centering
+    \includegraphics[width=\textwidth]{./400AMeV006mom2000adat.png}
+    \caption{150 A MeV, $p_{0} = 60 ~MeV/c$, itt már a nagyobb magok kialakulás kisebb mértékű és a szórások is jócskán megnövekedtek}
+\end{minipage}
+\end{figure}
+
+\par Az ábrák $\varphi \in [25^{\circ}; 45^{\circ}]$ polár-szöget közötti magokat ábrázolnak. A [hivatkozás] cikkben ugyanezek megtalálhatóak. Az illesztési adatok pedig a következőek:
+
+\vspace{5mm}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+E [A MeV] & b [GeV] & a [GeV] & $\Delta$b [GeV] & $\Delta$a [GeV] \\
+\hline
+150 & 0.043 & 0.148 & 0.001 & 0.016 \\
+\hline
+250 & 0.056 & 0.179 & 0.004 & 0.060 \\
+\hline
+400 & 0.068 & 0.228 & 0.006 & 0.046 \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{5mm}
+
+\par Az $a$ paraméter értéke különösen érdekes. Míg $E = 150 ~A MeV$-nél közel visszakapjuk az egy nukleonra jutó kezdeti mozgási energiát ($\approx 148 ~MeV$) addig a nagyobb energiás esetekben már hibahatáron belül sem kapjuk ezeket vissza, azonban szigorúan monoton energiánövekedés megfigyelhető. Ennek oka az lehet, hogy (???)
+
+\vspace{5mm}
+
+\subsubsection{ Kis rendszámú magok kinetikus energiája}
+
+\vspace{5mm}
 \end{document}
