@@ -32,7 +32,8 @@
 
 	\centering
 	
-	\includegraphics[width=0.66\textwidth]{elte.jpg}\par\vspace{1cm}
+	\includegraphics[width=0.66\textwidth]{elte.jpg}
+	\par\vspace{1cm}
 	{\scshape\LARGE ELTE TTK \par}
 	{\scshape\large Fizika szak \par}
 	\vspace{1cm}
@@ -59,7 +60,7 @@
 \begin{abstract}
 \par Egy nehézion ütközésben résztvevő alkotó elemek száma néhány ezerig terjed legfeljebb, így a kidolgozott néhány-test elméletek, mint a három-test problémára kidolgozott Fagyejev-egyenletek, nem alkalmazhatóak, de az alkotóelemek alacsony száma miatt még a statisztikus fizikai modellek sem használhatóak, ráadásul nem is egyensúlyi reakciókról van szó az esetek többségében.
 \vspace{5mm}
-\par A rendelkezésre álló számítási kapacitás lehetővé tette, egy-egy ilyen nemegyensúlyi reakció teljes vizsgálatát, mikroszkópikus transzport-modellek segítségével. Egy ilyen modell a Boltzmann-Uehling-Uhlenbeck elmélet (BUU), ami fázistérben leírja adott részecskék között az ütközéseket és figyelembe veszi az azok között ható kölcsönhatást, egy időfüggő, átlagtér potenciállal. Korai modellek a részecskéket szabadnak tekintették, amikor azok nem vettek részt ütközésekben.
+\par A rendelkezésre álló számítási kapacitás lehetővé tette, egy-egy ilyen nem egyensúlyi reakció teljes vizsgálatát, mikroszkopikus transzport-modellek segítségével. Egy ilyen modell a Boltzmann-Uehling-Uhlenbeck elmélet (BUU), ami fázistérben leírja adott részecskék között az ütközéseket és figyelembe veszi az azok között ható kölcsönhatást, egy időfüggő, átlagtér potenciállal. Korai modellek a részecskéket szabadnak tekintették, amikor azok nem vettek részt ütközésekben.
 \vspace{5mm}
 \par Az én célom, hogy egy, a BUU-ra épülő szimulációhoz kidolgozzak egy olyan programot, ami a kölcsönható részecskéket, esetemben főként nukleonokat, klaszterezi, azaz csomósodásokat keres különböző távolság definíciók mellett (térben, impulzustérben, stb.). Ennek fontos szerepe lehet a detektor válasz meghatározásakor, valamint a darmstadti, CBM/FAIR projekt keretében szükség lesz az egyszeres és kétszeres ritkaságú magok keltésének vizsgálatára. Egyszeresen ritka magokat már találtak, de a kétszeres ritkaságúak modellezése nagyon fontos lehet a jövőben.
 \end{abstract}
@@ -74,7 +75,7 @@
 
 \subsection{Bevezető}
 
-\par Egy nehézion ütközés erősen nem egyensúlyi, erősen kölcsönható rendszer. A statisztikus fizikában $10^{23}$ részecskére jól kidolgozott, statisztikus modell áll rendelkezésünkre, továbbá jól tudjuk magyarázni a néhányrészecske rendszereket is, azonban például egy $Au+Au$ ütközésben a részecskék száma még és már nem kezelhető a korábbi modellekkel.
+\par Egy nehézion ütközés erősen nem egyensúlyi, erősen kölcsönható rendszer. A statisztikus fizikában $10^{23}$ részecskére jól kidolgozott, statisztikus modell áll rendelkezésünkre, továbbá jól tudjuk magyarázni a néhány részecske rendszereket is, azonban például egy $Au+Au$ ütközésben a részecskék száma még és már nem kezelhető a korábbi modellekkel.
 
 \vspace{5mm}
 
@@ -82,13 +83,13 @@
 
 \vspace{5mm}
 
-\par Azonban egy prominensebb ága a nehézion ütközések leírásának a nemegyensúlyi, mikroszkopikus transzport-modellek. Először kaszkád elméleteket dolgoztak ki, amelyben a részecskék csak ütközéskor hatottak kölcsön, később azonban hosszú hatótávolságú erőket és nukleáris potenciálokat is figyelembe vettek.
+\par Azonban egy prominensebb ága a nehézion ütközések leírásának a nem egyensúlyi, mikroszkopikus transzport-modellek. Először kaszkád elméleteket dolgoztak ki, amelyben a részecskék csak ütközéskor hatottak kölcsön, később azonban hosszú hatótávolságú erőket és nukleáris potenciálokat is figyelembe vettek.
 
 \vspace{5mm}
 
 \section{Transzport-egyenletek}
 
-\par A nehézion ütközések dinmaikáját transzport egyenletek segítségével lehet vizsgálni. Ennek két fő irányzata van, az egyik a Boltzmann-modellre épülő hidrodinamikai megközelítés, ami szerint 
+\par A nehézion ütközések dinamikáját transzport egyenletek segítségével lehet vizsgálni. Ennek két fő irányzata van, az egyik a Boltzmann-modellre épülő hidrodinamikai megközelítés, ami szerint 
 
 \vspace{5mm}
 
@@ -98,7 +99,7 @@
 
 \vspace{5mm}
 
-ahol N a részecskék száma, míg $f(\vec{q}, \vec{p}, t)$ a fázistérben vett sűrűség függvény. Mivel a fázistérfogatelem ( $d^{n}\vec{p}\cdot d^{n}\vec{q}$ ) állandó, azonban ütközés során a részecske sűrűség változik, így az csak a fázissűrűségen keresztül változhat. Így tehát kapjuk a Boltzmann-egyenletet, amit a Liouville-tételből származtathatunk
+ahol N a részecskék száma, míg $f(\vec{q}, \vec{p}, t)$ a fázistérben vett sűrűség függvény. Mivel a fázistérfogat elem ( $d^{n}\vec{p}\cdot d^{n}\vec{q}$ ) állandó, azonban ütközés során a részecske sűrűség változik, így az csak a fázissűrűségen keresztül változhat. Így tehát kapjuk a Boltzmann-egyenletet, amit a Liouville-tételből származtathatunk
 
 \vspace{5mm}
 
@@ -118,7 +119,7 @@ ahol N a részecskék száma, míg $f(\vec{q}, \vec{p}, t)$ a fázistérben vett
 
 \vspace{5mm}
 
-\par Ez még természetesen csak az alapvető fizikai modell, a transzport-modellhez az úgynevezett Boltzmann-Uehling-Uhlenbeck egyenleteket használják. Tehát az előbbi egyenletbe bevezetnek egy impulzusfüggő átlagtéret $U(\vec{q}, \vec{p})$. Alacsony energiákon a rugalmatlan ütközések elhanyagolhatóak, a rendszer csak nukleonokból áll. 
+\par Ez még természetesen csak az alapvető fizikai modell, a transzport-modellhez az úgynevezett Boltzmann-Uehling-Uhlenbeck egyenleteket használják. Tehát az előbbi egyenletbe bevezetnek egy impulzusfüggő átlagteret $U(\vec{q}, \vec{p})$. Alacsony energiákon a rugalmatlan ütközések elhanyagolhatóak, a rendszer csak nukleonokból áll. 
 
 \vspace{5mm}
 	
@@ -139,7 +140,7 @@ ahol N a részecskék száma, míg $f(\vec{q}, \vec{p}, t)$ a fázistérben vett
 
 \vspace{5mm}
 
-\par Az ütközési integrál ( $I_{coll}$ ) kvantumos jelenségek közül csak a Pauli-elvet veszi figyelembe, így jelentős részben klasszikus fizikán alapszik. Az így kapott egyenletet \eqref{BUU-eq:1} Boltzmann-Uehling-Uhlenbeck-egyenletnek nevezik, ha az ütközési integrálla feltesszük, hogy az $f(\vec{q}, \vec{p}, t)$ függvény időfejlődését írja le kéttest kölcsönhatások hatására. 
+\par Az ütközési integrál ( $I_{coll}$ ) kvantumos jelenségek közül csak a Pauli-elvet veszi figyelembe, így jelentős részben klasszikus fizikán alapszik. Az így kapott egyenletet \eqref{BUU-eq:1} Boltzmann-Uehling-Uhlenbeck-egyenletnek nevezik, ha az ütközési integrállá feltesszük, hogy az $f(\vec{q}, \vec{p}, t)$ függvény időfejlődését írja le két-test kölcsönhatások hatására. 
 
 \vspace{5mm}
 
@@ -157,7 +158,7 @@ I_{coll} = \frac{g}{(2\pi)^{3}}\int d^{3}p_{2}\int d^{3}p_{3}\int \Omega_{4}v_{1
 
 \vspace{5mm}
 
-\par Ahol $\frac{d\sigma_{12 \rightarrow 34}}{d\Omega}$ a differenciális nukleon-nukleon hatáskeresztmetszet közegben, $v_{12}$ a nukleonok közötti relatív sebesség, valamint $\bar{f}$ függvébyej a Pauli-kizárási faktorok $1 - f$ módon állnak elő. Az integrál lényegében azt fejezi ki, hogy az $p_{1},p_{2}$ impulzusú nukleonok, haütköznek, akkor hogyan változhat meg az impulzusok $p_{3}, p_{4}$-re és fordítva. A harmadik, $d\Omega_{4}$-re vett integrál lényegében $d^{3}p_{4}d\Omega$ integrál, csak a differenciális hatáskeresztmetszet a szemléletes kép miatt le van választva.
+\par Ahol $\frac{d\sigma_{12 \rightarrow 34}}{d\Omega}$ a differenciális nukleon-nukleon hatáskeresztmetszet közegben, $v_{12}$ a nukleonok közötti relatív sebesség, valamint $\bar{f}$ függvény a Pauli-kizárási faktorok $1 - f$ módon állnak elő. Az integrál lényegében azt fejezi ki, hogy az $p_{1},p_{2}$ impulzusú nukleonok, haütköznek, akkor hogyan változhat meg az impulzusok $p_{3}, p_{4}$-re és fordítva. A harmadik, $d\Omega_{4}$-re vett integrál lényegében $d^{3}p_{4}d\Omega$ integrál, csak a differenciális hatáskeresztmetszet a szemléletes kép miatt le van választva.
 
 \vspace{5mm}
 
@@ -179,7 +180,7 @@ I_{coll} = \frac{g}{(2\pi)^{3}}\int d^{3}p_{2}\int d^{3}p_{3}\int \Omega_{4}v_{1
 
 \vspace{5mm}
 
-\par A transzport-modell nem tartalmaz szabad paramétereket. A deriváltakat differenciálok váltják fel. Az egyrészecske mozgásegyenlet megoldásához a prediktor-korrektor módszer a következő:
+\par A transzport-modell nem tartalmaz szabad paramétereket. A deriváltakat differenciálok váltják fel. Az egy-részecske mozgásegyenlet megoldásához a prediktor-korrektor módszer a következő:
 
 \vspace{5mm}
 
@@ -189,7 +190,7 @@ I_{coll} = \frac{g}{(2\pi)^{3}}\int d^{3}p_{2}\int d^{3}p_{3}\int \Omega_{4}v_{1
 
 \vspace{5mm}
 
-\par Ahol $^{pr}$ jelöli a prediktált helyet és impulzust. Ez még korrekcióra szorul, ehhez ki kell számolni az predikdált helyen a Hamilton-függvény értékét, majd a helyet és momentumot annak megfelelően léptetni
+\par Ahol $^{pr}$ jelöli a prediktált helyet és impulzust. Ez még korrekcióra szorul, ehhez ki kell számolni az prediktált helyen a Hamilton-függvény értékét, majd a helyet és momentumot annak megfelelően léptetni
 
 \vspace{5mm}
 
@@ -199,7 +200,7 @@ I_{coll} = \frac{g}{(2\pi)^{3}}\int d^{3}p_{2}\int d^{3}p_{3}\int \Omega_{4}v_{1
 
 \vspace{5mm}
 
-\par Az átlagtér potenciált úgy kell választani, hogy az anyag összenyomhatóságát jól jellemezze. Néha, az eredményekkel való összehasonlítási céllel ki szokták hagyni az impulzus függést is.
+\par Az átlagtér potenciált úgy kell választani, hogy az anyag összenyomhatóságát jól jellemezze. Néha, az eredményekkel való összehasonlítási céllal ki szokták hagyni az impulzus függést is.
 
 \vspace{5mm}
 
@@ -211,11 +212,11 @@ I_{coll} = \frac{g}{(2\pi)^{3}}\int d^{3}p_{2}\int d^{3}p_{3}\int \Omega_{4}v_{1
 
 \vspace{5mm}
 
-\par A mechanizmust amely a nehézionütközések után kialakuló közepes méretű magokat leírja többen is megpróbáltak leírni. A koaleszcencia modell részletes leírása deuteron esetén megtalálható $J. I. Kapusta$ cikkében. A szakirodalom a közepes magokkal foglalkozik (Z $\leq$ 15), ezeket az angol rövidítés alapján $IMF$\footnote{intermediate fragments}-nek nevezem majd. 
+\par A mechanizmust amely a nehézion-ütközések után kialakuló közepes méretű magokat leírja többen is megpróbáltak leírni. A koaleszcencia modell részletes leírása deuteron esetén megtalálható $J. I. Kapusta$ cikkében. A szakirodalom a közepes magokkal foglalkozik (Z $\leq$ 15), ezeket az angol rövidítés alapján $IMF$\footnote{intermediate fragments}-nek nevezem majd. 
 
 \vspace{5mm}
 
-\par $Kapusta$ \cite{kaposzta} arról ír, hogy bármikor, amikor egy neutron és proton kellően közel kerül egymáshoz, azaz impulzusok egy $p_{0}$ gömbön belül van, valamint a megfelelő spinállapotban vannak, akkor összetepadnak. A spin- és izospinállapotokat figyelmen kívül hagyva, én is a minimális távolság alapján implementáltam a koaleszcenciát. A modell térben és impulzustérben is tud, külön-külön, a kettő együttesét a mérési adatokra megfelelően választott súlyfaktorokkal lehet implementálni.
+\par $Kapusta$ \cite{kaposzta} arról ír, hogy bármikor, amikor egy neutron és proton kellően közel kerül egymáshoz, azaz impulzusok egy $p_{0}$ gömbön belül van, valamint a megfelelő spinállapotban vannak, akkor összetapadnak. A spin- és izospin állapotokat figyelmen kívül hagyva, én is a minimális távolság alapján implementáltam a koaleszcenciát. A modell térben és impulzustérben is tud, külön-külön, a kettő együttesét a mérési adatokra megfelelően választott súlyfaktorokkal lehet implementálni.
 
 \vspace{5mm}
 
@@ -224,15 +225,15 @@ I_{coll} = \frac{g}{(2\pi)^{3}}\int d^{3}p_{2}\int d^{3}p_{3}\int \Omega_{4}v_{1
 \vspace{5mm}
 
 \begin{itemize}
-\item legyen $\gamma \frac{d^{3}n_{N}}{dp^{3}}$ a relativisztikusan invarians impulzustérbeli sűrűség nukleonokra
+\item legyen $\gamma \frac{d^{3}n_{N}}{dp^{3}}$ a relativisztikusan invariáns impulzustérbeli sűrűség nukleonokra
 \item protonokra és neutronokra ugyan azt a sűrűséget tételezi fel, de könnyen módosítható nem azonos sűrűségekre
-\item $\vec{p}$ impulzus körül egy $p_{0}$ sugarú gömbben egy nukleon megtalálásanak velószínűsége $P = \frac{1}{M}\frac{4\pi}{3}p_{0}^{3}\gamma \frac{d^{3}n_{N}}{dp^{3}}$, ahol $M$ a nukleonok átlagos száma
+\item $\vec{p}$ impulzus körül egy $p_{0}$ sugarú gömbben egy nukleon megtalálásának valószínűsége $P = \frac{1}{M}\frac{4\pi}{3}p_{0}^{3}\gamma \frac{d^{3}n_{N}}{dp^{3}}$, ahol $M$ a nukleonok átlagos száma
 \item ha ez a valószínűség kicsi, és M kellően nagy, akkor a deuteronra (binomiális statisztika miatt) $\gamma \frac{d^{3}n_{d}}{dp^{3}} = \frac{1}{2}\frac{4\pi}{3}p_{0}^{3}(\gamma \frac{d^{3}n_{N}}{dp^{3}})^{2}$
 \end{itemize}
 
 \vspace{5mm}
 
-\par Itt $p_{0}$ később a klaszterező paraméterem lesz, melynek értékét a kalszterek számának változásából fogom meghatározni. Ahol a klaszterek száma drasztikusan csökkenni kezd, olyan tartományban érdemes majd az $IMF$-eket keresni. Ezen koaleszcenciának nagy előnye, hogy rendkívül általános és nem tételez fel semmit a rendszer mechanizmusairól.
+\par Itt $p_{0}$ később a klaszterező paraméterem lesz, melynek értékét a klaszterek számának változásából fogom meghatározni. Ahol a klaszterek száma drasztikusan csökkenni kezd, olyan tartományban érdemes majd az $IMF$-eket keresni. Ezen koaleszcenciának nagy előnye, hogy rendkívül általános és nem tételez fel semmit a rendszer mechanizmusairól.
 
 \vspace{5mm}
 
@@ -242,7 +243,7 @@ I_{coll} = \frac{g}{(2\pi)^{3}}\int d^{3}p_{2}\int d^{3}p_{3}\int \Omega_{4}v_{1
 
 \vspace{5mm}
 
-\par Így az algoritmust kicsit módosítanom kellett. Hasznos tulajdonságai közé tartozik, hogy gyors, és biztosítja, hogy minden elemén egy gráfnak végigmegy. Így tehát addig kell ismételgetnem az algoritmust egy nem összefüggő gárfon míg annak vannak csúcsai összefüggő részgráfokban. 
+\par Így az algoritmust kicsit módosítanom kellett. Hasznos tulajdonságai közé tartozik, hogy gyors, és biztosítja, hogy minden elemén egy gráfnak végigmegy. Így tehát addig kell ismételgetnem az algoritmust egy nem összefüggő gráfon míg annak vannak csúcsai összefüggő részgráfokban. 
 
 \vspace{5mm}
 
@@ -285,7 +286,7 @@ I_{coll} = \frac{g}{(2\pi)^{3}}\int d^{3}p_{2}\int d^{3}p_{3}\int \Omega_{4}v_{1
 
 \subsection{ Implementáció}
 
-\par Mint ahogy az előző pontban említettem az algoritmushoz egy gráf szükséges. A szimuláció kimenetén a nehézion-ütközésekből nyert nukleonon hely- és impulzuseloszlását kapom meg. Mivel egy ütközés parallel $N$-szer lefut, egymás után pedig ez $M$-szer ismétlődik meg, így egy szimuláció során $N\cdot M$ kiértékelhető adatsort kapok, amikből már kellően nagy $N, M$ esetén már jó statisztikát lehet készíteni. Az eloszlások alapján térben és impulzustérben is szükségem van egy $r_{0}$ és egy $p_{0}$ klaszterező méretre. A bemeneti adataim $~fm~$ és $~GeV/c$~ nagyságrendűek. Egy klaszterdefiniálásánál kihasználom a négyesimpulzusmegmaradást, 
+\par Mint ahogy az előző pontban említettem az algoritmushoz egy gráf szükséges. A szimuláció kimenetén a nehézion-ütközésekből nyert nukleonon hely- és impulzuseloszlását kapom meg. Mivel egy ütközés paralel $N$-szer lefut, egymás után pedig ez $M$-szer ismétlődik meg, így egy szimuláció során $N\cdot M$ kiértékelhető adatsort kapok, amikből már kellően nagy $N, M$ esetén már jó statisztikát lehet készíteni. Az eloszlások alapján térben és impulzustérben is szükségem van egy $r_{0}$ és egy $p_{0}$ klaszterező méretre. A bemeneti adataim $~fm~$ és $~GeV/c$~ nagyságrendűek. Egy klaszterdefiniálásánál kihasználom a négyesimpulzus-megmaradást, 
 
 \vspace{5mm}
 
@@ -321,7 +322,7 @@ I_{coll} = \frac{g}{(2\pi)^{3}}\int d^{3}p_{2}\int d^{3}p_{3}\int \Omega_{4}v_{1
 
 \section{ Mérési adatok}
 
-\par A centrális arany-arany ütközéseket többek között a GSI-ben, Darmstadtban is vizsgáltak a FOPI kollaboráció keretében. A név egy $4\pi$ ('four pi') térszögű detektorra utal. Azaz ebben az elrendezésben a fragmentáció nagyon jól vizsgálható, hiszen minden irányben detektálni lehet a nehézion ütközések utána részecskéket. A FOPI-nál vizsgált nehézion nyalábot egy, a detektorban található céltárgyra bocsátották. Az általam használt szimulációban én be tudtam állítani, hogy az ütközésem centrális legyen, azonban a detektálás során ezeket az eseményket szűrni kellett, hiszen átlagosan $1\%$-át képviselték az összes ütközésnek.
+\par A centrális arany-arany ütközéseket többek között a GSI-ben, Darmstadtban is vizsgáltak a FOPI kollaboráció keretében. A név egy $4\pi$ ('four pi') térszögű detektorra utal. Azaz ebben az elrendezésben a fragmentáció nagyon jól vizsgálható, hiszen minden irányban detektálni lehet a nehézion ütközések utána részecskéket. A FOPI-nál vizsgált nehézion nyalábot egy, a detektorban található céltárgyra bocsátották. Az általam használt szimulációban én be tudtam állítani, hogy az ütközésem centrális legyen, azonban a detektálás során ezeket az eseményeket szűrni kellett, hiszen átlagosan $1\%$-át képviselték az összes ütközésnek.
 
 \vspace{5mm}
 
@@ -335,11 +336,11 @@ ERAT = \frac{E_{t}}{E_{l}} = \frac{\sum_{i} p_{t,i}^{2}/(m_{i} + E_{i})}{\sum_{i
 
 \vspace{5mm}
 
-\par ahol $l,t$ indexek longitudinális és transzverzális energiákra és impulzusokra vonatkoznak. Az ütközés $z$-irányú, az összegzés a létrejött magokra megy. Az elv az, hogy feltétlezik, hogy transzverz energia túlnyomó többségében nukleon-nukleon kölcsönhatásból származik, és akkor maximális ha az ütközésben résztvevő magok a lehető legjobban átfednek, azaz ha centrális az ütközés. Ezt a mennyiséget nekem nem volt célszerű használnom, hiszen a generált eseményeim mind centrálisak voltak. Azonban jó indikátora lehet általános ütközéseknél.
+\par ahol $l,t$ indexek longitudinális és transzverzális energiákra és impulzusokra vonatkoznak. Az ütközés $z$-irányú, az összegzés a létrejött magokra megy. Az elv az, hogy feltétezik, hogy transzverzális energia túlnyomó többségében nukleon-nukleon kölcsönhatásból származik, és akkor maximális ha az ütközésben résztvevő magok a lehető legjobban átfednek, azaz ha centrális az ütközés. Ezt a mennyiséget nekem nem volt célszerű használnom, hiszen a generált eseményeim mind centrálisak voltak. Azonban jó indikátora lehet általános ütközéseknél.
 
 \vspace{5mm}
 
-\par Egy kizárólag termikus modell egy $T$ hőmérsékletű tágulás során tömegszám függvényében konstans energiát jósolnak ($\frac{3}{2}k_{B}T$), azonban, ha feltételezzük, hogy ütközés után egy izotróp robbanás megy végbe (az ősrobbanás analogonjára), akkor az egyes kirepülő nukleonoknak, egyenként van $\frac{3}{2}k_{B}T$ mozgási energiája, míg ha összetapadnak, akkor ez az energia a tömegszámmal kell arányos legyen
+\par Egy kizárólag termikus modell egy $T$ hőmérsékletű tágulás során tömegszám függvényében konstans energiát jósolnak ($\frac{3}{2}k_{B}T$), azonban, ha feltételezzük, hogy ütközés után egy izotrop robbanás megy végbe (az ősrobbanás analogonjára), akkor az egyes kirepülő nukleonoknak, egyenként van $\frac{3}{2}k_{B}T$ mozgási energiája, míg ha összetapadnak, akkor ez az energia a tömegszámmal kell arányos legyen
 
 \vspace{5mm}
 
@@ -376,7 +377,7 @@ E [A MeV] & b [GeV/c] & a [GeV/c] & $\Delta$b [GeV/c] & $\Delta$a [Gev/c] \\
 
 \vspace{5mm}
 
-\par A FOPI-nál $150, 250$ és $400 A MeV$-en végeztek méréseket és modellezték azokat. Az eredményeik között multiplicitáseloszlást vizsgáltak, nagyon kis renszámú magok energiáit ($ Z = 1,2$), a kirepülő fragmentumok szögeloszlását, energiaeloszlását, valamint különböző polárszögeknél tömegszám szerinti eloszlásokat is, hogy ezekből jóslást tudjanak adni az ütközés dinamikájára. Ezen kívül vizsgáltak még a kirepülő klaszterek kémiai összetételét is. 
+\par A FOPI-nál $150, 250$ és $400 A MeV$-en végeztek méréseket és modellezték azokat. Az eredményeik között multiplicitáseloszlást vizsgáltak, nagyon kis rendszámú magok energiáit ($ Z = 1,2$), a kirepülő fragmentumok szögeloszlását, energiaeloszlását, valamint különböző polárszögeknél tömegszám szerinti eloszlásokat is, hogy ezekből jóslást tudjanak adni az ütközés dinamikájára. Ezen kívül vizsgáltak még a kirepülő klaszterek kémiai összetételét is. 
 
 \newpage
 
@@ -392,7 +393,7 @@ E [A MeV] & b [GeV/c] & a [GeV/c] & $\Delta$b [GeV/c] & $\Delta$a [Gev/c] \\
 
 \vspace{5mm}
 
-\par Az alábbi ábrán jól látható, hogy az érdekes tartomány, ahol kirtelen elkezd leesni a klaszterek száma $(0.03 - 0.09) ~GeV/c$ környékén keresendő. Fontos megjegyezni, hogy egy részecske, akkor tekinthető a klaszter elemének, ha valamely eleméhez $p_{0}$-nál közelebb van. Ez a BFS klaszterezésből egyértelműen következik. 
+\par Az alábbi ábrán jól látható, hogy az érdekes tartomány, ahol hirtelen elkezd leesni a klaszterek száma $(0.03 - 0.09) ~GeV/c$ környékén keresendő. Fontos megjegyezni, hogy egy részecske, akkor tekinthető a klaszter elemének, ha valamely eleméhez $p_{0}$-nál közelebb van. Ez a BFS klaszterezésből egyértelműen következik. 
 
 \vspace{5mm}
 
@@ -422,7 +423,7 @@ E [A MeV] & b [GeV/c] & a [GeV/c] & $\Delta$b [GeV/c] & $\Delta$a [Gev/c] \\
 
 \vspace{5mm}
 
-\par A FOPI által vizsgált $Z \in [0;15]$ az én statisztikáimban nem túl jó, hiszen én sokkal kisebb (1000-2000) körüli esemányszámmal dolgozom, míg náluk volt másodikpercenként $10^{5}$ nehézion ütközés, melynek $1\%$-át centrálisnak becsülték, azaz másodikpercenként kaptam annyi adatot, mint amennyit én használtam. Azonban az én ütközéseim a szimuláció miatt biztosan centrálisak, ők viszont csak az $ERAT$ paraméterrel tudták a legbiztosabban besorolni az ütközéseket.
+\par A FOPI által vizsgált $Z \in [0;15]$ az én statisztikáimban nem túl jó, hiszen én sokkal kisebb (1000-2000) körüli eseményszámmal dolgozom, míg náluk volt másod percenként $10^{5}$ nehézion ütközés, melynek $1\%$-át centrálisnak becsülték, azaz másodpercenként kaptam annyi adatot, mint amennyit én használtam. Azonban az én ütközéseim a szimuláció miatt biztosan centrálisak, ők viszont csak az $ERAT$ paraméterrel tudták a legbiztosabban besorolni az ütközéseket.
 
 \vspace{5mm}
 
@@ -466,7 +467,7 @@ E [A MeV] & b [GeV/c] & a [GeV/c] & $\Delta$b [GeV/c] & $\Delta$a [Gev/c] \\
 
 \vspace{5mm}
 
-\par Először ábárzoltam a multiplicitásokat, azonos klaszterező paraméter mellett, ez természtesen az előbb meghatározott $p_{0} = 60 ~Mev/C$, különböző ütközési energiákon. A legkisebb magokat kivéve $Z = 0, 1, 2, 3$ az adatsorból, a rendszám-multiplicitás párokra egy exponenciális függvényt illesztettem
+\par Először ábrázoltam a multiplicitásokat, azonos klaszterező paraméter mellett, ez természetesen az előbb meghatározott $p_{0} = 60 ~Mev/C$, különböző ütközési energiákon. A legkisebb magokat kivéve $Z = 0, 1, 2, 3$ az adatsorból, a rendszám-multiplicitás párokra egy exponenciális függvényt illesztettem
 
 \vspace{5mm}
 
@@ -495,12 +496,12 @@ E [A MeV] & N & $\lambda$ & $\Delta$N & $\Delta\lambda$ \\
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=0.75\textwidth]{./p006_250_400_fit.png}
-\caption{150, 250 és 400 A MeV-en vett klaszterezésekre illesztett exponenciális függvények az adatosorokon, a $\lambda$ paraméter fel van tüntetve az illesztett függvényeken, $t_{\text{szimuláció}} = 60 ~fm/c$}
+\caption{150, 250 és 400 A MeV-en vett klaszterezésekre illesztett exponenciális függvények az adatsorokon, a $\lambda$ paraméter fel van tüntetve az illesztett függvényeken, $t_{\text{szimuláció}} = 60 ~fm/c$}
 \end{figure}
 
 \vspace{5mm}
 
-\par Az illesztés csak $Z = 12$-ig megy, mivel ekkor tudtam a legszebb illsztést produkálni. A kisebb magok között és a nagyobb magok között is, nálam lehetnek számottevően neutrontöbbletes magok, melyeket én nem zárok ki a koaleszcencia során. Ez okozhatja, hogy az illesztés csak viszonylag kis tartományra müködik jól.
+\par Az illesztés csak $Z = 12$-ig megy, mivel ekkor tudtam a legszebb illesztést produkálni. A kisebb magok között és a nagyobb magok között is, nálam lehetnek számottevően neutrontöbbletes magok, melyeket én nem zárok ki a koaleszcencia során. Ez okozhatja, hogy az illesztés csak viszonylag kis tartományra működik jól.
 
 \vspace{5mm}
 
@@ -542,11 +543,11 @@ E [A MeV] & N & $\lambda$ & $\Delta$N & $\Delta\lambda$ \\
 
 \vspace{5mm}
 
-\subsubsection{ Izotróp robbanás}
+\subsubsection{ Izotrop robbanás}
 
 \vspace{5mm}
 
-\par Ahogy már a Mérési adatok című fejezetben már beszéltem róla, egy izotróp robbanásként kezelhető az ütközés utáni folyamat, ahol minden nukleonra $\frac{3}{2}k_{B}T$ energia jut, így a koaleszcencia után egyértelműen a tömegszámmal arányos kinetikus energiát vártam. Ezt szemlélteti a három ábrám, különböző energiákon. A pontok az egyes klaszterek átlagos energiáit jelölik, míg a függőleges vonalak azok szórását. Az illesztési paramétereket utána prezentálom, a (\ref{blast-model})-as egyenlet alapján.
+\par Ahogy már a Mérési adatok című fejezetben már beszéltem róla, egy izotrop robbanásként kezelhető az ütközés utáni folyamat, ahol minden nukleonra $\frac{3}{2}k_{B}T$ energia jut, így a koaleszcencia után egyértelműen a tömegszámmal arányos kinetikus energiát vártam. Ezt szemlélteti a három ábrám, különböző energiákon. A pontok az egyes klaszterek átlagos energiáit jelölik, míg a függőleges vonalak azok szórását. Az illesztési paramétereket utána prezentálom, a (\ref{blast-model})-as egyenlet alapján.
 
 \vspace{5mm}
 
@@ -569,7 +570,7 @@ E [A MeV] & N & $\lambda$ & $\Delta$N & $\Delta\lambda$ \\
 \end{minipage}
 \end{figure}
 
-\par Az ábrák $\varphi \in [25^{\circ}; 45^{\circ}]$ polár-szöget közötti magokat ábrázolnak. A [hivatkozás] cikkben ugyanezek megtalálhatóak. Az illesztési adatok pedig a következőek:
+\par Az ábrák $\varphi \in [25^{\circ}; 45^{\circ}]$ polárszöget közötti magokat ábrázolnak. A [hivatkozás] cikkben ugyanezek megtalálhatóak. Az illesztési adatok pedig a következőek:
 
 \vspace{5mm}
 
@@ -589,13 +590,27 @@ E [A MeV] & b [GeV] & a [GeV] & $\Delta$b [GeV] & $\Delta$a [GeV] \\
 
 \vspace{5mm}
 
-\par Az $a$ paraméter értéke különösen érdekes. Míg $E = 150 ~A MeV$-nél közel visszakapjuk az egy nukleonra jutó kezdeti mozgási energiát ($\approx 148 ~MeV$) addig a nagyobb energiás esetekben már hibahatáron belül sem kapjuk ezeket vissza, azonban szigorúan monoton energiánövekedés megfigyelhető. Ennek oka az lehet, hogy (???)
+\par Az $a$ paraméter értéke különösen érdekes. Míg $E = 150 ~A MeV$-nél közel visszakapjuk az egy nukleonra jutó kezdeti mozgási energiát ($\approx 148 ~MeV$) addig a nagyobb energiás esetekben már hibahatáron belül sem kapjuk ezeket vissza, azonban szigorúan monoton energianövekedés megfigyelhető. Ennek oka az lehet, hogy (???)
  
 \vspace{5mm}
 
-\subsubsection{ Kis rendszámú magok kinetikus energiája}
+\subsubsection{ Kémia összetétel}
 
 \vspace{5mm}
+
+\par Különböző energiákon végzett klaszterezés után vizsgáltam a kirepülő fragmentumok kémiai összetételét. Ezeket a következő ábrán szemléltetem.
+
+\vspace{5mm}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=1\textwidth]{./chemical.png}
+\caption{Kémiai összetétel 150, 250 és 400 AMeV-en}
+\end{figure}
+
+\vspace{5mm}
+
+\par Jól látható, hogy a kis rendszámú magok aránya nagyon magas, de megfigyelhető $C, O, B, Be, Na, F$ is kis mennyiségben. Ezek mind a természetben megtalálható izotópok. A legkevesebb mag jól láthatóan $250 ~AMeV$ környékén jelent meg, a legtöbb pedig $150 ~AMeV$ környékén. Az utóbbi nem meglepő, hiszen kisebb energián kevésbé jelentős a teljes szétszóródás, viszont $400 ~AMeV$-en a magok változatosabbak. 
 
 \newpage
 
