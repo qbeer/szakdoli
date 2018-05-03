@@ -612,23 +612,25 @@ E [A MeV] & b [GeV] & a [GeV] & $\Delta$b [GeV] & $\Delta$a [GeV] \\
 
 \par Jól látható, hogy a kis rendszámú magok aránya nagyon magas, de megfigyelhető $C, O, B, Be, Na, F$ is kis mennyiségben. Ezek mind a természetben megtalálható izotópok. A várt módon egyre növekvő energián, egyre kevesebb mag alakul ki. A következő ábrákon külön külön is fel vannak tüntetve az egyes kémiai eloszlások.
 
+\vspace{5mm}
+
 \begin{figure}[H]
 \begin{minipage}{\textwidth}
 \centering
 \includegraphics[width=0.7\textwidth]{./chemical150.png}
-\caption{150 A MeV-en vett könnyű magok eloszlása, $\varphi \in [60^{\circ};90^{\circ}]$}
+\caption{150 A MeV-en vett könnyű magok eloszlása 4$\pi$ tartományra integrálva}
 \end{minipage}
 \end{figure}
 \begin{figure}[!htb]
 \begin{minipage}{\textwidth}
 \centering
 \includegraphics[width=0.7\textwidth]{./chemical250.png}
-\caption{250 A MeV-en vett könnyű magok eloszlása, $\varphi \in [60^{\circ};90^{\circ}]$}
+\caption{250 A MeV-en vett könnyű magok eloszlása 4$\pi$ tartományra integrálva}
 \end{minipage}
 \begin{minipage}{\textwidth}
 \centering
 \includegraphics[width=0.7\textwidth]{./chemical400.png}
-\caption{400 A MeV-en vett könnyű magok eloszlása, $\varphi \in [60^{\circ};90^{\circ}]$}
+\caption{400 A MeV-en vett könnyű magok eloszlása 4$\pi$ tartományra integrálva}
 \end{minipage}
 \end{figure}
 
@@ -636,7 +638,7 @@ E [A MeV] & b [GeV] & a [GeV] & $\Delta$b [GeV] & $\Delta$a [GeV] \\
 
 \vspace{5mm}
 
-\par Most, hogy meghatároztam a klaszterek között a valós magukat érdemes a korábbi illesztést újra elvégezni,hogy ténylegesen össze tudjam hasonlítani a $FOPI$ által közölt adatokkal. Véve a közepes magokat és kihagyva a könnyű magokat és a $^{8}Be$-at, hiszen az nagyon hamar két $\alpha$-részecskére bomlik mielőtt ténylegesen elérné a detektort. Tehát ismét $M = N\cdot e^{-\lambda Z}$ illesztést végzek Z $\in$ [3] $\cup$ [5,12] tartományon. Hiszen a $Li$-magok nagy mennyiségben elérik a detektort. A könnyű magokat $Z = 0, 1, 2$ az \cite{REISDORF1997493}-höz hasonlóan kihagytam. 
+\par Most, hogy meghatároztam a klaszterek között a valós magokat érdemes a korábbi illesztést újra elvégezni,hogy ténylegesen össze tudjam hasonlítani a $FOPI$ által közölt adatokkal. Véve a közepes magokat és kihagyva a könnyű magokat és a $^{8}Be$-at, hiszen az nagyon hamar két $\alpha$-részecskére bomlik mielőtt ténylegesen elérné a detektort. Tehát ismét $M = N\cdot e^{-\lambda Z}$ illesztést végzek Z $\in$ [3] $\cup$ [5,12] tartományon. Hiszen a $Li$-magok nagy mennyiségben elérik a detektort. A könnyű magokat $Z = 0, 1, 2$ az \cite{REISDORF1997493}-höz hasonlóan kihagytam. 
 
 \vspace{5mm}
 
@@ -682,11 +684,44 @@ E [AMeV] & $\lambda_{\text{saját}}$ & $\lambda_{FOPI}$ \\
 
 \vspace{5mm}
 
-\par Látható, hogy az illesztett görbék a nagyobb közepes magokra már nem jól illeszkednek. Vizsgálva, hogy ez hogyan függ $p_{0}$ értékétől el kellett végeznem ugyanezeket az illesztéseket, $p_{0}$ különböző értékérire. Míg korábban önkényesen $p_{0} = 60 ~MeV/c$-t vettem klaszterező paraméternek, most megpróbáltam megkeresni azt a klaszterező paramétert ami a legjobban illeszkedik a mérési adatokra. 
+\par Látható, hogy az illesztett görbék a nagyobb közepes magokra már nem jól illeszkednek. Vizsgálva, hogy ez hogyan függ $p_{0}$ értékétől el kellett végeznem ugyanezeket az illesztéseket, $p_{0}$ különböző értékérire. Míg korábban önkényesen $p_{0} = 60 ~MeV/c$-t vettem klaszterező paraméternek, most megpróbáltam megkeresni azt a klaszterező paramétert ami a legjobban illeszkedik a mérési adatokra. Jól látható továbbá az is, hogy a valós magokra való szűrés milyen nagy mértékben javította a korábbi illesztési adatokat. 
 
 \vspace{5mm}
 
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+E [AMeV] & $\lambda_{\text{saját}}$ & $\lambda_{\text{saját}}$ & $\lambda_{\text{saját}}$& $\lambda_{FOPI}$\\
+\hline
+150 & (1.001 $\pm$ 0.065)&(0.697 $\pm$ 0.022) & (0.795 $\pm$ 0.030) &(0.625 $\pm$ 0.010)\\
+\hline
+250  & (1.281 $\pm$ 0.018)&(0.883 $\pm$ 0.026) & (0.759 $\pm$ 0.026) &(0.908 $\pm$ 0.012)\\
+\hline
+400 & - &(1.543 $\pm$ 0.046) & (0.990 $\pm$ 0.014) &(1.170 $\pm$ 0.018) \\
+\hline
+- & $p_{0} = 50 ~MeV/c$ & $p_{0} = 60 ~MeV/c$&  $p_{0} = 70 ~MeV/c$  & - \\
+\hline
+\end{tabular}
+\end{center}
 
+\vspace{5mm}
+
+\par $p_{0} = 50 ~MeV/c$-nél nem volt elég pont a függvényillesztéshez így az üresen maradt. Ezek az adatok jól szemléltetik, hogy a legtöbb magot létrehozó $p_{0}$ paraméter illeszkedik legjobban a mért adatokra. A legnagyobb energiás adat kiugró, ennek okát még keresni kell.
+
+\vspace{5mm}
+
+\begin{figure}[H]
+\begin{minipage}{\textwidth}
+\centering
+\includegraphics[width=0.7\textwidth]{./chemical_005.png}
+\caption{$p_{0} = 50 ~MeV/c$ - kémiai eloszlás: a korábbihoz képest drasztikusan lecsökkent az összes klaszterek száma}
+\end{minipage}
+\begin{minipage}{\textwidth}
+\centering
+\includegraphics[width=0.7\textwidth]{./chemical_007.png}
+\caption{$p_{0} = 70 ~MeV/c$ - kémiai eloszlás: kis energián sok különböző magot kaptam, viszont multiplicitásuk elenyésző}
+\end{minipage}
+\end{figure}
 
 \newpage
 
