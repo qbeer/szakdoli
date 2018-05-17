@@ -119,7 +119,7 @@ ahol N a részecskék száma, míg $f(\vec{q}, \vec{p}, t)$ a fázistérben vett
 
 \vspace{5mm}
 
-\par Ez még természetesen csak az alapvető fizikai modell, a transzport-modellhez az úgynevezett Boltzmann-Uehling-Uhlenbeck \cite{} egyenleteket használják. Tehát az előbbi egyenletbe bevezetnek egy impulzusfüggő átlagteret $U(\vec{q}, \vec{p})$. Alacsony energiákon a rugalmatlan ütközések elhanyagolhatóak, a rendszer csak nukleonokból áll. 
+\par Ez még természetesen csak az alapvető fizikai modell, a transzport-modellhez az úgynevezett Boltzmann-Uehling-Uhlenbeck \cite{buu} egyenleteket használják. Tehát az előbbi egyenletbe bevezetnek egy impulzusfüggő átlagteret $U(\vec{q}, \vec{p})$. Alacsony energiákon a rugalmatlan ütközések elhanyagolhatóak, a rendszer csak nukleonokból áll. 
 
 \vspace{5mm}
 	
@@ -166,7 +166,7 @@ I_{coll} = \frac{g}{(2\pi)^{3}}\int d^{3}p_{2}\int d^{3}p_{3}\int \Omega_{4}v_{1
 
 \vspace{5mm}
 
-\par A témavezetőm szimulációs kódja a szokásos módszerrel áll neki ennek az integro-differenciál egyenlet megoldásának. A folytonos eloszlásfüggvény helyettesíthető véges számú pontrészecskékkel, matematikailag Dirac-delta disztribúciókkal. A fluktuációk simítása érdekében $N$ párhuzamos eseményt vizsgálva az eloszlás függvény $A$ nukleonra:
+\par A témavezetőm szimulációs kódja \cite{wolf3, wolf2} a szokásos módszerrel áll neki ennek az integro-differenciál egyenlet megoldásának. A folytonos eloszlásfüggvény helyettesíthető véges számú pontrészecskékkel, matematikailag Dirac-delta disztribúciókkal. A fluktuációk simítása érdekében $N$ párhuzamos eseményt vizsgálva az eloszlás függvény $A$ nukleonra:
 
 \vspace{5mm}
 
@@ -237,9 +237,9 @@ I_{coll} = \frac{g}{(2\pi)^{3}}\int d^{3}p_{2}\int d^{3}p_{3}\int \Omega_{4}v_{1
 
 \vspace{5mm}
 
-\subsection{ Szélességi bejárás - Breadth First Traversal (BFS)}
+\subsection{ Szélességi bejárás - Breadth-first Search (BFS)}
 
-\par A szélességi bejárás egy jól ismert gráf algoritmus az informatikában. Az algoritmus lényege, hogy egy gráfban adott tulajdonságú pontot keresve kiválogassa azt, biztosítva, hogy minden csúcsot leellenőrzött. Én nem egészen erre használom, mivel nekem klaszterezésre van szükségem, tehát nem adott tulajdonság alapján kell kiválogatnom csúcsokat, hanem egy nem összefüggő gráfot kellett darabjaira szétszednem.
+\par A szélességi bejárás egy jól ismert gráf algoritmus az informatikában \cite{bfs}. Az algoritmus lényege, hogy egy gráfban adott tulajdonságú pontot keresve kiválogassa azt, biztosítva, hogy minden csúcsot leellenőrzött. Én nem egészen erre használom, mivel nekem klaszterezésre van szükségem, tehát nem adott tulajdonság alapján kell kiválogatnom csúcsokat, hanem egy nem összefüggő gráfot kellett darabjaira szétszednem.
 
 \vspace{5mm}
 
@@ -385,7 +385,7 @@ E [A MeV] & b [GeV] & a [GeV] & $\Delta$b [GeV] & $\Delta$a [Gev] \\
 
 \vspace{5mm}
 
-\subsection{Klaszterező paraméter}
+\subsection{ Klaszterező paraméter}
 
 \vspace{5mm}
 
@@ -636,7 +636,7 @@ E [A MeV] & b [GeV] & a [GeV] & $\Delta$b [GeV] & $\Delta$a [GeV] \\
 \end{minipage}
 \end{figure}
 
-\section{Eredmények összehasonlítása}
+\section{ Eredmények összehasonlítása}
 
 \vspace{5mm}
 
@@ -731,11 +731,15 @@ E [AMeV] & $\lambda_{\text{saját}}$ & $\lambda_{\text{saját}}$ & $\lambda_{\te
 
 \vspace{5mm}
 
-\section{Összegzés}
+\section{ Összegzés}
 
 \vspace{5mm}
 
-\par A koaleszcencia modell kidolgozása során megismerkedtem rengeteg mostani kutatással, amely e témában tevékenykedik és az eredményeikkel összehasonlítható és mérési eredményekre részben illeszkedő rutint dolgoztam ki. Ez a későbbiekben használható lesz a témavezetőm által kidolgozott szimulációs kód részeként is. 
+\par A koaleszcencia modell kidolgozása során megismerkedtem rengeteg mostani kutatással, amely e témában tevékenykedik és az eredményeikkel összehasonlítható és mérési eredményekre részben illeszkedő rutint dolgoztam ki. Ez a későbbiekben használható lesz a témavezetőm által kidolgozott szimulációs kód részeként is.
+\vspace{2mm} 
+\par Az eredményeim közé tartozik, hogy egy a FOPI mérésekkel részben összehasonlítható algoritmust hoztam létre, amely során vizsgáltam a koaleszcencia modell helyességét már meglévő adatokon kvalitatíve és kvantitatíve. Az összehasonlítás természetesen nem teljesen pontos, hiszen a FOPI az ERAT mennyiséget választotta az események szortírozására, míg én csak centrális eseményekkel dolgoztam.
+\vspace{2mm}
+\par A kezdeti célkitűzéseimet elértem, hiszen képes voltam reprodukálni az alacsonyabb energiákon (150 AMeV, 250 AMeV) hibahatáron belül a mért eredményeket, valamint a jobb átláthatóság végett a korábbi mérések mintájára készítettem el az ábráimat, illesztéseimet.
 
 \newpage
 
