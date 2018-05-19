@@ -1,0 +1,20 @@
+*a gráf minden elemén végigmegy
+* (15) előtt, jó indikátora lehet a blabla... De ha pontosan összehasonlítható kírésleti ereményeket akarunk, akkor is ezt a szűrést kell alkalmazni.
+* 10. oldal jósol (!) nem jósolnak
+* BUU-egyenlet az f vonásoknál jelenik meg, mármint azok definiálják lényegében
+* (15) alatti táblázathoz magyárazát '250 AMeV-r ezt a fittet kapjuk...'
+* (1. ábra) GeV/c helyett GeV, a 'hiba a statisztikus fluktuációk miatt van'
+* 11. oldal alul -> vizsgálták (!) nem vizsgáltak még
+* (2. ábra) feliratokat nagyobbra kéne venni
+* (3. ábra) -> 0.02-es lépésköz vízszintes tengelyen
+* 13. oldal kaptam helyett kaptak (!)
+* 'Au Au' feliratokhoz kötőjel -> 'Au-Au'
+* mutatja -> mutatják (16. oldal)
+* a részecskék átlagos számát (16. oldal)
+* (7-8-9. ábra) 1-es lépésköz A-ra
+* 18 -> már már már...
+* [hivatkozás ]-> [7]
+* az a paraméter értéke blabla -> nem kell hogy visszaaadja!
+* , hiszen a Li-magok ... egy mondat!
+* [5] -> akadémiai doktori értekezés
+* [4] -> kimaeóradt cím
