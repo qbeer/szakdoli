@@ -75,7 +75,7 @@
 
 \subsection{Bevezető}
 
-\par Egy nehézion ütközés, erősen nem egyensúlyi, erősen kölcsönható rendszer. A statisztikus fizikában $N > 10^{23}$ részecskére jól kidolgozott, statisztikus modell áll rendelkezésünkre, továbbá lehet magyarázni a néhány részecske rendszereket is, azonban például egy $Au+Au$ ütközésben a részecskék száma még és már nem kezelhető a korábbi modellekkel.
+\par Egy nehézion ütközés, erősen nem egyensúlyi, erősen kölcsönható rendszer. A statisztikus fizikában $N > 10^{23}$ részecskére jól kidolgozott, statisztikus modell áll rendelkezésünkre, továbbá lehet magyarázni a néhány részecske rendszereket is, azonban például egy $Au-Au$ ütközésben a részecskék száma még és már nem kezelhető a korábbi modellekkel.
 
 \vspace{5mm}
 
@@ -158,7 +158,7 @@ I_{coll} = \frac{g}{(2\pi)^{3}}\int d^{3}p_{2}\int d^{3}p_{3}\int \Omega_{4}v_{1
 
 \vspace{5mm}
 
-\par Ahol $\frac{d\sigma_{12 \rightarrow 34}}{d\Omega}$ a differenciális nukleon-nukleon hatáskeresztmetszet közegben, $v_{12}$ a nukleonok közötti relatív sebesség, valamint $\bar{f}$ függvény a Pauli-kizárási faktorok $1 - f$ módon állnak elő. Az integrál lényegében azt fejezi ki, hogy az $p_{1},p_{2}$ impulzusú nukleonok, ha ütköznek, akkor hogyan változhat meg az impulzusok $p_{3}, p_{4}$-re és fordítva. A harmadik, $d\Omega_{4}$-re vett integrál lényegében $d^{3}p_{4}d\Omega$ integrál, csak a differenciális hatáskeresztmetszet a szemléletes kép miatt le van választva.
+\par Ahol $\frac{d\sigma_{12 \rightarrow 34}}{d\Omega}$ a differenciális nukleon-nukleon hatáskeresztmetszet közegben, $v_{12}$ a nukleonok közötti relatív sebesség, valamint $\bar{f}$ függvény a Pauli-kizárási faktorok $1 - f$ módon állnak elő és ezek miatt hívjuk az egyenletet BUU-egyenletnek. Az integrál lényegében azt fejezi ki, hogy az $p_{1},p_{2}$ impulzusú nukleonok, ha ütköznek, akkor hogyan változhat meg az impulzusok $p_{3}, p_{4}$-re és fordítva. A harmadik, $d\Omega_{4}$-re vett integrál lényegében $d^{3}p_{4}d\Omega$ integrál, csak a differenciális hatáskeresztmetszet a szemléletes kép miatt le van választva.
 
 \vspace{5mm}
 
@@ -166,7 +166,7 @@ I_{coll} = \frac{g}{(2\pi)^{3}}\int d^{3}p_{2}\int d^{3}p_{3}\int \Omega_{4}v_{1
 
 \vspace{5mm}
 
-\par A témavezetőm szimulációs kódja \cite{wolf3, wolf2} a szokásos módszerrel áll neki ennek az integro-differenciál egyenlet megoldásának. A folytonos eloszlásfüggvény helyettesíthető véges számú pontrészecskékkel, matematikailag Dirac-delta disztribúciókkal. A fluktuációk simítása érdekében $N$ párhuzamos eseményt vizsgálva az eloszlás függvény $A$ nukleonra:
+\par A témavezetőm szimulációs kódja \cite{wolf2, wolf3} a szokásos módszerrel áll neki ennek az integro-differenciál egyenlet megoldásának. A folytonos eloszlásfüggvény helyettesíthető véges számú pontrészecskékkel, matematikailag Dirac-delta disztribúciókkal. A fluktuációk simítása érdekében $N$ párhuzamos eseményt vizsgálva az eloszlás függvény $A$ nukleonra:
 
 \vspace{5mm}
 
@@ -243,7 +243,7 @@ I_{coll} = \frac{g}{(2\pi)^{3}}\int d^{3}p_{2}\int d^{3}p_{3}\int \Omega_{4}v_{1
 
 \vspace{5mm}
 
-\par Így az algoritmust kicsit módosítanom kellett. Hasznos tulajdonságai közé tartozik, hogy gyors, és biztosítja, hogy minden elemén a gráfnak végigmegy. Így tehát addig kell ismételgetnem az algoritmust egy nem összefüggő gráfon míg annak vannak csúcsai összefüggő részgráfokban. 
+\par Így az algoritmust kicsit módosítanom kellett. Hasznos tulajdonságai közé tartozik, hogy gyors, és biztosítja, hogy a gráf minden elemén végigmegy. Így tehát addig kell ismételgetnem az algoritmust egy nem összefüggő gráfon míg annak vannak csúcsai összefüggő részgráfokban. 
 
 \vspace{5mm}
 
@@ -336,11 +336,11 @@ ERAT = \frac{E_{t}}{E_{l}} = \frac{\sum_{i} p_{t,i}^{2}/(m_{i} + E_{i})}{\sum_{i
 
 \vspace{5mm}
 
-\par ahol $l,t$ indexek longitudinális és transzverzális energiákra és impulzusokra vonatkoznak. Az ütközés $z$-irányú, az összegzés a létrejött magokra megy. Az elv az, hogy feltétezik, hogy transzverzális energia túlnyomó többségében nukleon-nukleon kölcsönhatásból származik, és akkor maximális ha az ütközésben résztvevő magok a lehető legjobban átfednek, azaz ha centrális az ütközés. Ezt a mennyiséget nekem nem volt célszerű használnom, hiszen a generált eseményeim mind centrálisak voltak. Azonban jó indikátora lehet általános ütközéseknél a centrális eseményeknek.
+\par ahol $l,t$ indexek longitudinális és transzverzális energiákra és impulzusokra vonatkoznak. Az ütközés $z$-irányú, az összegzés a létrejött magokra megy. Az elv az, hogy feltétezik, hogy transzverzális energia túlnyomó többségében nukleon-nukleon kölcsönhatásból származik, és akkor maximális ha az ütközésben résztvevő magok a lehető legjobban átfednek, azaz ha centrális az ütközés. Ezt a mennyiséget nekem nem volt célszerű használnom, hiszen a generált eseményeim mind centrálisak voltak. Azonban jó indikátora lehet általános ütközéseknél a centrális eseményeknek és ha pontos kísérleti összehasonlítást akarnánk végezni, akkor is ezt a szűrést kell alkalmazni.
 
 \vspace{5mm}
 
-\par Egy kizárólag termikus modell egy $T$ hőmérsékletű tágulás során tömegszám függvényében konstans energiát jósolnak ($\frac{3}{2}k_{B}T$), azonban, ha feltételezzük, hogy ütközés után egy izotrop robbanás megy végbe (az ősrobbanás analogonjára), akkor az egyes kirepülő nukleonoknak, egyenként van $\frac{3}{2}k_{B}T$ mozgási energiája, míg ha összetapadnak, akkor ez az energia a tömegszámmal kell arányos legyen
+\par Egy kizárólag termikus modell egy $T$ hőmérsékletű tágulás során tömegszám függvényében konstans energiát jósol ($\frac{3}{2}k_{B}T$), azonban, ha feltételezzük, hogy ütközés után egy izotrop robbanás megy végbe (az ősrobbanás analogonjára), akkor az egyes kirepülő nukleonoknak, egyenként van $\frac{3}{2}k_{B}T$ mozgási energiája, míg ha összetapadnak, akkor ez az energia a tömegszámmal kell arányos legyen
 
 \vspace{5mm}
 
@@ -351,7 +351,8 @@ ERAT = \frac{E_{t}}{E_{l}} = \frac{\sum_{i} p_{t,i}^{2}/(m_{i} + E_{i})}{\sum_{i
 
 \vspace{5mm}
 
-\begin{center}
+\begin{table}
+\centering
 \begin{tabular}{|c|c|c|c|c|}
 \hline
 E [A MeV] & b [GeV] & a [GeV] & $\Delta$b [GeV] & $\Delta$a [Gev] \\
@@ -359,14 +360,15 @@ E [A MeV] & b [GeV] & a [GeV] & $\Delta$b [GeV] & $\Delta$a [Gev] \\
 250 & 0.056 & 0.179 & 0.004 & 0.060 \\
 \hline
 \end{tabular}
-\end{center}
+\caption{$250 ~AMeV$-en, $p_{0} = 70 ~MeV/c$-nél kapott illesztési adatok}
+\end{table}
 
 \vspace{5mm}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{./60fmcAuAu250AMeV007mom.png}
-\caption{60 fm/c szimulációs idő, a vízszintes tengelyen a klaszterezett magok tömegszáma, míg a függőleges tengelyen a számolt mozgási energiájuk, $p_{0} = 70 ~MeV/c$ klaszterező paraméteren}
+\caption{60 fm/c szimulációs idő, a vízszintes tengelyen a klaszterezett magok tömegszáma, míg a függőleges tengelyen a számolt mozgási energiájuk, $p_{0} = 70 ~MeV/c$ klaszterező paraméteren, a hiba a statisztikus fluktuációkból származik}
 \end{figure}
 
 \vspace{5mm}
@@ -379,7 +381,7 @@ E [A MeV] & b [GeV] & a [GeV] & $\Delta$b [GeV] & $\Delta$a [Gev] \\
 
 \vspace{5mm}
 
-\par A FOPI-nál $150, 250$ és $400 ~A MeV$-en végeztek méréseket és modellezték azokat \cite{REISDORF1997493}. Az eredményeik között multiplicitáseloszlást vizsgáltak, nagyon kis rendszámú magok energiáit ($ Z = 1,2$), a kirepülő fragmentumok szögeloszlását, energiaeloszlását, valamint különböző polárszögeknél tömegszám szerinti eloszlásokat is, hogy ezekből jóslást tudjanak adni az ütközés dinamikájára. Ezen kívül vizsgáltak még a kirepülő klaszterek kémiai összetételét is. 
+\par A FOPI-nál $150, 250$ és $400 ~A MeV$-en végeztek méréseket és modellezték azokat \cite{REISDORF1997493}. Az eredményeik között multiplicitáseloszlást vizsgáltak, nagyon kis rendszámú magok energiáit ($ Z = 1,2$), a kirepülő fragmentumok szögeloszlását, energiaeloszlását, valamint különböző polárszögeknél tömegszám szerinti eloszlásokat is, hogy ezekből jóslást tudjanak adni az ütközés dinamikájára. Ezen kívül vizsgálták még a kirepülő klaszterek kémiai összetételét is. 
 
 \section{ Eredmények}
 
@@ -400,7 +402,7 @@ E [A MeV] & b [GeV] & a [GeV] & $\Delta$b [GeV] & $\Delta$a [Gev] \\
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{./klaszterszamparameter.png}
-\caption{250 A MeV-en, 2000 Au Au ütközésből készített klasztereken, különböző $p_{0}$ paraméterrel futtatott koaleszcencia}
+\caption{250 A MeV-en, 2000 $Au-Au$ ütközésből készített klasztereken, különböző $p_{0}$ paraméterrel futtatott koaleszcencia}
 \end{figure}
 
 \vspace{5mm}
@@ -416,14 +418,14 @@ E [A MeV] & b [GeV] & a [GeV] & $\Delta$b [GeV] & $\Delta$a [Gev] \\
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.85\textwidth]{./legjobb_p0.png}
-\caption{250 A MeV-en, 2000 Au Au ütközésből készített klasztereken, különböző $p_{0}$ paraméterrel futtatott koaleszcencia, jól látható, hogy a minimum $0.06 ~GeV/c$-nél van}
+\caption{250 A MeV-en, 2000 $Au-Au$ ütközésből készített klasztereken, különböző $p_{0}$ paraméterrel futtatott koaleszcencia, jól látható, hogy a minimum $0.06 ~GeV/c$-nél van}
 \end{figure}
 
 \subsection{ Közepes fragmentumok}
 
 \vspace{5mm}
 
-\par A FOPI által vizsgált $Z \in [0;12]$ az én statisztikáimban nem túl jó, hiszen én sokkal kisebb (1000-2000) körüli eseményszámmal dolgozom, míg náluk volt másod percenként $10^{5}$ nehézion ütközés, melynek $1\%$-át centrálisnak becsülték, azaz másodpercenként kaptam annyi adatot, mint amennyit én használtam. Azonban az én ütközéseim a szimuláció miatt biztosan centrálisak, ők viszont csak az $ERAT$ paraméterrel tudták a legbiztosabban besorolni az ütközéseket.
+\par A FOPI által vizsgált $Z \in [0;12]$ az én statisztikáimban nem túl jó, hiszen én sokkal kisebb (1000-2000) körüli eseményszámmal dolgozom, míg náluk volt másod percenként $10^{5}$ nehézion ütközés, melynek $1\%$-át centrálisnak becsülték, azaz másodpercenként kaptak annyi adatot, mint amennyit én használtam. Azonban az én ütközéseim a szimuláció miatt biztosan centrálisak, ők viszont csak az $ERAT$ paraméterrel tudták a legbiztosabban besorolni az ütközéseket.
 
 \vspace{5mm}
 
@@ -431,14 +433,14 @@ E [A MeV] & b [GeV] & a [GeV] & $\Delta$b [GeV] & $\Delta$a [Gev] \\
 
 \vspace{5mm}
 
-\par A lenti ábrán jól látható, hogy ugyan azon az Au-Au ütközésen, különböző $p_{0}$ mellett futtatott klaszterezések során nincs $Z = 5$-nél nagyobb rendszámú mag, amely minden futtatás után biztosan jelen van. Látszik az is, hogy a klaszterek száma egyre jobban szór $Z$ növekedtével, azaz lényegében látszik, hogy a nagyobb magok kialakulása centrális ütközésekben egyre valószínűtlenebb.
+\par A lenti ábrán jól látható, hogy ugyan azon az $Au-Au$ ütközésen, különböző $p_{0}$ mellett futtatott klaszterezések során nincs $Z = 5$-nél nagyobb rendszámú mag, amely minden futtatás után biztosan jelen van. Látszik az is, hogy a klaszterek száma egyre jobban szór $Z$ növekedtével, azaz lényegében látszik, hogy a nagyobb magok kialakulása centrális ütközésekben egyre valószínűtlenebb.
 
 \vspace{5mm}
 
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=0.75\textwidth]{./p0valtozik_klaszterek.png}
-\caption{250 A MeV-en, 2000 Au-Au ütközésből készített klasztereken, $p_{0} = (30 - 90) ~MeV/c$ paraméterrel futtatott koaleszcencia}
+\caption{250 A MeV-en, 2000 $Au-Au$ ütközésből készített klasztereken, $p_{0} = (30 - 90) ~MeV/c$ paraméterrel futtatott koaleszcencia}
 \end{figure}
 
 \vspace{5mm}
@@ -454,7 +456,7 @@ E [A MeV] & b [GeV] & a [GeV] & $\Delta$b [GeV] & $\Delta$a [Gev] \\
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=0.8\textwidth]{./p0allando_kulonbozoRandom.png}
-\caption{400 A MeV-en, 5*200 Au Au ütközésből készített klasztereken, $p_{0} = 60 ~MeV/c$ paraméterrel futtatott koaleszcencia, látható egy (csillag) ütközésre vett klaszterek eloszlása és 5 esemény összeátlagolva (négyzet)}
+\caption{400 A MeV-en, 5*200 $Au-Au$ ütközésből készített klasztereken, $p_{0} = 60 ~MeV/c$ paraméterrel futtatott koaleszcencia, látható egy (csillag) ütközésre vett klaszterek eloszlása és 5 esemény összeátlagolva (négyzet)}
 \end{figure}
 
 \vspace{5mm}
@@ -513,7 +515,7 @@ E [A MeV] & N & $\lambda$ & $\Delta$N & $\Delta\lambda$ \\
 
 \vspace{5mm}
 
-\par A következő ábrák adott ütközésen belül keletkezett összes $Z = 1, 2$ magok eloszlását mutatja. Az ábrákon jelöltem adott energián az átlagos számát a részecskéknek és azok szórását is. Csak $\varphi \in [60^{\circ};90^{\circ}]$ polárszög közötti részecskéket vettem figyelembe, hogy összevethető legyen a munkám a \cite{REISDORF1997493}-ben szereplő adatokkal és ábrákkal.
+\par A következő ábrák adott ütközésen belül keletkezett összes $Z = 1, 2$ magok eloszlását mutatják. Az ábrákon jelöltem adott energián a részecskék átlagos számát és azok szórását is. Csak $\varphi \in [60^{\circ};90^{\circ}]$ polárszög közötti részecskéket vettem figyelembe, hogy összevethető legyen a munkám a \cite{REISDORF1997493}-ben szereplő adatokkal és ábrákkal.
 
 \vspace{5mm}
 
@@ -531,25 +533,25 @@ E [A MeV] & N & $\lambda$ & $\Delta$N & $\Delta\lambda$ \\
 \begin{figure}[H]
 \begin{minipage}{\textwidth}
 \centering
-\includegraphics[width=0.67\textwidth]{./konnyu_magok_250AMeV.png}
+\includegraphics[width=0.67\textwidth]{./konnyu_magok_250AMeVupdate.png}
 \caption{250 A MeV-en vett könnyű magok eloszlása, $\varphi \in [60^{\circ};90^{\circ}]$}
 \end{minipage}
 \end{figure}
 \begin{figure}[H]
 \begin{minipage}{\textwidth}
 \centering
-\includegraphics[width=0.77\textwidth]{./konnyu_magok_400AMeV.png}
+\includegraphics[width=0.77\textwidth]{./konnyu_magok_400AMeVupdate.png}
 \caption{400 A MeV-en vett könnyű magok eloszlása, $\varphi \in [60^{\circ};90^{\circ}]$}
 \end{minipage}
 \end{figure}
 
-\vspace{65mm}
+\vspace{35mm}
 
 \subsubsection{ Izotrop robbanás}
 
 \vspace{5mm}
 
-\par Ahogy már a Mérési adatok című fejezetben már beszéltem róla, egy izotrop robbanásként kezelhető az ütközés utáni folyamat, ahol minden nukleonra $\frac{3}{2}k_{B}T$ energia jut, így a koaleszcencia után egyértelműen a tömegszámmal arányos kinetikus energiát vártam. Ezt szemlélteti a három ábrám, különböző energiákon. A pontok az egyes klaszterek átlagos energiáit jelölik, míg a függőleges vonalak azok szórását. Az illesztési paramétereket utána prezentálom, a (\ref{blast-model})-as egyenlet alapján.
+\par Ahogy a Mérési adatok című fejezetben korábban beszéltem róla, egy izotrop robbanásként kezelhető az ütközés utáni folyamat, ahol minden nukleonra $\frac{3}{2}k_{B}T$ energia jut, így a koaleszcencia után egyértelműen a tömegszámmal arányos kinetikus energiát vártam. Ezt szemlélteti a három ábrám, különböző energiákon. A pontok az egyes klaszterek átlagos energiáit jelölik, míg a függőleges vonalak azok szórását. Az illesztési paramétereket utána prezentálom, a (\ref{blast-model})-as egyenlet alapján.
 
 \vspace{5mm}
 
@@ -572,7 +574,7 @@ E [A MeV] & N & $\lambda$ & $\Delta$N & $\Delta\lambda$ \\
 \end{minipage}
 \end{figure}
 
-\par Az ábrák $\varphi \in [25^{\circ}; 45^{\circ}]$ polárszöget közötti magokat ábrázolnak. A [hivatkozás] cikkben ugyanezek megtalálhatóak. Az illesztési adatok pedig a következőek:
+\par Az ábrák $\varphi \in [25^{\circ}; 45^{\circ}]$ polárszöget közötti magokat ábrázolnak. A \cite{REISDORF1997493} cikkben ugyanezek megtalálhatóak. Az illesztési adatok pedig a következőek:
 
 \vspace{5mm}
 
@@ -592,7 +594,7 @@ E [A MeV] & b [GeV] & a [GeV] & $\Delta$b [GeV] & $\Delta$a [GeV] \\
 
 \vspace{5mm}
 
-\par Az $a$ paraméter értéke különösen érdekes. Míg $E = 150 ~A MeV$-nél közel visszakapjuk az egy nukleonra jutó kezdeti mozgási energiát ($\approx 148 ~MeV$) addig a nagyobb energiás esetekben már hibahatáron belül sem kapjuk ezeket vissza, azonban szigorúan monoton energianövekedés megfigyelhető. 
+\par Az $a$ paraméter értékére $E = 150 ~A MeV$-nél közel  az egy nukleonra jutó kezdeti mozgási energiát ($\approx 148 ~MeV$) kapjuk, addig a nagyobb energiás esetekben már hibahatáron belül sem kapjuk ezeket vissza, azonban szigorúan monoton energianövekedés megfigyelhető. 
  
 \vspace{5mm}
 
@@ -640,7 +642,7 @@ E [A MeV] & b [GeV] & a [GeV] & $\Delta$b [GeV] & $\Delta$a [GeV] \\
 
 \vspace{5mm}
 
-\par Most, hogy meghatároztam a klaszterek között a valós magokat érdemes a korábbi illesztést újra elvégezni,hogy ténylegesen össze tudjam hasonlítani a $FOPI$ által közölt adatokkal. Véve a közepes magokat és kihagyva a könnyű magokat és a $^{8}Be$-at, hiszen az nagyon hamar két $\alpha$-részecskére bomlik mielőtt ténylegesen elérné a detektort. Tehát ismét $M = N\cdot e^{-\lambda Z}$ illesztést végzek Z $\in$ [3] $\cup$ [5,12] tartományon. Hiszen a $Li$-magok nagy mennyiségben elérik a detektort. A könnyű magokat $Z = 0, 1, 2$ az \cite{REISDORF1997493}-höz hasonlóan kihagytam. 
+\par Most, hogy meghatároztam a klaszterek között a valós magokat érdemes a korábbi illesztést újra elvégezni,hogy ténylegesen össze tudjam hasonlítani a $FOPI$ által közölt adatokkal. Véve a közepes magokat és kihagyva a könnyű magokat és a $^{8}Be$-at, hiszen az nagyon hamar két $\alpha$-részecskére bomlik mielőtt ténylegesen elérné a detektort. Tehát ismét $M = N\cdot e^{-\lambda Z}$ illesztést végzek Z $\in$ [3] $\cup$ [5,12] tartományon, hiszen a $Li$-magok nagy mennyiségben elérik a detektort. A könnyű magokat $Z = 0, 1, 2$ az \cite{REISDORF1997493}-höz hasonlóan kihagytam. 
 
 \vspace{5mm}
 
@@ -743,7 +745,7 @@ E [AMeV] & $\lambda_{\text{saját}}$ & $\lambda_{\text{saját}}$ & $\lambda_{\te
 
 \newpage
 
-\bibliographystyle{plain}
+\bibliographystyle{unsrt}
 
 \bibliography{references}
 
